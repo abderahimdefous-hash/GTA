@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Solana - Site Solana</title>
+    <title>Dark Solana - Plateforme de Paiement</title>
     <style>
         * {
             margin: 0;
@@ -12,14 +12,13 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
             color: #e0e6ff;
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Animated background */
         .stars {
             position: fixed;
             width: 100%;
@@ -41,7 +40,6 @@
             50% { opacity: 0.8; }
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -54,12 +52,6 @@
             background: rgba(10, 14, 39, 0.7);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(153, 69, 255, 0.1);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
         }
 
         .close-btn {
@@ -75,30 +67,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 300;
         }
 
         .close-btn:hover {
             background: rgba(100, 100, 130, 0.6);
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .header-center {
             font-size: 22px;
             font-weight: 600;
             color: white;
-            letter-spacing: 0.5px;
         }
 
         .header-right {
             display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .header-icons {
-            display: flex;
             gap: 12px;
+            align-items: center;
         }
 
         .btn-icon {
@@ -130,45 +114,31 @@
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
-            transition: all 0.3s;
         }
 
-        .profile-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(153, 69, 255, 0.4);
-        }
-
-        /* Welcome Section */
-        .welcome-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .page {
+            display: none;
+            padding: 100px 20px 40px;
             min-height: 100vh;
             text-align: center;
-            padding: 80px 20px 20px;
-            opacity: 1;
-            transition: opacity 0.5s ease;
+            animation: fadeIn 0.5s ease;
         }
 
-        .welcome-section.hidden {
-            opacity: 0;
-            display: none;
+        .page.active {
+            display: block;
         }
 
-        .welcome-content {
-            animation: slideInUp 0.8s ease;
-            max-width: 700px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Welcome Page */
+        .welcome-page {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .brand-header {
@@ -176,16 +146,9 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             font-size: 15px;
             color: #a8b4ff;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-
-        .brand-icon {
-            font-size: 20px;
-            color: #00d4ff;
         }
 
         h1 {
@@ -193,8 +156,6 @@
             margin-bottom: 20px;
             font-weight: 700;
             color: white;
-            line-height: 1.2;
-            letter-spacing: -1px;
         }
 
         .welcome-subtitle {
@@ -203,8 +164,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 35px;
-            font-weight: 700;
+            margin-bottom: 30px;
         }
 
         .welcome-text {
@@ -212,7 +172,6 @@
             color: #a8b4ff;
             margin-bottom: 50px;
             line-height: 1.7;
-            letter-spacing: 0.3px;
         }
 
         .btn-primary {
@@ -224,10 +183,8 @@
             cursor: pointer;
             color: white;
             font-weight: 700;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             box-shadow: 0 10px 30px rgba(153, 69, 255, 0.35);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .btn-primary:hover {
@@ -235,11 +192,6 @@
             box-shadow: 0 15px 40px rgba(153, 69, 255, 0.5);
         }
 
-        .btn-primary:active {
-            transform: translateY(-2px);
-        }
-
-        /* Features Section */
         .features {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -250,130 +202,122 @@
             margin-right: auto;
         }
 
-        .feature {
-            text-align: center;
-        }
-
         .feature-title {
             font-size: 42px;
             color: #9945ff;
             font-weight: 800;
             margin-bottom: 12px;
-            letter-spacing: -0.5px;
         }
 
         .feature-subtitle {
             font-size: 15px;
             color: #a8b4ff;
-            font-weight: 500;
-            letter-spacing: 0.3px;
         }
 
-        /* Products Section */
-        .products-section {
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            display: none;
-            padding: 100px 20px 60px;
-            min-height: 100vh;
-        }
-
-        .products-section.active {
-            opacity: 1;
-            display: block;
-        }
-
-        .products-header {
-            text-align: center;
-            margin-bottom: 80px;
-            animation: slideInUp 0.8s ease;
-        }
-
-        .products-header h2 {
-            font-size: 52px;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #9945ff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Purchase Page */
+        .purchase-page h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: white;
             font-weight: 700;
         }
 
-        .products-header p {
-            font-size: 18px;
+        .purchase-text {
+            font-size: 16px;
             color: #a8b4ff;
-            font-weight: 500;
+            margin-bottom: 50px;
         }
 
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            max-width: 1300px;
+        .payment-divider {
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #9945ff, #00d4ff, transparent);
+            border: none;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 600px;
             margin: 0 auto;
         }
 
-        .product-card {
+        .payment-card {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(153, 69, 255, 0.25);
+            border: 1px solid rgba(153, 69, 255, 0.3);
             border-radius: 20px;
-            padding: 40px 30px;
+            padding: 30px;
             text-align: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(15px);
-            animation: slideInUp 0.8s ease;
+            transition: all 0.3s;
+            cursor: pointer;
         }
 
-        .product-card:hover {
-            transform: translateY(-12px);
-            border-color: rgba(153, 69, 255, 0.5);
-            box-shadow: 0 25px 50px rgba(153, 69, 255, 0.15);
+        .payment-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(153, 69, 255, 0.6);
             background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 40px rgba(153, 69, 255, 0.15);
         }
 
-        .product-icon {
-            font-size: 70px;
-            margin-bottom: 25px;
+        .payment-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
         }
 
-        .product-card h3 {
-            font-size: 24px;
-            margin-bottom: 18px;
-            color: #00d4ff;
+        .payment-badge {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            color: #14f195;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             font-weight: 700;
         }
 
-        .product-card p {
-            color: #a8b4ff;
-            line-height: 1.7;
-            margin-bottom: 28px;
-            font-size: 15px;
+        .payment-name {
+            font-size: 24px;
+            color: white;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
-        .product-price {
-            font-size: 32px;
+        .payment-price {
+            font-size: 28px;
             color: #9945ff;
+            margin-bottom: 10px;
             font-weight: 800;
-            margin-bottom: 25px;
-            letter-spacing: -0.5px;
         }
 
-        .btn-buy {
+        .payment-desc {
+            font-size: 14px;
+            color: #a8b4ff;
+            margin-bottom: 20px;
+        }
+
+        .btn-pay {
             background: linear-gradient(135deg, #14f195 0%, #00d4ff 100%);
             border: none;
-            padding: 13px 35px;
+            padding: 14px 40px;
             border-radius: 50px;
             color: #0a0e27;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 15px;
+            transition: all 0.3s;
+            font-size: 16px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            width: 100%;
         }
 
-        .btn-buy:hover {
-            transform: scale(1.08);
+        .btn-pay:hover {
+            transform: scale(1.02);
             box-shadow: 0 10px 25px rgba(20, 241, 149, 0.4);
         }
 
@@ -387,30 +331,27 @@
             border-radius: 50px;
             color: #00d4ff;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-size: 14px;
             z-index: 100;
             opacity: 0;
+            transition: all 0.3s;
             font-weight: 600;
+            pointer-events: none;
         }
 
         .back-btn.show {
             opacity: 1;
+            pointer-events: auto;
         }
 
-        .back-btn:hover {
-            background: rgba(153, 69, 255, 0.4);
-            border-color: rgba(153, 69, 255, 0.7);
-            transform: translateX(5px);
-        }
-
-        /* Reviews */
         .reviews {
-            margin-top: 100px;
-            text-align: center;
-            padding: 35px;
+            margin-top: 80px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 30px;
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
+            border-radius: 15px;
             border: 1px solid rgba(153, 69, 255, 0.25);
         }
 
@@ -418,122 +359,40 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             font-size: 14px;
             color: #a8b4ff;
-            font-weight: 500;
         }
 
         .stars {
             color: #ffd700;
-            font-size: 16px;
-            letter-spacing: 1px;
         }
 
         .review-id {
-            color: #9945ff;
+            color: #14f195;
             font-weight: 700;
         }
 
-        @media (max-width: 1024px) {
-            h1 {
-                font-size: 48px;
-            }
-
-            .welcome-subtitle {
-                font-size: 40px;
-            }
-
-            .features {
-                gap: 40px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .header {
-                padding: 12px 20px;
-            }
-
-            .header-center {
-                font-size: 18px;
-            }
-
-            .close-btn, .btn-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 20px;
-            }
-
-            .profile-btn {
-                padding: 8px 18px;
-                font-size: 12px;
-            }
-
             h1 {
-                font-size: 36px;
+                font-size: 42px;
             }
 
             .welcome-subtitle {
-                font-size: 32px;
-            }
-
-            .welcome-text {
-                font-size: 16px;
+                font-size: 36px;
             }
 
             .features {
                 grid-template-columns: 1fr;
-                gap: 25px;
-                margin-top: 60px;
+                gap: 30px;
             }
 
-            .feature-title {
-                font-size: 32px;
+            .payment-methods {
+                gap: 15px;
             }
 
-            .products-header h2 {
-                font-size: 36px;
-            }
-
-            .btn-primary {
-                padding: 13px 40px;
-                font-size: 15px;
-            }
-
-            .products-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .product-card {
-                padding: 30px 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header-icons {
-                display: none;
-            }
-
-            .profile-btn {
-                display: none;
-            }
-
-            h1 {
-                font-size: 28px;
-            }
-
-            .welcome-subtitle {
-                font-size: 24px;
-            }
-
-            .welcome-text {
-                font-size: 14px;
-            }
-
-            .btn-primary {
-                padding: 12px 30px;
-                font-size: 14px;
+            .payment-card {
+                padding: 20px;
             }
         }
     </style>
@@ -541,104 +400,39 @@
 <body>
     <div class="stars" id="stars"></div>
 
-    <!-- Header -->
     <header class="header">
-        <div class="header-left">
-            <button class="close-btn" onclick="closeApp()">✕</button>
-        </div>
+        <button class="close-btn" onclick="closeApp()">✕</button>
         <div class="header-center">DARK Solana</div>
         <div class="header-right">
-            <div class="header-icons">
-                <button class="btn-icon" title="Messages">💬</button>
-                <button class="btn-icon" title="Partager">📤</button>
-            </div>
+            <button class="btn-icon" title="Messages">💬</button>
+            <button class="btn-icon" title="Partager">📤</button>
             <button class="profile-btn">👤 Mon Profil</button>
         </div>
     </header>
 
-    <!-- Welcome Section -->
-    <section class="welcome-section" id="welcomeSection">
-        <div class="welcome-content">
-            <div class="brand-header">
-                <span class="brand-icon">≡</span>
-                <span>DARK Solana</span>
-            </div>
-            <h1>Bienvenue sur le site</h1>
-            <p class="welcome-subtitle">Solana</p>
-            <p class="welcome-text">Choisissez la durée d'accès qui vous convient et démarrez votre apprentissage dès aujourd'hui</p>
-            <button class="btn-primary" onclick="goToProducts()">Voir les offres</button>
-
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-title">24/7</div>
-                    <div class="feature-subtitle">Support Telegram</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-title">USDT</div>
-                    <div class="feature-subtitle">Paiement sécurisé</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-title">Instant</div>
-                    <div class="feature-subtitle">Activation immédiate</div>
-                </div>
-            </div>
+    <!-- Welcome Page -->
+    <div class="page welcome-page active" id="welcomePage">
+        <div class="brand-header">
+            <span>≡</span>
+            <span>DARK Solana</span>
         </div>
-    </section>
+        <h1>Bienvenue sur le site</h1>
+        <p class="welcome-subtitle">Solana</p>
+        <p class="welcome-text">Choisissez la durée d'accès qui vous convient et démarrez votre apprentissage dès aujourd'hui</p>
+        <button class="btn-primary" onclick="goToPayment()">Voir les offres</button>
 
-    <!-- Products Section -->
-    <section class="products-section" id="productsSection">
-        <div class="products-header">
-            <h2>Produits Solana</h2>
-            <p>Choisissez le produit qui vous convient</p>
-        </div>
-
-        <div class="products-grid">
-            <div class="product-card">
-                <div class="product-icon">💎</div>
-                <h3>Premium Token</h3>
-                <p>Obtenez un jeton premium avec des fonctionnalités exclusives et des avantages spéciaux</p>
-                <div class="product-price">99 SOL</div>
-                <button class="btn-buy">Acheter maintenant</button>
+        <div class="features">
+            <div>
+                <div class="feature-title">24/7</div>
+                <div class="feature-subtitle">Support Telegram</div>
             </div>
-
-            <div class="product-card">
-                <div class="product-icon">⚡</div>
-                <h3>Lightning Pass</h3>
-                <p>Accès rapide et immédiat à tous les services et fonctionnalités</p>
-                <div class="product-price">49 SOL</div>
-                <button class="btn-buy">Acheter maintenant</button>
+            <div>
+                <div class="feature-title">USDT</div>
+                <div class="feature-subtitle">Paiement sécurisé</div>
             </div>
-
-            <div class="product-card">
-                <div class="product-icon">🔮</div>
-                <h3>Magic NFT</h3>
-                <p>Collection exclusive de NFT avec des designs uniques et magnifiques</p>
-                <div class="product-price">199 SOL</div>
-                <button class="btn-buy">Acheter maintenant</button>
-            </div>
-
-            <div class="product-card">
-                <div class="product-icon">🌟</div>
-                <h3>Starter Pack</h3>
-                <p>Pack de démarrage avec tous les outils essentiels inclus</p>
-                <div class="product-price">29 SOL</div>
-                <button class="btn-buy">Acheter maintenant</button>
-            </div>
-
-            <div class="product-card">
-                <div class="product-icon">👑</div>
-                <h3>Royalty Pass</h3>
-                <p>Adhésion royale avec revenu mensuel et avantages avancés</p>
-                <div class="product-price">299 SOL</div>
-                <button class="btn-buy">Acheter maintenant</button>
-            </div>
-
-            <div class="product-card">
-                <div class="product-icon">🚀</div>
-                <h3>Rocket Booster</h3>
-                <p>Dynamisez votre croissance avec des outils marketing puissants et efficaces</p>
-                <div class="product-price">149 SOL</div>
-                <button class="btn-buy">Acheter maintenant</button>
+            <div>
+                <div class="feature-title">Instant</div>
+                <div class="feature-subtitle">Activation immédiate</div>
             </div>
         </div>
 
@@ -649,7 +443,78 @@
                 <span>Yasmine a acheté 300 USDT...</span>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Payment Page -->
+    <div class="page purchase-page" id="paymentPage">
+        <h2>Achetez votre accès</h2>
+        <p class="purchase-text">Paiement en USDT — activation immédiate</p>
+        <hr class="payment-divider">
+
+        <div class="payment-methods">
+            <!-- SOLANA -->
+            <div class="payment-card" onclick="selectPayment('solana', '85 USDT', 'SOL 3')">
+                <div class="payment-icon">≡</div>
+                <div class="payment-badge">SOLANA</div>
+                <div class="payment-price">85 ⊙ USDT</div>
+                <div class="payment-desc">SOL 3</div>
+                <button class="btn-pay">Payer</button>
+            </div>
+
+            <!-- VISA Card -->
+            <div class="payment-card" onclick="selectPayment('visa', '1500 EUR', 'Carte VISA')">
+                <div class="payment-icon">💳</div>
+                <div class="payment-badge">VISA</div>
+                <div class="payment-price">1500 EUR</div>
+                <div class="payment-desc">Carte VISA</div>
+                <button class="btn-pay">Payer</button>
+            </div>
+
+            <!-- MASTERCARD -->
+            <div class="payment-card" onclick="selectPayment('mastercard', '2700 EUR', 'Carte Mastercard')">
+                <div class="payment-icon">💳</div>
+                <div class="payment-badge">MASTERCARD</div>
+                <div class="payment-price">2700 EUR</div>
+                <div class="payment-desc">Carte Mastercard</div>
+                <button class="btn-pay">Payer</button>
+            </div>
+
+            <!-- PAYPAL -->
+            <div class="payment-card" onclick="selectPayment('paypal', '1800 EUR', 'Compte PayPal')">
+                <div class="payment-icon">🅿️</div>
+                <div class="payment-badge">PAYPAL</div>
+                <div class="payment-price">1800 EUR</div>
+                <div class="payment-desc">Compte PayPal</div>
+                <button class="btn-pay">Payer</button>
+            </div>
+
+            <!-- TIKTOK Coins -->
+            <div class="payment-card" onclick="selectPayment('tiktok1', '10K Coins', 'Compte TikTok')">
+                <div class="payment-icon">🎵</div>
+                <div class="payment-badge">TIKTOK</div>
+                <div class="payment-price">10K Coins</div>
+                <div class="payment-desc">Compte TikTok</div>
+                <button class="btn-pay">Payer</button>
+            </div>
+
+            <!-- TIKTOK 15K -->
+            <div class="payment-card" onclick="selectPayment('tiktok2', '15K Coins', 'Compte TikTok')">
+                <div class="payment-icon">🎵</div>
+                <div class="payment-badge">TIKTOK</div>
+                <div class="payment-price">15K Coins</div>
+                <div class="payment-desc">Compte TikTok</div>
+                <button class="btn-pay">Payer</button>
+            </div>
+        </div>
+
+        <div class="reviews">
+            <div class="review-item">
+                <span class="stars">★★★★★</span>
+                <span class="review-id">#75448</span>
+                <span>Ahmed vient d'acheter SOL...</span>
+            </div>
+        </div>
+    </div>
 
     <button class="back-btn" id="backBtn" onclick="backToWelcome()">← Retour</button>
 
@@ -668,28 +533,24 @@
             }
         }
 
-        function goToProducts() {
-            const welcomeSection = document.getElementById('welcomeSection');
-            const productsSection = document.getElementById('productsSection');
-            const backBtn = document.getElementById('backBtn');
-
-            welcomeSection.classList.add('hidden');
+        function goToPayment() {
+            document.getElementById('welcomePage').classList.remove('active');
             setTimeout(() => {
-                productsSection.classList.add('active');
-                backBtn.classList.add('show');
+                document.getElementById('paymentPage').classList.add('active');
+                document.getElementById('backBtn').classList.add('show');
             }, 250);
         }
 
         function backToWelcome() {
-            const welcomeSection = document.getElementById('welcomeSection');
-            const productsSection = document.getElementById('productsSection');
-            const backBtn = document.getElementById('backBtn');
-
-            productsSection.classList.remove('active');
-            backBtn.classList.remove('show');
+            document.getElementById('paymentPage').classList.remove('active');
+            document.getElementById('backBtn').classList.remove('show');
             setTimeout(() => {
-                welcomeSection.classList.remove('hidden');
+                document.getElementById('welcomePage').classList.add('active');
             }, 250);
+        }
+
+        function selectPayment(method, price, desc) {
+            alert(`Paiement par ${method.toUpperCase()}\n\n${price}\n${desc}\n\nVous serez redirigé vers la page de paiement sécurisée.`);
         }
 
         function closeApp() {
@@ -697,12 +558,6 @@
                 alert('Application fermée avec succès');
             }
         }
-
-        document.querySelectorAll('.btn-buy').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                alert('Merci! Vous allez être redirigé vers la page de paiement sécurisée bientôt');
-            });
-        });
 
         generateStars();
     </script>
