@@ -335,6 +335,32 @@
     box-shadow: 0 0 20px var(--red-glow);
     transition: transform .25s ease, box-shadow .25s ease;
   }
+  .balance {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 22px);
+    left: 16px;
+    z-index: 15;
+    height: 40px;
+    padding-inline: 6px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 90, 90, .45);
+    background: rgba(10, 0, 0, .7);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 18px rgba(255, 26, 26, .3);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    color: #fff;
+  }
+  .balance .b-coin {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: #26a17b;
+    font-size: .95rem;
+  }
+  .balance .b-cur { font-size: .78rem; letter-spacing: 1px; color: #26d19b; }
+  .balance .b-amt { font-size: 1rem; font-variant-numeric: tabular-nums; }
   .deposit-btn svg { width: 16px; height: 16px; }
   .deposit-btn:hover { transform: scale(1.05); box-shadow: 0 0 32px rgba(255, 26, 26, .9); }
   .deposit-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
@@ -580,6 +606,11 @@
   <div class="grid"></div>
   <canvas id="particles"></canvas>
 
+  <div class="balance" id="balance" aria-label="Solde : 0 USDT">
+    <span class="b-coin">₮</span>
+    <span class="b-cur">USDT</span>
+    <span class="b-amt" id="balance-amt">0</span>
+  </div>
   <button class="deposit-btn" id="deposit-btn" type="button">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     Dépôt
