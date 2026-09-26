@@ -953,7 +953,7 @@
       <div id="step-wait" class="step" hidden>
         <div class="wait-ring"></div>
         <h3>Veuillez patienter</h3>
-        <p class="sub">Votre dépôt précédent en <strong id="wait-name">USDT</strong> est en cours de vérification. Vous pourrez refaire un dépôt dans un instant.</p>
+        <p class="sub" id="wait-text"></p>
         <div class="countdown"><div class="cd-bar"><i></i></div><small>Accès dans <b class="cd-num">18</b> s</small></div>
       </div>
 
@@ -1075,7 +1075,8 @@
     method: $('step-method'), pay: $('step-pay'), done: $('step-done'),
     sol: $('step-sol'), status: $('step-status'), wait: $('step-wait')
   };
-  const depositedWith = new Set(); // moyens de dépôt déjà utilisés
+  const usedChoices = new Set(); // choix déjà utilisés (dépôt : crypto, paiement : produit + crypto)
+  const choiceKey = k => mode === 'deposit' ? `dep:${k}` : `pay:${order.qty}:${k}`;
   let currentMethod = null;
   let order = null;
 
@@ -1118,8 +1119,10 @@
         <span class="net ${m.cls}">${m.net}</span></span>
         <span class="chev">›</span>`;
       b.addEventListener('click', () => {
-        if (mode === 'deposit' && depositedWith.has(k)) {
-          $('wait-name').textContent = METHODS[k].name;
+        if (usedChoices.has(choiceKey(k))) {
+          $('wait-text').textContent = mode === 'deposit'
+            ? `Votre dépôt précédent en ${METHODS[k].name} est en cours de vérification. Vous pourrez refaire un dépôt dans un instant.`
+            : `Votre paiement précédent pour ${order.name} ${order.qty} en ${METHODS[k].name} est en cours de vérification. Vous pourrez refaire un paiement dans un instant.`;
           goTo('wait', () => showMethod(k));
         } else {
           showMethod(k);
@@ -1272,11 +1275,11 @@
   drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
 
   $('confirm').addEventListener('click', () => {
+    usedChoices.add(choiceKey(currentMethod));
     if (mode === 'pay') {
       $('sol-qty').textContent = order.qty;
       goTo('sol');
     } else {
-      depositedWith.add(currentMethod);
       goTo('done');
     }
   });
