@@ -731,6 +731,14 @@
   .chat-send:disabled { opacity: .4; cursor: not-allowed; }
   .chat-send:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
+  .countdown { display: flex; flex-direction: column; gap: 6px; align-self: stretch; text-align: center; }
+  .countdown small { color: var(--muted); font-size: .78rem; }
+  .countdown b { color: #fff; font-variant-numeric: tabular-nums; }
+  .cd-bar { height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+  .cd-bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #ff2020, #f5c518); transform-origin: left; }
+  .cd-bar i.run { animation: cd 18s linear forwards; }
+  @keyframes cd { to { transform: scaleX(0); } }
+
   footer {
     text-align: center;
     padding: 30px 16px 96px;
@@ -929,6 +937,7 @@
         <div class="check">✔</div>
         <h3 id="done-title">Paiement envoyé</h3>
         <p class="sub" id="done-text">Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.</p>
+        <div class="countdown"><div class="cd-bar"><i></i></div><small>Fermeture automatique dans <b class="cd-num">18</b> s</small></div>
         <button class="btn" id="finish" type="button">Fermer</button>
       </div>
 
@@ -963,6 +972,7 @@
             <span><strong>Commande reçue</strong><small>Envoi vers <code id="st-addr"></code></small></span>
           </li>
         </ol>
+        <div class="countdown"><div class="cd-bar"><i></i></div><small>Fermeture automatique dans <b class="cd-num">18</b> s</small></div>
         <button class="btn" id="st-close" type="button">Fermer</button>
       </div>
     </div>
@@ -1107,8 +1117,26 @@
   }
   let lastFocus = null;
 
+  const AUTO_CLOSE = 18;
+  let cdTimer = null;
+  function stopCountdown() { clearInterval(cdTimer); cdTimer = null; }
+  function startCountdown(el) {
+    stopCountdown();
+    let left = AUTO_CLOSE;
+    const num = el.querySelector('.cd-num'), bar = el.querySelector('.cd-bar i');
+    num.textContent = left;
+    bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run');
+    cdTimer = setInterval(() => {
+      left -= 1;
+      num.textContent = left;
+      if (left <= 0) { stopCountdown(); closeModal(); }
+    }, 1000);
+  }
+
   function goTo(step) {
+    stopCountdown();
     Object.entries(steps).forEach(([k, el]) => el.hidden = k !== step);
+    if (step === 'done' || step === 'status') startCountdown(steps[step]);
     $('back').hidden = step !== 'pay';
     const first = steps[step].querySelector('button, input');
     if (first) first.focus();
@@ -1158,6 +1186,7 @@
   }
 
   function closeModal() {
+    stopCountdown();
     modal.hidden = true;
     document.body.style.overflow = '';
     if (lastFocus) lastFocus.focus();
