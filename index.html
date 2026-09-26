@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Solana - موقع سولانا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e6ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .welcome-section.hidden {
+            opacity: 0;
+            display: none;
+        }
+
+        .welcome-content {
+            animation: slideInUp 0.8s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px #9945ff, 0 0 20px #00d4ff; }
+            50% { text-shadow: 0 0 20px #9945ff, 0 0 40px #00d4ff; }
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #9945ff 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            color: #a8b4ff;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px rgba(153, 69, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9945ff 0%, #00d4ff 100%);
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(153, 69, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(153, 69, 255, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* Products Section */
+        .products-section {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            display: none;
+            padding: 60px 20px;
+            min-height: 100vh;
+        }
+
+        .products-section.active {
+            opacity: 1;
+            display: block;
+        }
+
+        .products-header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideInUp 0.8s ease;
+        }
+
+        .products-header h2 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #9945ff 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .products-header p {
+            font-size: 18px;
+            color: #a8b4ff;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(153, 69, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            animation: slideInUp 0.8s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(153, 69, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(153, 69, 255, 0.2);
+        }
+
+        .product-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .product-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+
+        .product-card p {
+            color: #a8b4ff;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .product-price {
+            font-size: 28px;
+            color: #9945ff;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #00d4ff 0%, #9945ff 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-buy:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(153, 69, 255, 0.3);
+            border: 1px solid rgba(153, 69, 255, 0.6);
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: #00d4ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-btn.show {
+            opacity: 1;
+        }
+
+        .back-btn:hover {
+            background: rgba(153, 69, 255, 0.6);
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            .welcome-text {
+                font-size: 18px;
+            }
+
+            .products-header h2 {
+                font-size: 36px;
+            }
+
+            .btn-primary {
+                padding: 14px 30px;
+                font-size: 16px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <!-- Welcome Section -->
+    <section class="welcome-section" id="welcomeSection">
+        <div class="welcome-content">
+            <div class="logo">🌑</div>
+            <h1>Dark Solana</h1>
+            <p class="welcome-text">مرحباً بك في موقع سولانا</p>
+            <button class="btn-primary" onclick="goToProducts()">عرض المنتجات</button>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="productsSection">
+        <div class="products-header">
+            <h2>منتجات سولانا</h2>
+            <p>اختر المنتج المناسب لك</p>
+        </div>
+
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-icon">💎</div>
+                <h3>Premium Token</h3>
+                <p>احصل على رمز متميز مع ميزات حصرية وامتيازات خاصة</p>
+                <div class="product-price">99 SOL</div>
+                <button class="btn-buy">شراء الآن</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">⚡</div>
+                <h3>Lightning Pass</h3>
+                <p>وصول سريع وفوري إلى جميع الخدمات والمميزات</p>
+                <div class="product-price">49 SOL</div>
+                <button class="btn-buy">شراء الآن</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">🔮</div>
+                <h3>Magic NFT</h3>
+                <p>مجموعة حصرية من الـ NFT بتصاميم فريدة وجميلة</p>
+                <div class="product-price">199 SOL</div>
+                <button class="btn-buy">شراء الآن</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">🌟</div>
+                <h3>Starter Pack</h3>
+                <p>حزمة بدء الرحلة مع جميع الأدوات الأساسية</p>
+                <div class="product-price">29 SOL</div>
+                <button class="btn-buy">شراء الآن</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">👑</div>
+                <h3>Royalty Pass</h3>
+                <p>عضوية ملكية مع دخل شهري وامتيازات متقدمة</p>
+                <div class="product-price">299 SOL</div>
+                <button class="btn-buy">شراء الآن</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-icon">🚀</div>
+                <h3>Rocket Booster</h3>
+                <p>عزز نموك بأدوات تسويقية قوية وفعالة</p>
+                <div class="product-price">149 SOL</div>
+                <button class="btn-buy">شراء الآن</button>
+            </div>
+        </div>
+    </section>
+
+    <button class="back-btn" id="backBtn" onclick="backToWelcome()">← العودة</button>
+
+    <script>
+        // Generate stars
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 2 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function goToProducts() {
+            const welcomeSection = document.getElementById('welcomeSection');
+            const productsSection = document.getElementById('productsSection');
+            const backBtn = document.getElementById('backBtn');
+
+            welcomeSection.classList.add('hidden');
+            setTimeout(() => {
+                productsSection.classList.add('active');
+                backBtn.classList.add('show');
+            }, 250);
+        }
+
+        function backToWelcome() {
+            const welcomeSection = document.getElementById('welcomeSection');
+            const productsSection = document.getElementById('productsSection');
+            const backBtn = document.getElementById('backBtn');
+
+            productsSection.classList.remove('active');
+            backBtn.classList.remove('show');
+            setTimeout(() => {
+                welcomeSection.classList.remove('hidden');
+            }, 250);
+        }
+
+        // Add click handlers to buy buttons
+        document.querySelectorAll('.btn-buy').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                alert('شكراً! سيتم توجيهك إلى صفحة الدفع الآمنة قريباً');
+            });
+        });
+
+        // Initialize
+        generateStars();
+    </script>
+</body>
+</html>
