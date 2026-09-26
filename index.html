@@ -315,6 +315,33 @@
     background: #2ecc71;
     border: 2px solid #120000;
   }
+  .deposit-btn {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 22px);
+    right: 80px;
+    z-index: 15;
+    height: 40px;
+    padding-inline: 16px 18px;
+    display: flex; align-items: center; gap: 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 90, 90, .6);
+    background: linear-gradient(90deg, #b30000, #ff2020);
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: .85rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--red-glow);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .deposit-btn svg { width: 16px; height: 16px; }
+  .deposit-btn:hover { transform: scale(1.05); box-shadow: 0 0 32px rgba(255, 26, 26, .9); }
+  .deposit-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .option .coin.btc { background: #f7931a; }
+  .option .coin.sol { background: linear-gradient(135deg, #9945ff, #14f195); }
+  .option span.net.btc { color: #f7931a; }
+  .option span.net.sol { color: #14f195; }
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label { font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
   .field input {
@@ -553,6 +580,10 @@
   <div class="grid"></div>
   <canvas id="particles"></canvas>
 
+  <button class="deposit-btn" id="deposit-btn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    Dépôt
+  </button>
   <button class="profile-btn" id="profile-btn" type="button" aria-label="Mon profil">
     <svg id="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
     <span id="profile-initials" hidden></span>
@@ -663,31 +694,25 @@
       <!-- Étape 1 : choix de la crypto -->
       <div id="step-method" class="step">
         <h3 id="dlg-title">Payer en cryptomonnaies</h3>
-        <p class="sub"><span id="sum-name">Solana 3</span> · <strong id="sum-price">85 USDT</strong></p>
-        <p class="label-sm">Choisissez un moyen de paiement</p>
-        <button class="option" id="opt-usdt" type="button">
-          <span class="coin">₮</span>
-          <span>
-            <strong>USDT</strong>
-            <span class="net">BNB Smart Chain (BEP20)</span>
-          </span>
-          <span class="chev">›</span>
-        </button>
+        <p class="sub" id="dlg-sub"><span id="sum-name">Solana 3</span> · <strong id="sum-price">85 USDT</strong></p>
+        <p class="label-sm" id="dlg-choose">Choisissez un moyen de paiement</p>
+        <div class="step" id="options"></div>
       </div>
 
       <!-- Étape 2 : QR code + adresse + preuve -->
-      <div id="step-usdt" class="step" hidden>
-        <h3>USDT · BNB Smart Chain</h3>
-        <div class="amount"><span id="amount">85</span> USDT<small>Montant à envoyer</small></div>
-        <div class="qr"><img src="assets/qr-usdt-bep20.jpg" alt="QR code de l'adresse USDT BEP20" width="573" height="577"></div>
+      <div id="step-pay" class="step" hidden>
+        <h3 id="pay-title">USDT · BNB Smart Chain</h3>
+        <div class="amount" id="amount-box"><span id="amount">85</span> USDT<small>Montant à envoyer</small></div>
+        <p class="sub" id="free-amount" hidden>Envoyez le montant de votre choix</p>
+        <div class="qr"><img id="qr-img" src="assets/qr-usdt-bep20.jpg" alt="QR code de l'adresse" width="573" height="577"></div>
         <div class="addr">
-          <span class="label-sm">Adresse du réseau (BEP20)</span>
+          <span class="label-sm" id="addr-label">Adresse du réseau (BEP20)</span>
           <code id="address">0xfA59f6608685c147051b8501B31324A984D7588f</code>
           <button class="btn" id="copy" type="button">Copier l'adresse</button>
         </div>
-        <p class="warn">⚠ Envoyez uniquement de l'USDT sur le réseau BNB Smart Chain (BEP20).</p>
+        <p class="warn" id="net-warn">⚠ Envoyez uniquement de l'USDT sur le réseau BNB Smart Chain (BEP20).</p>
 
-        <span class="label-sm">Preuve de paiement</span>
+        <span class="label-sm" id="proof-label">Preuve de paiement</span>
         <label class="upload" id="drop">
           <input type="file" id="proof" accept="image/*">
           <span class="plus">＋</span>
@@ -701,8 +726,8 @@
       <!-- Étape 3 : confirmation -->
       <div id="step-done" class="done" hidden>
         <div class="check">✔</div>
-        <h3>Paiement envoyé</h3>
-        <p class="sub">Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.</p>
+        <h3 id="done-title">Paiement envoyé</h3>
+        <p class="sub" id="done-text">Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.</p>
         <button class="btn" id="finish" type="button">Fermer</button>
       </div>
     </div>
@@ -761,12 +786,67 @@
   // Fenêtre de paiement
   const $ = id => document.getElementById(id);
   const modal = $('modal');
-  const steps = { method: $('step-method'), usdt: $('step-usdt'), done: $('step-done') };
+  const steps = { method: $('step-method'), pay: $('step-pay'), done: $('step-done') };
+
+  const METHODS = {
+    usdt: {
+      coin: '₮', cls: '', name: 'USDT', net: 'BNB Smart Chain (BEP20)',
+      title: 'USDT · BNB Smart Chain', addrLabel: 'Adresse du réseau (BEP20)',
+      address: '0xfA59f6608685c147051b8501B31324A984D7588f',
+      qr: 'assets/qr-usdt-bep20.jpg',
+      warn: "⚠ Envoyez uniquement de l'USDT sur le réseau BNB Smart Chain (BEP20)."
+    },
+    btc: {
+      coin: '₿', cls: 'btc', name: 'BTC', net: 'Réseau Bitcoin (BTC)',
+      title: 'BTC · Réseau Bitcoin', addrLabel: 'Adresse du réseau (BTC)',
+      address: '12vMNfnzGtbDsdNiFryzQhoyqTnDVEMx5g',
+      qr: 'assets/qr-btc.jpg',
+      warn: '⚠ Envoyez uniquement du BTC sur le réseau Bitcoin.'
+    },
+    sol: {
+      coin: '◎', cls: 'sol', name: 'Solana', net: 'Réseau Solana (SOL)',
+      title: 'Solana · Réseau Solana', addrLabel: 'Adresse du réseau (Solana)',
+      address: 'HLA7B2e1VrgA4Pftvsk2HPNNrw9Hmycgmfpug1dfy7ic',
+      qr: 'assets/qr-solana.jpg',
+      warn: '⚠ Envoyez uniquement du SOL sur le réseau Solana.'
+    }
+  };
+  let mode = 'pay';
+
+  function renderOptions(keys) {
+    const box = $('options');
+    box.textContent = '';
+    keys.forEach(k => {
+      const m = METHODS[k];
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'option';
+      b.dataset.method = k;
+      b.innerHTML = `<span class="coin ${m.cls}">${m.coin}</span>
+        <span><strong>${mode === 'deposit' ? 'Recharger en ' + m.name : m.name}</strong>
+        <span class="net ${m.cls}">${m.net}</span></span>
+        <span class="chev">›</span>`;
+      b.addEventListener('click', () => showMethod(k));
+      box.appendChild(b);
+    });
+  }
+
+  function showMethod(k) {
+    const m = METHODS[k];
+    $('pay-title').textContent = m.title;
+    $('qr-img').src = m.qr;
+    $('qr-img').alt = `QR code de l'adresse ${m.name}`;
+    $('addr-label').textContent = m.addrLabel;
+    $('address').textContent = m.address;
+    $('net-warn').textContent = m.warn;
+    resetProof();
+    goTo('pay');
+  }
   let lastFocus = null;
 
   function goTo(step) {
     Object.entries(steps).forEach(([k, el]) => el.hidden = k !== step);
-    $('back').hidden = step !== 'usdt';
+    $('back').hidden = step !== 'pay';
     const first = steps[step].querySelector('button, input');
     if (first) first.focus();
   }
@@ -776,15 +856,33 @@
     $('preview').hidden = true;
     $('preview').removeAttribute('src');
     $('fname').textContent = '';
-    $('upload-text').textContent = "Ajouter la capture d'écran du paiement";
+    $('upload-text').textContent = mode === 'deposit'
+      ? "Ajouter la capture d'écran du dépôt"
+      : "Ajouter la capture d'écran du paiement";
     $('confirm').disabled = true;
   }
 
   function openModal(card) {
-    const { name, qty, price } = card.dataset;
-    $('sum-name').textContent = `${name} ${qty}`;
-    $('sum-price').textContent = `${price} USDT`;
-    $('amount').textContent = price;
+    mode = card ? 'pay' : 'deposit';
+    const dep = mode === 'deposit';
+    $('dlg-title').textContent = dep ? 'Dépôt en cryptomonnaies' : 'Payer en cryptomonnaies';
+    $('dlg-sub').hidden = dep;
+    $('dlg-choose').textContent = dep ? 'Choisissez comment recharger votre compte' : 'Choisissez un moyen de paiement';
+    $('amount-box').hidden = dep;
+    $('free-amount').hidden = !dep;
+    $('proof-label').textContent = dep ? 'Preuve de dépôt' : 'Preuve de paiement';
+    $('confirm').textContent = dep ? 'Confirmer le dépôt' : 'Confirmer le paiement';
+    $('done-title').textContent = dep ? 'Dépôt envoyé' : 'Paiement envoyé';
+    $('done-text').textContent = dep
+      ? 'Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre dépôt.'
+      : 'Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.';
+    if (card) {
+      const { name, qty, price } = card.dataset;
+      $('sum-name').textContent = `${name} ${qty}`;
+      $('sum-price').textContent = `${price} USDT`;
+      $('amount').textContent = price;
+    }
+    renderOptions(dep ? ['usdt', 'btc', 'sol'] : ['usdt']);
     resetProof();
     lastFocus = document.activeElement;
     modal.hidden = false;
@@ -800,7 +898,7 @@
 
   document.querySelectorAll('.pay').forEach(btn =>
     btn.addEventListener('click', () => openModal(btn.closest('.card'))));
-  $('opt-usdt').addEventListener('click', () => goTo('usdt'));
+  $('deposit-btn').addEventListener('click', () => openModal(null));
   $('back').addEventListener('click', () => goTo('method'));
   $('close').addEventListener('click', closeModal);
   $('finish').addEventListener('click', closeModal);
