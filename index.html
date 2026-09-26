@@ -561,6 +561,45 @@
     box-shadow: 0 0 30px var(--red-glow);
   }
 
+  .sol-badge {
+    align-self: center;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 1.8rem;
+    color: #fff;
+    background: linear-gradient(135deg, #9945ff, #14f195);
+    box-shadow: 0 0 25px rgba(153, 69, 255, .45);
+  }
+  .status { list-style: none; display: flex; flex-direction: column; gap: 0; }
+  .status li {
+    position: relative;
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 0 18px;
+  }
+  .status li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 8px; top: 34px; bottom: -6px;
+    width: 2px;
+    background: rgba(255, 255, 255, .12);
+  }
+  .status li.done-s:not(:last-child)::before { background: #2ecc71; }
+  .status strong { display: block; font-size: .98rem; }
+  .status small { display: block; color: var(--muted); font-size: .8rem; margin-top: 2px; }
+  .status small code { font-family: ui-monospace, Menlo, monospace; word-break: break-all; color: #d9c7c7; }
+  .status li.todo-s strong { color: #8a7a7a; }
+  .dot-s {
+    flex: none;
+    width: 18px; height: 18px;
+    margin-top: 2px;
+    border-radius: 50%;
+  }
+  .dot-s.green { background: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, .8); }
+  .dot-s.yellow { background: #f5c518; box-shadow: 0 0 12px rgba(245, 197, 24, .8); animation: blink 1.4s ease-in-out infinite; }
+  .dot-s.grey { background: #3a2c2c; border: 2px solid #5a4545; }
+  @keyframes blink { 50% { opacity: .35; } }
+
   footer {
     text-align: center;
     padding: 30px 16px;
@@ -761,6 +800,40 @@
         <p class="sub" id="done-text">Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.</p>
         <button class="btn" id="finish" type="button">Fermer</button>
       </div>
+
+      <!-- Étape 4 : adresse Solana du client -->
+      <form id="step-sol" class="step" novalidate hidden>
+        <div class="sol-badge">◎</div>
+        <h3>Entrez votre adresse Solana</h3>
+        <p class="sub">Vos <strong id="sol-qty">3</strong> Solana seront envoyés à cette adresse.</p>
+        <div class="field">
+          <label for="sol-addr">Votre adresse Solana</label>
+          <input id="sol-addr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ex. 7Xc9…Pq2L">
+        </div>
+        <p class="err" id="sol-err" role="alert"></p>
+        <button class="btn" type="submit">Terminé</button>
+      </form>
+
+      <!-- Étape 5 : suivi de la commande -->
+      <div id="step-status" class="step" hidden>
+        <h3>Suivi de votre commande</h3>
+        <p class="sub"><span id="st-order">Solana 3 · 85 USDT</span></p>
+        <ol class="status">
+          <li class="done-s">
+            <span class="dot-s green"></span>
+            <span><strong>Paiement effectué</strong><small>Votre capture a bien été reçue</small></span>
+          </li>
+          <li class="current-s">
+            <span class="dot-s yellow"></span>
+            <span><strong>Paiement en cours de vérification</strong><small>Doctour Btc vérifie votre paiement</small></span>
+          </li>
+          <li class="todo-s">
+            <span class="dot-s grey"></span>
+            <span><strong>Commande reçue</strong><small>Envoi vers <code id="st-addr"></code></small></span>
+          </li>
+        </ol>
+        <button class="btn" id="st-close" type="button">Fermer</button>
+      </div>
     </div>
   </div>
 
@@ -817,7 +890,11 @@
   // Fenêtre de paiement
   const $ = id => document.getElementById(id);
   const modal = $('modal');
-  const steps = { method: $('step-method'), pay: $('step-pay'), done: $('step-done') };
+  const steps = {
+    method: $('step-method'), pay: $('step-pay'), done: $('step-done'),
+    sol: $('step-sol'), status: $('step-status')
+  };
+  let order = null;
 
   const METHODS = {
     usdt: {
@@ -907,6 +984,10 @@
     $('done-text').textContent = dep
       ? 'Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre dépôt.'
       : 'Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.';
+    order = card ? { ...card.dataset } : null;
+    $('sol-addr').value = '';
+    $('sol-err').textContent = '';
+    $('sol-addr').classList.remove('invalid');
     if (card) {
       const { name, qty, price } = card.dataset;
       $('sum-name').textContent = `${name} ${qty}`;
@@ -979,7 +1060,33 @@
   ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('drag'); }));
   drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
 
-  $('confirm').addEventListener('click', () => goTo('done'));
+  $('confirm').addEventListener('click', () => {
+    if (mode === 'pay') {
+      $('sol-qty').textContent = order.qty;
+      goTo('sol');
+    } else {
+      goTo('done');
+    }
+  });
+
+  // Adresse Solana du client (base58, 32 à 44 caractères)
+  $('sol-addr').addEventListener('input', () => {
+    $('sol-addr').classList.remove('invalid');
+    $('sol-err').textContent = '';
+  });
+  $('step-sol').addEventListener('submit', e => {
+    e.preventDefault();
+    const addr = $('sol-addr').value.trim();
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr)) {
+      $('sol-addr').classList.add('invalid');
+      $('sol-err').textContent = 'Adresse Solana invalide. Vérifiez-la et réessayez.';
+      return;
+    }
+    $('st-order').textContent = `${order.name} ${order.qty} · ${order.price} USDT`;
+    $('st-addr').textContent = addr;
+    goTo('status');
+  });
+  $('st-close').addEventListener('click', closeModal);
 
   // ---------- Profil ----------
   const KEY = 'doctourbtc-profile';
