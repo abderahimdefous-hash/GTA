@@ -285,6 +285,93 @@
   .btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   .btn:disabled { background: #2a1212; color: #8a6d6d; cursor: not-allowed; box-shadow: none; }
 
+  /* ---------- Profil ---------- */
+  .profile-btn {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    right: 16px;
+    z-index: 15;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 90, 90, .6);
+    background: radial-gradient(circle at 30% 30%, #ff4d4d, #b30000 60%, #3a0000);
+    color: #fff;
+    display: grid; place-items: center;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    box-shadow: 0 0 22px var(--red-glow);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .profile-btn:hover { transform: scale(1.08); box-shadow: 0 0 35px rgba(255, 26, 26, .9); }
+  .profile-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .profile-btn svg { width: 26px; height: 26px; }
+  .profile-btn .dot {
+    position: absolute;
+    right: 1px; bottom: 1px;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: #2ecc71;
+    border: 2px solid #120000;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .field input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 60, 60, .35);
+    background: rgba(255, 255, 255, .05);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .field input::placeholder { color: #7d6464; }
+  .field input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(255, 26, 26, .25); }
+  .field input.invalid { border-color: #ffb020; }
+  .err { font-size: .78rem; color: #ffb020; min-height: 1em; }
+  .avatar-lg {
+    align-self: center;
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    background: radial-gradient(circle at 30% 30%, #ff4d4d, #b30000 60%, #3a0000);
+    box-shadow: 0 0 30px var(--red-glow);
+  }
+  .info { display: flex; flex-direction: column; gap: 10px; }
+  .info div {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid rgba(255, 60, 60, .2);
+    font-size: .9rem;
+  }
+  .info span { color: var(--muted); }
+  .info strong { text-align: right; word-break: break-all; }
+  .btn.ghost { background: transparent; border: 1px solid rgba(255, 60, 60, .5); }
+  .loader {
+    position: fixed; inset: 0; z-index: 30;
+    display: grid; place-items: center; align-content: center; gap: 18px;
+    background: #050505;
+    color: var(--muted);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+  }
+  .loader .ring {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 30, 30, .2);
+    border-top-color: var(--red);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   /* ---------- Fenêtre de paiement ---------- */
   .modal {
     position: fixed;
@@ -466,6 +553,12 @@
   <div class="grid"></div>
   <canvas id="particles"></canvas>
 
+  <button class="profile-btn" id="profile-btn" type="button" aria-label="Mon profil">
+    <svg id="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+    <span id="profile-initials" hidden></span>
+    <span class="dot" id="profile-dot" hidden></span>
+  </button>
+
   <section class="hero">
     <div class="logo">₿</div>
 
@@ -521,6 +614,45 @@
   </section>
 
   <footer>© 2026 <strong>Doctour Btc</strong> — Tous droits réservés</footer>
+
+  <!-- Fenêtre profil -->
+  <div class="modal" id="pmodal" role="dialog" aria-modal="true" aria-labelledby="p-title" hidden>
+    <div class="dialog">
+      <button class="close" id="p-close" type="button" aria-label="Fermer">✕</button>
+
+      <form id="p-form" class="step" novalidate>
+        <h3 id="p-title">Créer mon profil</h3>
+        <p class="sub">Entrez vos informations pour vous inscrire</p>
+        <div class="field">
+          <label for="p-first">Prénom</label>
+          <input id="p-first" name="first" type="text" autocomplete="given-name" placeholder="Votre prénom" required>
+        </div>
+        <div class="field">
+          <label for="p-last">Nom</label>
+          <input id="p-last" name="last" type="text" autocomplete="family-name" placeholder="Votre nom" required>
+        </div>
+        <div class="field">
+          <label for="p-email">E-mail</label>
+          <input id="p-email" name="email" type="email" autocomplete="email" placeholder="exemple@email.com" required>
+        </div>
+        <p class="err" id="p-err" role="alert"></p>
+        <button class="btn" type="submit">S'inscrire</button>
+      </form>
+
+      <div id="p-view" class="step" hidden>
+        <div class="avatar-lg" id="p-avatar"></div>
+        <h3 id="p-hello">Mon profil</h3>
+        <div class="info">
+          <div><span>Prénom</span><strong id="v-first"></strong></div>
+          <div><span>Nom</span><strong id="v-last"></strong></div>
+          <div><span>E-mail</span><strong id="v-email"></strong></div>
+        </div>
+        <button class="btn ghost" id="p-logout" type="button">Se déconnecter</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loader" id="loader" hidden><div class="ring"></div><span>Connexion…</span></div>
 
   <!-- Fenêtre de paiement -->
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dlg-title" hidden>
@@ -719,6 +851,104 @@
   drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
 
   $('confirm').addEventListener('click', () => goTo('done'));
+
+  // ---------- Profil ----------
+  const KEY = 'doctourbtc-profile';
+  const store = {
+    get(k, area = localStorage) { try { return JSON.parse(area.getItem(k)); } catch (e) { return null; } },
+    set(k, v, area = localStorage) { try { area.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+    del(k, area = localStorage) { try { area.removeItem(k); } catch (e) {} }
+  };
+  let profile = store.get(KEY);
+  const pmodal = $('pmodal');
+
+  function initials(p) { return ((p.first[0] || '') + (p.last[0] || '')).toUpperCase(); }
+
+  function renderProfile() {
+    const on = !!profile;
+    $('profile-icon').style.display = on ? 'none' : '';
+    $('profile-initials').hidden = !on;
+    $('profile-dot').hidden = !on;
+    $('profile-btn').setAttribute('aria-label', on ? `Profil de ${profile.first}` : 'Se connecter');
+    $('p-form').hidden = on;
+    $('p-view').hidden = !on;
+    if (on) {
+      $('profile-initials').textContent = initials(profile);
+      $('p-avatar').textContent = initials(profile);
+      $('p-hello').textContent = `Bonjour, ${profile.first}`;
+      $('v-first').textContent = profile.first;
+      $('v-last').textContent = profile.last;
+      $('v-email').textContent = profile.email;
+    }
+  }
+
+  function openProfile() {
+    renderProfile();
+    lastFocus = document.activeElement;
+    pmodal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const first = pmodal.querySelector(profile ? '#p-logout' : '#p-first');
+    if (first) first.focus();
+  }
+  function closeProfile() {
+    pmodal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus) lastFocus.focus();
+  }
+
+  $('profile-btn').addEventListener('click', openProfile);
+  $('p-close').addEventListener('click', closeProfile);
+  pmodal.addEventListener('click', e => { if (e.target === pmodal) closeProfile(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pmodal.hidden) closeProfile(); });
+
+  ['p-first', 'p-last', 'p-email'].forEach(id => $(id).addEventListener('input', () => {
+    $(id).classList.remove('invalid');
+    $('p-err').textContent = '';
+  }));
+
+  $('p-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = { first: $('p-first'), last: $('p-last'), email: $('p-email') };
+    Object.values(f).forEach(i => i.classList.remove('invalid'));
+    const data = { first: f.first.value.trim(), last: f.last.value.trim(), email: f.email.value.trim() };
+    let msg = '';
+    if (!data.first) { f.first.classList.add('invalid'); msg = 'Entrez votre prénom.'; }
+    else if (!data.last) { f.last.classList.add('invalid'); msg = 'Entrez votre nom.'; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { f.email.classList.add('invalid'); msg = 'Entrez une adresse e-mail valide.'; }
+    $('p-err').textContent = msg;
+    if (msg) return;
+
+    profile = data;
+    pmodal.hidden = true;
+    $('loader').hidden = false;
+    const saved = store.set(KEY, data);
+    store.set(KEY + '-welcome', true, sessionStorage);
+    setTimeout(() => {
+      if (saved) {
+        location.reload();
+      } else {
+        // Stockage indisponible : on affiche quand même le profil connecté
+        $('loader').hidden = true;
+        document.body.style.overflow = '';
+        renderProfile();
+        showToast(`Bienvenue, ${data.first} ✔`);
+      }
+    }, 900);
+  });
+
+  $('p-logout').addEventListener('click', () => {
+    store.del(KEY);
+    profile = null;
+    renderProfile();
+    closeProfile();
+    showToast('Vous êtes déconnecté');
+  });
+
+  renderProfile();
+  if (profile && store.get(KEY + '-welcome', sessionStorage)) {
+    store.del(KEY + '-welcome', sessionStorage);
+    setTimeout(() => showToast(`Bienvenue, ${profile.first} ✔ Vous êtes connecté`), 300);
+  }
 </script>
 </body>
 </html>
