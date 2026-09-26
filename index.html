@@ -41,6 +41,107 @@
             50% { opacity: 1; }
         }
 
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-center {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .close-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(153, 69, 255, 0.2);
+            border: 1px solid rgba(153, 69, 255, 0.4);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .wallet-info .dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-icon:hover {
+            background: rgba(153, 69, 255, 0.3);
+            border-color: rgba(153, 69, 255, 0.6);
+        }
+
+        .profile-btn {
+            background: linear-gradient(135deg, #00d4ff 0%, #9945ff 100%);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
         /* Welcome Section */
         .welcome-section {
             display: flex;
@@ -48,6 +149,7 @@
             align-items: center;
             min-height: 100vh;
             text-align: center;
+            padding-top: 80px;
             opacity: 1;
             transition: opacity 0.5s ease;
         }
@@ -59,6 +161,7 @@
 
         .welcome-content {
             animation: slideInUp 0.8s ease;
+            max-width: 600px;
         }
 
         @keyframes slideInUp {
@@ -72,38 +175,48 @@
             }
         }
 
-        .logo {
-            font-size: 80px;
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             margin-bottom: 30px;
-            animation: glow 2s ease-in-out infinite;
+            font-size: 16px;
+            color: #a8b4ff;
         }
 
-        @keyframes glow {
-            0%, 100% { text-shadow: 0 0 10px #9945ff, 0 0 20px #00d4ff; }
-            50% { text-shadow: 0 0 20px #9945ff, 0 0 40px #00d4ff; }
+        .brand-icon {
+            font-size: 24px;
         }
 
         h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
+            font-size: 56px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .welcome-subtitle {
+            font-size: 42px;
             background: linear-gradient(135deg, #9945ff 0%, #00d4ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 30px;
         }
 
         .welcome-text {
-            font-size: 24px;
+            font-size: 18px;
             color: #a8b4ff;
             margin-bottom: 40px;
-            text-shadow: 0 0 10px rgba(153, 69, 255, 0.3);
+            line-height: 1.6;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #9945ff 0%, #00d4ff 100%);
             border: none;
-            padding: 16px 40px;
-            font-size: 18px;
+            padding: 14px 50px;
+            font-size: 16px;
             border-radius: 50px;
             cursor: pointer;
             color: white;
@@ -117,8 +230,31 @@
             box-shadow: 0 12px 30px rgba(153, 69, 255, 0.5);
         }
 
-        .btn-primary:active {
-            transform: translateY(-1px);
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 80px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-title {
+            font-size: 28px;
+            color: #9945ff;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .feature-subtitle {
+            font-size: 14px;
+            color: #a8b4ff;
         }
 
         /* Products Section */
@@ -126,7 +262,7 @@
             opacity: 0;
             transition: opacity 0.5s ease;
             display: none;
-            padding: 60px 20px;
+            padding: 80px 20px 60px;
             min-height: 100vh;
         }
 
@@ -224,7 +360,7 @@
         .back-btn {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 20px;
             background: rgba(153, 69, 255, 0.3);
             border: 1px solid rgba(153, 69, 255, 0.6);
             padding: 10px 20px;
@@ -247,13 +383,50 @@
             transform: translateX(5px);
         }
 
+        /* Reviews */
+        .reviews {
+            margin-top: 80px;
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(153, 69, 255, 0.3);
+        }
+
+        .review-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-size: 14px;
+            color: #a8b4ff;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 16px;
+        }
+
         @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
             h1 {
                 font-size: 36px;
             }
 
+            .welcome-subtitle {
+                font-size: 32px;
+            }
+
             .welcome-text {
-                font-size: 18px;
+                font-size: 16px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .products-header h2 {
@@ -261,7 +434,7 @@
             }
 
             .btn-primary {
-                padding: 14px 30px;
+                padding: 12px 30px;
                 font-size: 16px;
             }
 
@@ -269,19 +442,59 @@
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
+
+            .header-buttons {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="stars" id="stars"></div>
 
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="close-btn" onclick="closeApp()">✕</button>
+        </div>
+        <div class="header-center">DARK Solana</div>
+        <div class="header-right">
+            <div class="wallet-info">
+                <span class="dot"></span>
+                <span>0 ⊙ USDT</span>
+            </div>
+            <button class="btn-icon">💬</button>
+            <button class="btn-icon">📤</button>
+            <button class="profile-btn">👤 ملفي الشخصي</button>
+        </div>
+    </header>
+
     <!-- Welcome Section -->
     <section class="welcome-section" id="welcomeSection">
         <div class="welcome-content">
-            <div class="logo">🌑</div>
-            <h1>Dark Solana</h1>
-            <p class="welcome-text">مرحباً بك في موقع سولانا</p>
-            <button class="btn-primary" onclick="goToProducts()">عرض المنتجات</button>
+            <div class="brand-header">
+                <span class="brand-icon">≡</span>
+                <span>DARK Solana</span>
+            </div>
+            <h1>مرحباً على الموقع</h1>
+            <p class="welcome-subtitle">سولانا</p>
+            <p class="welcome-text">اختر مدة الوصول التي تناسبك وابدأ رحلتك التعليمية من اليوم</p>
+            <button class="btn-primary" onclick="goToProducts()">عرض العروض</button>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-title">24/7</div>
+                    <div class="feature-subtitle">دعم تيليجرام</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">USDT</div>
+                    <div class="feature-subtitle">دفع آمن</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">فوري</div>
+                    <div class="feature-subtitle">تفعيل فوري</div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -341,6 +554,14 @@
                 <button class="btn-buy">شراء الآن</button>
             </div>
         </div>
+
+        <div class="reviews">
+            <div class="review-item">
+                <span class="stars">★★★★★</span>
+                <span>#21858</span>
+                <span>ياسمين قامت بشراء 300 USDT...</span>
+            </div>
+        </div>
     </section>
 
     <button class="back-btn" id="backBtn" onclick="backToWelcome()">← العودة</button>
@@ -383,6 +604,10 @@
             setTimeout(() => {
                 welcomeSection.classList.remove('hidden');
             }, 250);
+        }
+
+        function closeApp() {
+            alert('تم إغلاق التطبيق');
         }
 
         // Add click handlers to buy buttons
