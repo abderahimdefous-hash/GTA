@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USDT Matrix</title>
+<style>
+  :root {
+    --green: #00ff66;
+    --green-dim: #00b347;
+    --tether: #26a17b;
+    --bg: #000;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+  }
+
+  /* خلفية البرمجيات المتحركة */
+  #matrix {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  /* شاشة الدخول */
+  #boot {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: clamp(13px, 3.5vw, 16px);
+    line-height: 1.7;
+    direction: ltr;
+    text-align: left;
+    text-shadow: 0 0 6px var(--green);
+    transition: opacity .8s ease;
+  }
+  #boot.hide { opacity: 0; pointer-events: none; }
+  .cursor {
+    display: inline-block;
+    width: .6em;
+    height: 1em;
+    background: var(--green);
+    vertical-align: text-bottom;
+    animation: blink .8s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .bar {
+    margin-top: 12px;
+    height: 6px;
+    border: 1px solid var(--green-dim);
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    transition: width .15s linear;
+  }
+
+  /* المشهد الرئيسي */
+  #main {
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 0 16px;
+    opacity: 0;
+    transform: scale(.9);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+  #main.show { opacity: 1; transform: scale(1); }
+  #main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,.85) 0%, rgba(0,0,0,.55) 40%, transparent 70%);
+  }
+
+  /* شعار USDT ثلاثي الأبعاد */
+  .scene {
+    width: min(260px, 60vw);
+    height: min(260px, 60vw);
+    perspective: 900px;
+  }
+  .coin {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: spin 6s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotateY(0deg) rotateX(8deg); }
+    to   { transform: rotateY(360deg) rotateX(8deg); }
+  }
+  .layer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #1b7a5c;
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 25%, #5fe0b3 0%, var(--tether) 45%, #146b50 100%);
+    box-shadow:
+      inset 0 0 0 6px rgba(255,255,255,.25),
+      inset 0 0 30px rgba(0,0,0,.35),
+      0 0 60px rgba(0,255,102,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+  }
+  .face svg { width: 62%; height: 62%; filter: drop-shadow(0 3px 2px rgba(0,0,0,.35)); }
+  .face.back { transform: rotateY(180deg) translateZ(var(--half)); }
+  .face.front { transform: translateZ(var(--half)); }
+  .shadow {
+    width: min(200px, 46vw);
+    height: 22px;
+    margin-top: -20px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,255,102,.45), transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { transform: scale(.8); opacity: .6; } }
+
+  .title {
+    font-size: clamp(28px, 8vw, 56px);
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-align: center;
+    text-shadow: 0 0 10px var(--green), 0 0 30px var(--green-dim);
+  }
+  .subtitle {
+    font-family: system-ui, "Segoe UI", Tahoma, sans-serif;
+    font-size: clamp(15px, 4vw, 20px);
+    color: #c8ffd9;
+    text-align: center;
+    margin-top: -24px;
+  }
+  .enter {
+    font-family: system-ui, "Segoe UI", Tahoma, sans-serif;
+    font-size: 18px;
+    padding: 14px 42px;
+    color: #000;
+    background: var(--green);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--green), 0 0 50px rgba(0,255,102,.4);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .enter:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--green), 0 0 80px rgba(0,255,102,.6); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coin { animation-duration: 20s; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="boot">
+  <div id="log"></div>
+  <div class="bar"><span id="progress"></span></div>
+</div>
+
+<main id="main">
+  <div>
+    <div class="scene">
+      <div class="coin" id="coin"></div>
+    </div>
+    <div class="shadow"></div>
+  </div>
+  <h1 class="title">USDT</h1>
+  <p class="subtitle">صرف USDT وبطاقات الهدايا — بسرعة وأمان</p>
+  <button class="enter" onclick="location.href='index.html'">ادخل المتجر</button>
+</main>
+
+<script>
+/* ===== خلفية البرمجيات (Matrix) ===== */
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+const chars = 'アイウエオカキクケコサシスセソ0123456789ABCDEF$₮<>/{}[];=+*USDT';
+let fontSize, columns, drops;
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  fontSize = window.innerWidth < 600 ? 14 : 18;
+  columns = Math.ceil(canvas.width / fontSize);
+  drops = Array.from({ length: columns }, () => Math.random() * -50);
+}
+resize();
+window.addEventListener('resize', resize);
+
+function draw() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = fontSize + 'px monospace';
+  for (let i = 0; i < columns; i++) {
+    const ch = chars[Math.floor(Math.random() * chars.length)];
+    const y = drops[i] * fontSize;
+    ctx.fillStyle = Math.random() > 0.975 ? '#d6ffe4' : '#00ff66';
+    ctx.fillText(ch, i * fontSize, y);
+    if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(draw, 45);
+
+/* ===== بناء العملة ثلاثية الأبعاد (سماكة بطبقات) ===== */
+const coin = document.getElementById('coin');
+const thickness = 22, layers = 18;
+coin.style.setProperty('--half', thickness / 2 + 'px');
+for (let i = 0; i < layers; i++) {
+  const l = document.createElement('div');
+  l.className = 'layer';
+  const z = -thickness / 2 + (thickness / (layers - 1)) * i;
+  l.style.transform = `translateZ(${z}px)`;
+  l.style.filter = `brightness(${0.7 + (i % 3) * 0.08})`;
+  coin.appendChild(l);
+}
+const tetherSvg = `
+  <svg viewBox="0 0 100 100" fill="#fff" aria-hidden="true">
+    <rect x="20" y="18" width="60" height="14" rx="2"/>
+    <rect x="43" y="18" width="14" height="66" rx="2"/>
+    <ellipse cx="50" cy="48" rx="34" ry="8" fill="none" stroke="#fff" stroke-width="6"/>
+  </svg>`;
+['front', 'back'].forEach(side => {
+  const f = document.createElement('div');
+  f.className = 'face ' + side;
+  f.innerHTML = tetherSvg;
+  coin.appendChild(f);
+});
+
+/* ===== شاشة الإقلاع ===== */
+const lines = [
+  '> initializing secure node...',
+  '> connecting to TRC20 / ERC20 network...',
+  '> verifying wallet handshake... OK',
+  '> loading USDT module...',
+  '> access granted.'
+];
+const log = document.getElementById('log');
+const progress = document.getElementById('progress');
+let li = 0, ci = 0;
+
+function type() {
+  if (li >= lines.length) {
+    setTimeout(() => {
+      document.getElementById('boot').classList.add('hide');
+      document.getElementById('main').classList.add('show');
+    }, 500);
+    return;
+  }
+  const done = lines.slice(0, li).join('<br>');
+  const current = lines[li].slice(0, ci);
+  log.innerHTML = (done ? done + '<br>' : '') + current + '<span class="cursor"></span>';
+  progress.style.width = ((li + ci / lines[li].length) / lines.length * 100) + '%';
+  if (ci < lines[li].length) { ci++; setTimeout(type, 28); }
+  else { li++; ci = 0; setTimeout(type, 250); }
+}
+type();
+</script>
+</body>
+</html>
