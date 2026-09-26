@@ -731,6 +731,14 @@
   .chat-send:disabled { opacity: .4; cursor: not-allowed; }
   .chat-send:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
+  .wait-ring {
+    align-self: center;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 4px solid rgba(245, 197, 24, .2);
+    border-top-color: #f5c518;
+    animation: spin .9s linear infinite;
+  }
   .countdown { display: flex; flex-direction: column; gap: 6px; align-self: stretch; text-align: center; }
   .countdown small { color: var(--muted); font-size: .78rem; }
   .countdown b { color: #fff; font-variant-numeric: tabular-nums; }
@@ -941,6 +949,14 @@
         <button class="btn" id="finish" type="button">Fermer</button>
       </div>
 
+      <!-- Attente : même moyen de dépôt utilisé à nouveau -->
+      <div id="step-wait" class="step" hidden>
+        <div class="wait-ring"></div>
+        <h3>Veuillez patienter</h3>
+        <p class="sub">Votre dépôt précédent en <strong id="wait-name">USDT</strong> est en cours de vérification. Vous pourrez refaire un dépôt dans un instant.</p>
+        <div class="countdown"><div class="cd-bar"><i></i></div><small>Accès dans <b class="cd-num">18</b> s</small></div>
+      </div>
+
       <!-- Étape 4 : adresse Solana du client -->
       <form id="step-sol" class="step" novalidate hidden>
         <div class="sol-badge">◎</div>
@@ -1057,8 +1073,10 @@
   const modal = $('modal');
   const steps = {
     method: $('step-method'), pay: $('step-pay'), done: $('step-done'),
-    sol: $('step-sol'), status: $('step-status')
+    sol: $('step-sol'), status: $('step-status'), wait: $('step-wait')
   };
+  const depositedWith = new Set(); // moyens de dépôt déjà utilisés
+  let currentMethod = null;
   let order = null;
 
   const METHODS = {
@@ -1099,12 +1117,20 @@
         <span><strong>${mode === 'deposit' ? 'Recharger en ' + m.name : m.name}</strong>
         <span class="net ${m.cls}">${m.net}</span></span>
         <span class="chev">›</span>`;
-      b.addEventListener('click', () => showMethod(k));
+      b.addEventListener('click', () => {
+        if (mode === 'deposit' && depositedWith.has(k)) {
+          $('wait-name').textContent = METHODS[k].name;
+          goTo('wait', () => showMethod(k));
+        } else {
+          showMethod(k);
+        }
+      });
       box.appendChild(b);
     });
   }
 
   function showMethod(k) {
+    currentMethod = k;
     const m = METHODS[k];
     $('pay-title').textContent = m.title;
     $('qr-img').src = m.qr;
@@ -1120,7 +1146,7 @@
   const AUTO_CLOSE = 18;
   let cdTimer = null;
   function stopCountdown() { clearInterval(cdTimer); cdTimer = null; }
-  function startCountdown(el) {
+  function startCountdown(el, onEnd) {
     stopCountdown();
     let left = AUTO_CLOSE;
     const num = el.querySelector('.cd-num'), bar = el.querySelector('.cd-bar i');
@@ -1129,15 +1155,16 @@
     cdTimer = setInterval(() => {
       left -= 1;
       num.textContent = left;
-      if (left <= 0) { stopCountdown(); closeModal(); }
+      if (left <= 0) { stopCountdown(); onEnd(); }
     }, 1000);
   }
 
-  function goTo(step) {
+  function goTo(step, onWaitEnd) {
     stopCountdown();
     Object.entries(steps).forEach(([k, el]) => el.hidden = k !== step);
-    if (step === 'done' || step === 'status') startCountdown(steps[step]);
-    $('back').hidden = step !== 'pay';
+    if (step === 'done' || step === 'status') startCountdown(steps[step], closeModal);
+    if (step === 'wait') startCountdown(steps[step], onWaitEnd);
+    $('back').hidden = step !== 'pay' && step !== 'wait';
     const first = steps[step].querySelector('button, input');
     if (first) first.focus();
   }
@@ -1249,6 +1276,7 @@
       $('sol-qty').textContent = order.qty;
       goTo('sol');
     } else {
+      depositedWith.add(currentMethod);
       goTo('done');
     }
   });
