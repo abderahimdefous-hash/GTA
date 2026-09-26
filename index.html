@@ -19,6 +19,8 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  .step { display: flex; flex-direction: column; gap: 16px; }
 
   html { scroll-behavior: smooth; }
 
@@ -204,52 +206,224 @@
 
   .products {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 28px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
   }
   .card {
     position: relative;
-    padding: 30px 24px;
-    border-radius: 20px;
-    background: linear-gradient(160deg, rgba(40, 0, 0, .75), rgba(5, 5, 5, .9));
-    border: 1px solid rgba(255, 40, 40, .25);
+    padding: 32px 20px 26px;
+    border-radius: 22px;
+    background: linear-gradient(165deg, rgba(60, 0, 0, .8), rgba(5, 5, 5, .92));
+    border: 1px solid rgba(255, 40, 40, .3);
     backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
     transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
-    opacity: 0;
-    transform: translateY(40px);
+    animation: rise .7s ease both;
   }
-  .card.visible { opacity: 1; transform: translateY(0); }
+  .card:nth-child(2) { animation-delay: .08s; }
+  .card:nth-child(3) { animation-delay: .16s; }
+  .card:nth-child(4) { animation-delay: .24s; }
+  .card:nth-child(5) { animation-delay: .32s; }
+  @keyframes rise { from { transform: translateY(24px); } to { transform: none; } }
   .card:hover {
     transform: translateY(-10px);
     border-color: var(--red);
     box-shadow: 0 20px 50px rgba(255, 0, 0, .35);
   }
-  .card .icon {
-    width: 64px; height: 64px;
-    border-radius: 16px;
-    display: grid; place-items: center;
-    font-size: 30px;
-    background: linear-gradient(135deg, #ff2a2a, #7a0000);
-    box-shadow: 0 0 25px var(--red-glow);
-    margin-bottom: 20px;
+  .card .name {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
+    color: #ff2b2b;
+    text-shadow: 0 0 18px rgba(255, 30, 30, .7), 0 0 40px rgba(255, 0, 0, .35);
   }
-  .card h3 { font-family: 'Orbitron', sans-serif; font-size: 1.15rem; margin-bottom: 10px; }
-  .card p { color: var(--muted); font-size: .92rem; line-height: 1.6; margin-bottom: 22px; }
-  .card .price { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--red); font-weight: 800; }
-  .card .buy {
-    margin-top: 18px;
+  .card .qty {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 5.5rem;
+    line-height: 1;
+    color: #fff;
+    transform: perspective(300px) rotateX(12deg);
+    text-shadow:
+      0 1px 0 #ff9a9a, 0 2px 0 #ff5c5c, 0 3px 0 #ff2a2a, 0 4px 0 #e00000,
+      0 5px 0 #c00000, 0 6px 0 #a00000, 0 7px 0 #800000, 0 8px 0 #600000,
+      0 10px 12px rgba(0, 0, 0, .8), 0 0 30px rgba(255, 0, 0, .6);
+    animation: bob 3s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: perspective(300px) rotateX(12deg) translateY(0); }
+    50%      { transform: perspective(300px) rotateX(12deg) translateY(-6px); }
+  }
+  .card .price {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .card .price small { color: #26a17b; font-size: .85rem; letter-spacing: 1px; }
+  .btn {
     width: 100%;
-    padding: 12px;
+    padding: 13px;
     border: none;
     border-radius: 999px;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
+    font-size: 1rem;
     color: #fff;
     cursor: pointer;
     background: linear-gradient(90deg, #b30000, #ff2020);
-    transition: box-shadow .3s ease;
+    transition: box-shadow .3s ease, transform .2s ease;
   }
-  .card .buy:hover { box-shadow: 0 0 25px var(--red-glow); }
+  .btn:hover { box-shadow: 0 0 25px var(--red-glow); }
+  .btn:active { transform: scale(.97); }
+  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .btn:disabled { background: #2a1212; color: #8a6d6d; cursor: not-allowed; box-shadow: none; }
+  .card.soon { border-style: dashed; }
+  .card.soon .name { color: #7a4a4a; text-shadow: none; }
+  .card.soon .qty { color: #3a1c1c; text-shadow: none; animation: none; }
+  .card.soon .price { color: #8a6d6d; }
+
+  /* ---------- Fenêtre de paiement ---------- */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, .78);
+    backdrop-filter: blur(6px);
+  }
+  .dialog {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 30px 24px 26px;
+    border-radius: 22px;
+    background: linear-gradient(165deg, #1c0000, #070707 70%);
+    border: 1px solid rgba(255, 40, 40, .45);
+    box-shadow: 0 0 60px rgba(255, 0, 0, .35);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: pop .3s ease;
+  }
+  @keyframes pop { from { transform: scale(.92); opacity: 0; } }
+  .dialog h3 { font-family: 'Orbitron', sans-serif; font-size: 1.15rem; text-align: center; padding-inline: 24px; }
+  .dialog .sub { color: var(--muted); text-align: center; font-size: .9rem; }
+  .close, .back {
+    position: absolute;
+    top: 14px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 60, 60, .4);
+    background: rgba(255, 0, 0, .08);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .close { right: 14px; }
+  .back { left: 14px; }
+  .close:hover, .back:hover { background: rgba(255, 0, 0, .25); }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 60, 60, .35);
+    background: rgba(255, 255, 255, .03);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .25s ease, background .25s ease;
+  }
+  .option:hover, .option:focus-visible { border-color: var(--red); background: rgba(255, 0, 0, .1); outline: none; }
+  .option .coin {
+    width: 44px; height: 44px;
+    flex: none;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #fff;
+    background: #26a17b;
+  }
+  .option strong { display: block; font-size: 1rem; }
+  .option span.net { font-size: .8rem; color: #f3ba2f; }
+  .option .chev { margin-left: auto; color: var(--red); font-size: 1.2rem; }
+  .amount {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+  }
+  .amount small { display: block; font-family: 'Poppins', sans-serif; font-weight: 400; font-size: .8rem; color: var(--muted); }
+  .qr {
+    align-self: center;
+    width: 220px;
+    max-width: 100%;
+    padding: 10px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 0 30px rgba(255, 0, 0, .35);
+  }
+  .qr img { display: block; width: 100%; height: auto; }
+  .label-sm { font-size: .78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .addr {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .addr code {
+    display: block;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 60, 60, .25);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: .82rem;
+    word-break: break-all;
+    user-select: all;
+  }
+  .warn { font-size: .78rem; color: #f3ba2f; text-align: center; }
+  .upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 16px;
+    border: 2px dashed rgba(255, 60, 60, .45);
+    cursor: pointer;
+    text-align: center;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .upload:hover, .upload.drag { background: rgba(255, 0, 0, .08); border-color: var(--red); }
+  .upload input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .upload:focus-within { border-color: #fff; }
+  .upload .plus { font-size: 1.8rem; color: var(--red); line-height: 1; }
+  .upload img { max-height: 180px; border-radius: 10px; }
+  .upload .fname { font-size: .8rem; color: var(--muted); word-break: break-all; }
+  .done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .done .check {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #ff2a2a, #7a0000);
+    box-shadow: 0 0 30px var(--red-glow);
+  }
 
   footer {
     text-align: center;
@@ -284,7 +458,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
-    .card { opacity: 1; transform: none; }
+    .card .qty { transform: perspective(300px) rotateX(12deg); }
   }
 </style>
 </head>
@@ -317,38 +491,94 @@
     <p class="section-sub">Découvrez notre sélection exclusive</p>
 
     <div class="products">
-      <article class="card">
-        <div class="icon">₿</div>
-        <h3>Formation Bitcoin</h3>
-        <p>Apprenez les bases du Bitcoin, de la blockchain et de l'achat sécurisé.</p>
-        <div class="price">49 €</div>
-        <button class="buy">Commander</button>
+      <article class="card" data-name="Solana" data-qty="3" data-price="85">
+        <div class="name">Solana</div>
+        <div class="qty">3</div>
+        <div class="price">85 <small>USDT</small></div>
+        <button class="btn pay" type="button">Payer</button>
       </article>
-      <article class="card">
-        <div class="icon">📈</div>
-        <h3>Signaux Trading</h3>
-        <p>Recevez des analyses et des signaux de trading quotidiens sur le BTC.</p>
-        <div class="price">29 € / mois</div>
-        <button class="buy">Commander</button>
+      <article class="card soon">
+        <div class="name">Produit 2</div>
+        <div class="qty">?</div>
+        <div class="price">Bientôt</div>
+        <button class="btn" type="button" disabled>Bientôt disponible</button>
       </article>
-      <article class="card">
-        <div class="icon">🔐</div>
-        <h3>Portefeuille Sécurisé</h3>
-        <p>Guide complet pour configurer et protéger votre portefeuille crypto.</p>
-        <div class="price">19 €</div>
-        <button class="buy">Commander</button>
+      <article class="card soon">
+        <div class="name">Produit 3</div>
+        <div class="qty">?</div>
+        <div class="price">Bientôt</div>
+        <button class="btn" type="button" disabled>Bientôt disponible</button>
       </article>
-      <article class="card">
-        <div class="icon">💬</div>
-        <h3>Coaching Privé</h3>
-        <p>Une session individuelle avec Doctour Btc pour répondre à vos questions.</p>
-        <div class="price">99 €</div>
-        <button class="buy">Commander</button>
+      <article class="card soon">
+        <div class="name">Produit 4</div>
+        <div class="qty">?</div>
+        <div class="price">Bientôt</div>
+        <button class="btn" type="button" disabled>Bientôt disponible</button>
+      </article>
+      <article class="card soon">
+        <div class="name">Produit 5</div>
+        <div class="qty">?</div>
+        <div class="price">Bientôt</div>
+        <button class="btn" type="button" disabled>Bientôt disponible</button>
       </article>
     </div>
   </section>
 
   <footer>© 2026 <strong>Doctour Btc</strong> — Tous droits réservés</footer>
+
+  <!-- Fenêtre de paiement -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="dlg-title" hidden>
+    <div class="dialog">
+      <button class="back" id="back" type="button" aria-label="Retour" hidden>←</button>
+      <button class="close" id="close" type="button" aria-label="Fermer">✕</button>
+
+      <!-- Étape 1 : choix de la crypto -->
+      <div id="step-method" class="step">
+        <h3 id="dlg-title">Payer en cryptomonnaies</h3>
+        <p class="sub"><span id="sum-name">Solana 3</span> · <strong id="sum-price">85 USDT</strong></p>
+        <p class="label-sm">Choisissez un moyen de paiement</p>
+        <button class="option" id="opt-usdt" type="button">
+          <span class="coin">₮</span>
+          <span>
+            <strong>USDT</strong>
+            <span class="net">BNB Smart Chain (BEP20)</span>
+          </span>
+          <span class="chev">›</span>
+        </button>
+      </div>
+
+      <!-- Étape 2 : QR code + adresse + preuve -->
+      <div id="step-usdt" class="step" hidden>
+        <h3>USDT · BNB Smart Chain</h3>
+        <div class="amount"><span id="amount">85</span> USDT<small>Montant à envoyer</small></div>
+        <div class="qr"><img src="assets/qr-usdt-bep20.jpg" alt="QR code de l'adresse USDT BEP20" width="573" height="577"></div>
+        <div class="addr">
+          <span class="label-sm">Adresse du réseau (BEP20)</span>
+          <code id="address">0xfA59f6608685c147051b8501B31324A984D7588f</code>
+          <button class="btn" id="copy" type="button">Copier l'adresse</button>
+        </div>
+        <p class="warn">⚠ Envoyez uniquement de l'USDT sur le réseau BNB Smart Chain (BEP20).</p>
+
+        <span class="label-sm">Preuve de paiement</span>
+        <label class="upload" id="drop">
+          <input type="file" id="proof" accept="image/*">
+          <span class="plus">＋</span>
+          <span id="upload-text">Ajouter la capture d'écran du paiement</span>
+          <img id="preview" alt="Aperçu de la capture" hidden>
+          <span class="fname" id="fname"></span>
+        </label>
+        <button class="btn" id="confirm" type="button" disabled>Confirmer le paiement</button>
+      </div>
+
+      <!-- Étape 3 : confirmation -->
+      <div id="step-done" class="done" hidden>
+        <div class="check">✔</div>
+        <h3>Paiement envoyé</h3>
+        <p class="sub">Merci ! Votre capture a bien été ajoutée. Doctour Btc va vérifier votre paiement.</p>
+        <button class="btn" id="finish" type="button">Fermer</button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -390,29 +620,109 @@
   resize();
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) draw();
 
-  // Apparition des cartes au défilement
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 120);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.card').forEach(c => observer.observe(c));
-
-  // Bouton commander
+  // Messages courts
   const toast = document.getElementById('toast');
   let toastTimer;
-  document.querySelectorAll('.buy').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const name = btn.closest('.card').querySelector('h3').textContent;
-      toast.textContent = `« ${name} » ajouté à votre commande ✔`;
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
-    });
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Fenêtre de paiement
+  const $ = id => document.getElementById(id);
+  const modal = $('modal');
+  const steps = { method: $('step-method'), usdt: $('step-usdt'), done: $('step-done') };
+  let lastFocus = null;
+
+  function goTo(step) {
+    Object.entries(steps).forEach(([k, el]) => el.hidden = k !== step);
+    $('back').hidden = step !== 'usdt';
+    const first = steps[step].querySelector('button, input');
+    if (first) first.focus();
+  }
+
+  function resetProof() {
+    $('proof').value = '';
+    $('preview').hidden = true;
+    $('preview').removeAttribute('src');
+    $('fname').textContent = '';
+    $('upload-text').textContent = "Ajouter la capture d'écran du paiement";
+    $('confirm').disabled = true;
+  }
+
+  function openModal(card) {
+    const { name, qty, price } = card.dataset;
+    $('sum-name').textContent = `${name} ${qty}`;
+    $('sum-price').textContent = `${price} USDT`;
+    $('amount').textContent = price;
+    resetProof();
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    goTo('method');
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('.pay').forEach(btn =>
+    btn.addEventListener('click', () => openModal(btn.closest('.card'))));
+  $('opt-usdt').addEventListener('click', () => goTo('usdt'));
+  $('back').addEventListener('click', () => goTo('method'));
+  $('close').addEventListener('click', closeModal);
+  $('finish').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  // Copier l'adresse
+  $('copy').addEventListener('click', () => {
+    const addr = $('address').textContent.trim();
+    const selectIt = () => {
+      const r = document.createRange();
+      r.selectNodeContents($('address'));
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(addr)
+        .then(() => showToast('Adresse copiée ✔'))
+        .catch(() => { selectIt(); showToast('Adresse sélectionnée : copiez-la manuellement'); });
+    } else {
+      selectIt();
+      showToast('Adresse sélectionnée : copiez-la manuellement');
+    }
   });
+
+  // Capture d'écran du paiement
+  function handleFile(file) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Choisissez une image (capture d’écran)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      $('preview').src = reader.result;
+      $('preview').hidden = false;
+      $('fname').textContent = file.name;
+      $('upload-text').textContent = 'Capture ajoutée · cliquez pour changer';
+      $('confirm').disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+  $('proof').addEventListener('change', e => handleFile(e.target.files[0]));
+  const drop = $('drop');
+  ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('drag'); }));
+  drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+
+  $('confirm').addEventListener('click', () => goTo('done'));
 </script>
 </body>
 </html>
