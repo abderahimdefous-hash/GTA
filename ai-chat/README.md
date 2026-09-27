@@ -7,21 +7,35 @@
 - الصوت: كيقرا الأجوبة بصوت (Web Speech API).
 - الميكرو: كيسمع ليك وكيحول الكلام لنص (أحسن فـ Chrome / Edge).
 - 3 لغات: الدارجة/العربية، الفرنسية، الإنجليزية.
-- كيخدم مع Claude باش يجاوب بذكاء حقيقي، وإلا ما كانش السيرفر كيخدم بردود بسيطة offline.
+- كيجاوب من **ChatGPT** (OpenAI) ولا من Claude، وإلا ما كانش السيرفر كيخدم بردود بسيطة offline.
 
-## التشغيل
+## التشغيل مع ChatGPT
 
 ```bash
 cd ai-chat
-npm install
-export ANTHROPIC_API_KEY=sk-ant-...   # المفتاح ديالك من console.anthropic.com
+export OPENAI_API_KEY=sk-...   # المفتاح ديالك من platform.openai.com/api-keys
 npm start
 ```
 
-من بعد حل: http://localhost:3000
+من بعد حل: http://localhost:3000 — ملي كتسول نور، السؤال كيمشي لـ ChatGPT والجواب كيرجع وكتقراه نور بالصوت.
 
-- `PORT` باش تبدل البورت (الافتراضي 3000).
+- `OPENAI_MODEL` باش تبدل الموديل (الافتراضي `gpt-4o-mini`).
+- ChatGPT محتاج رصيد فالحساب ديال OpenAI API (ماشي نفس الاشتراك ديال ChatGPT Plus).
+
+## التشغيل مع Claude (اختياري)
+
+```bash
+npm install
+export ANTHROPIC_API_KEY=sk-ant-...
+export AI_PROVIDER=claude
+npm start
+```
+
 - `CLAUDE_MODEL` باش تبدل الموديل (الافتراضي `claude-opus-5`).
+
+## إعدادات أخرى
+- `PORT` باش تبدل البورت (الافتراضي 3000).
+- `AI_PROVIDER` = `openai` ولا `claude` (إلا ما حطيتيهش: ChatGPT إلا كان `OPENAI_API_KEY`، وإلا Claude).
 
 > المفتاح كيبقى فالسيرفر وما كيوصلش للمتصفح.
 

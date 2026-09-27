@@ -1,5 +1,5 @@
 // Small server: serves the static site from ./public and proxies chat
-// messages to Claude so the API key never reaches the browser.
+// messages to ChatGPT (OpenAI) or Claude so the API key never reaches the browser.
 import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -8,14 +8,17 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(here, "public");
 const PORT = Number(process.env.PORT) || 3000;
-const MODEL = process.env.CLAUDE_MODEL || "claude-opus-5";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-5";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+// ChatGPT is used when an OpenAI key is set, unless AI_PROVIDER says otherwise.
+const PROVIDER = (process.env.AI_PROVIDER || (process.env.OPENAI_API_KEY ? "openai" : "claude")).toLowerCase();
 
 const SYSTEM_PROMPT = `You are "Nour", a friendly AI shown to the user as an animated talking face on a website.
 Your replies are read aloud by a text-to-speech voice, so:
 - Keep answers short and conversational: 1 to 3 sentences unless the user asks for detail.
 - Never use markdown, lists, emojis, code blocks or special symbols.
-- Reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).
-Latency-sensitive; begin your visible answer immediately.`;
+- Reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).`;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -73,38 +76,58 @@ async function handleChat(req, res) {
     return sendJson(res, 400, { error: "bad_request" });
   }
 
+  try {
+    const reply = PROVIDER === "openai" ? await askOpenAI(messages) : await askClaude(messages);
+    return sendJson(res, 200, { reply });
+  } catch (err) {
+    console.error(`${PROVIDER} error:`, err?.status ?? "", err?.message ?? err);
+    const status = err?.code === "not_configured" || err?.status === 401 ? 503 : 502;
+    return sendJson(res, status, { error: err?.code || "upstream_error" });
+  }
+}
+
+async function askOpenAI(messages) {
+  if (!process.env.OPENAI_API_KEY) throw Object.assign(new Error("OPENAI_API_KEY is not set"), { code: "not_configured" });
+  const r = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+    }),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(data?.error?.message || `HTTP ${r.status}`), { status: r.status });
+  const reply = data?.choices?.[0]?.message?.content?.trim();
+  if (!reply) throw new Error("Empty reply from OpenAI");
+  return reply;
+}
+
+async function askClaude(messages) {
   let anthropic;
   try {
     anthropic = await getClient();
   } catch {
-    return sendJson(res, 503, { error: "sdk_missing" });
+    throw Object.assign(new Error("@anthropic-ai/sdk is not installed"), { code: "not_configured" });
   }
-
-  try {
-    const response = await anthropic.beta.messages.create({
-      model: MODEL,
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      output_config: { effort: "low" },
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      messages,
-    });
-
-    if (response.stop_reason === "refusal") {
-      return sendJson(res, 200, { reply: "سمح ليا، ما نقدرش نجاوب على هاد السؤال." });
-    }
-    const reply = response.content
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
-      .join(" ")
-      .trim();
-    return sendJson(res, 200, { reply });
-  } catch (err) {
-    console.error("Claude API error:", err?.status ?? "", err?.message ?? err);
-    const status = err?.status === 401 ? 503 : 502;
-    return sendJson(res, status, { error: "upstream_error" });
-  }
+  const response = await anthropic.beta.messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: 1024,
+    system: SYSTEM_PROMPT + "\nLatency-sensitive; begin your visible answer immediately.",
+    output_config: { effort: "low" },
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    messages,
+  });
+  if (response.stop_reason === "refusal") return "سمح ليا، ما نقدرش نجاوب على هاد السؤال.";
+  return response.content
+    .filter((b) => b.type === "text")
+    .map((b) => b.text)
+    .join(" ")
+    .trim();
 }
 
 async function serveStatic(req, res) {
@@ -132,5 +155,5 @@ http
     res.end();
   })
   .listen(PORT, () => {
-    console.log(`AI face chat running on http://localhost:${PORT}`);
+    console.log(`AI face chat running on http://localhost:${PORT} (AI: ${PROVIDER === "openai" ? `ChatGPT ${OPENAI_MODEL}` : `Claude ${CLAUDE_MODEL}`})`);
   });
