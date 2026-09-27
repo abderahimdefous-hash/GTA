@@ -75,71 +75,113 @@
 </div>
 
 <div id="overlay">
-  <div class="spinner"></div>
-  <p id="msg">جاري تشغيل الكاميرا وتحميل نموذج التحليل...</p>
-  <button id="retry">تشغيل الكاميرا</button>
+  <div class="spinner" style="display:none"></div>
+  <p id="msg">اضغط الزر وأعطِ الإذن للكاميرا لبدء تحليل وجهك بالليزر</p>
+  <button id="retry" style="display:block">▶ ابدأ المسح</button>
 </div>
 
 <script type="module">
-import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
-
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const overlay = document.getElementById("overlay");
 const msg = document.getElementById("msg");
 const retry = document.getElementById("retry");
+const spinner = document.querySelector(".spinner");
 const $ = id => document.getElementById(id);
 
 const SMILE_ON = 0.45, SMILE_OFF = 0.3; // hysteresis so the colour doesn't flicker
-let landmarker, smiling = false, lastVideoTime = -1, frames = 0, fpsTime = performance.now();
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const VERSION = "0.10.14";
+const CDNS = [
+  `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VERSION}`,
+  `https://unpkg.com/@mediapipe/tasks-vision@${VERSION}`
+];
+const MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
+let FaceLandmarker, landmarker, smiling = false, lastVideoTime = -1, frames = 0, fpsTime = performance.now();
+let looping = false;
+
+const withTimeout = (p, ms, label) => Promise.race([p,
+  new Promise((_, rej) => setTimeout(() => rej(new Error(label)), ms))]);
+
+// Loaded dynamically (not a static import) so a CDN failure shows an error instead of a dead page.
 async function loadModel() {
-  const fileset = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-  const opts = (delegate) => ({
-    baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-      delegate
-    },
-    runningMode: "VIDEO",
-    numFaces: 1,
-    outputFaceBlendshapes: true
-  });
-  try { return await FaceLandmarker.createFromOptions(fileset, opts("GPU")); }
-  catch { return await FaceLandmarker.createFromOptions(fileset, opts("CPU")); }
+  let lastErr;
+  for (const cdn of CDNS) {
+    try {
+      const vision = await withTimeout(import(`${cdn}/vision_bundle.mjs`), 20000, "انتهت مهلة تحميل المكتبة");
+      FaceLandmarker = vision.FaceLandmarker;
+      const fileset = await vision.FilesetResolver.forVisionTasks(`${cdn}/wasm`);
+      const opts = delegate => ({
+        baseOptions: { modelAssetPath: MODEL, delegate },
+        runningMode: "VIDEO",
+        numFaces: 1,
+        outputFaceBlendshapes: true
+      });
+      try { return await withTimeout(FaceLandmarker.createFromOptions(fileset, opts("GPU")), 30000, "GPU"); }
+      catch { return await withTimeout(FaceLandmarker.createFromOptions(fileset, opts("CPU")), 30000, "انتهت مهلة تحميل النموذج"); }
+    } catch (e) { lastErr = e; console.error(cdn, e); }
+  }
+  throw lastErr;
 }
 
 async function startCamera() {
+  if (video.srcObject) return;
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false
   });
   video.srcObject = stream;
-  await new Promise(r => video.onloadedmetadata = r);
+  if (video.readyState < 1) await new Promise(r => video.addEventListener("loadedmetadata", r, { once: true }));
   await video.play();
+}
+
+function showError(text) {
+  overlay.style.display = "flex";
+  spinner.style.display = "none";
+  msg.textContent = text;
+  retry.textContent = "إعادة المحاولة";
+  retry.style.display = "block";
 }
 
 async function init() {
   retry.style.display = "none";
-  msg.textContent = "جاري تشغيل الكاميرا وتحميل نموذج التحليل...";
+  spinner.style.display = "block";
+
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+    return showError("الكاميرا لا تعمل هنا. افتح الرابط في متصفح Chrome أو Safari (وليس داخل تطبيق) وعبر https.");
+  }
+
+  // 1) camera first, so the user sees themselves right away
+  msg.textContent = "جاري تشغيل الكاميرا...";
   try {
-    if (!navigator.mediaDevices?.getUserMedia) throw new Error("NO_API");
-    const [lm] = await Promise.all([landmarker || loadModel(), startCamera()]);
-    landmarker = lm;
-    overlay.style.display = "none";
-    requestAnimationFrame(loop);
+    await startCamera();
   } catch (e) {
     console.error(e);
-    document.querySelector(".spinner").style.display = "none";
-    msg.textContent = e.name === "NotAllowedError"
-      ? "تم رفض الوصول للكاميرا. اسمح بالوصول ثم اضغط الزر."
-      : e.message === "NO_API"
-        ? "المتصفح لا يدعم الكاميرا. افتح الموقع عبر https."
-        : "تعذر التشغيل: " + (e.message || e);
-    retry.style.display = "block";
+    return showError(e.name === "NotAllowedError"
+      ? "تم رفض الوصول للكاميرا. اسمح بالكاميرا من إعدادات المتصفح ثم اضغط إعادة المحاولة."
+      : e.name === "NotFoundError"
+        ? "لم يتم العثور على كاميرا في هذا الجهاز."
+        : e.name === "NotReadableError"
+          ? "الكاميرا مستعملة من تطبيق آخر. أغلقه ثم أعد المحاولة."
+          : "تعذر تشغيل الكاميرا: " + (e.message || e));
   }
+  overlay.style.display = "none";
+
+  // 2) then the face model; the camera stays visible while it loads
+  if (!landmarker) {
+    $("status").textContent = "جاري تحميل نظام الليزر...";
+    try {
+      landmarker = await loadModel();
+    } catch (e) {
+      $("status").textContent = "تعذر تحميل نظام التحليل — تحقق من الإنترنت";
+      return showError("الكاميرا تعمل لكن تعذر تحميل نموذج تحليل الوجه. تحقق من اتصال الإنترنت ثم أعد المحاولة. (" + (e.message || e) + ")");
+    }
+  }
+  $("status").textContent = "جاري البحث عن وجه...";
+  if (!looping) { looping = true; requestAnimationFrame(loop); }
 }
-retry.onclick = () => { document.querySelector(".spinner").style.display = "block"; init(); };
+retry.onclick = init;
 
 // Map normalized landmark coords to canvas pixels, accounting for object-fit: cover cropping.
 function mapper() {
@@ -150,9 +192,8 @@ function mapper() {
 }
 
 function resize() {
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = innerWidth * dpr;
-  canvas.height = innerHeight * dpr;
+  canvas.width = innerWidth * DPR;
+  canvas.height = innerHeight * DPR;
 }
 addEventListener("resize", resize);
 resize();
@@ -164,7 +205,7 @@ function blend(cats, name) {
 function drawFace(lm, color, t) {
   const map = mapper();
   const pts = lm.map(map);
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = DPR;
 
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of pts) {
@@ -310,7 +351,6 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-init();
 </script>
 </body>
 </html>
