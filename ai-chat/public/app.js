@@ -5,7 +5,6 @@
   const intro = $("intro");
   const app = $("app");
   const stage = document.querySelector(".stage");
-  const face = $("face");
   const statusEl = $("status");
   const captionEl = $("caption");
   const logEl = $("log");
@@ -40,101 +39,15 @@
   const t = (key) => TEXT[lang][key];
   const history = [];
 
-  /* ================= Face animation ================= */
+  /* ================= Face (3D, see face3d.js) ================= */
 
-  const eyes = [$("eyeL"), $("eyeR")].map((g) => ({
-    pupil: g.querySelector(".pupil-group"),
-    lid: g.querySelector(".lid"),
-  }));
-  const browL = $("browL");
-  const browR = $("browR");
-  const mouthInner = $("mouthInner");
-  const mouthLine = $("mouthLine");
-  const head = $("head");
-
-  const faceState = {
-    lookX: 0, lookY: 0,           // current pupil offset
-    targetX: 0, targetY: 0,       // where the pupils want to go
-    blink: 0,                     // 0 open .. 1 closed
-    nextBlink: performance.now() + 2000,
-    mouthOpen: 0, mouthTarget: 0, // 0 .. 1
-    smile: 0.35, smileTarget: 0.35,
-    speaking: false,
-    wordPulse: 0,
-  };
-
-  window.addEventListener("pointermove", (e) => {
-    const r = face.getBoundingClientRect();
-    const dx = (e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2);
-    const dy = (e.clientY - (r.top + r.height * 0.42)) / (window.innerHeight / 2);
-    faceState.targetX = Math.max(-1, Math.min(1, dx));
-    faceState.targetY = Math.max(-1, Math.min(1, dy));
-  });
-
-  function mouthPath(open, smile) {
-    const w = 55 - open * 12;
-    const s = smile * 18;
-    const top = s - open * 10;
-    const bottom = s + open * 48;
-    return {
-      inner: `M${-w} 0 Q0 ${top} ${w} 0 Q0 ${bottom} ${-w} 0 Z`,
-      line: open > 0.04
-        ? `M${-w} 0 Q0 ${top} ${w} 0 Q0 ${bottom} ${-w} 0`
-        : `M${-w} 0 Q0 ${s} ${w} 0`,
-    };
-  }
-
-  function animate(now) {
-    const f = faceState;
-
-    // Eyes follow the pointer smoothly.
-    f.lookX += (f.targetX - f.lookX) * 0.12;
-    f.lookY += (f.targetY - f.lookY) * 0.12;
-    const px = f.lookX * 14;
-    const py = f.lookY * 8;
-    eyes.forEach((e) => e.pupil.setAttribute("transform", `translate(${px.toFixed(2)} ${py.toFixed(2)})`));
-
-    // Head tilts slightly toward the pointer.
-    head.setAttribute("transform", `rotate(${(f.lookX * 3).toFixed(2)} 200 230) translate(${(f.lookX * 4).toFixed(2)} ${(f.lookY * 3).toFixed(2)})`);
-
-    // Random blinking.
-    if (now > f.nextBlink) {
-      f.blink = 1;
-      f.nextBlink = now + 2200 + Math.random() * 3500;
-    }
-    f.blink = Math.max(0, f.blink - 0.12);
-    const lidH = Math.sin(f.blink * Math.PI) * 60;
-    eyes.forEach((e) => e.lid.setAttribute("height", lidH.toFixed(1)));
-
-    // Mouth: while speaking, jitter the opening to fake lip-sync,
-    // with extra kicks on each spoken word boundary.
-    if (f.speaking) {
-      const wobble = (Math.sin(now / 70) + Math.sin(now / 43 + 1.3)) * 0.25 + 0.45;
-      f.mouthTarget = Math.max(0.1, Math.min(1, wobble + f.wordPulse));
-      f.wordPulse *= 0.9;
-    } else {
-      f.mouthTarget = 0;
-    }
-    f.mouthOpen += (f.mouthTarget - f.mouthOpen) * 0.35;
-    f.smile += (f.smileTarget - f.smile) * 0.08;
-    const m = mouthPath(f.mouthOpen, f.smile);
-    mouthInner.setAttribute("d", m.inner);
-    mouthLine.setAttribute("d", m.line);
-
-    // Eyebrows lift a little while talking.
-    const lift = f.speaking ? Math.sin(now / 260) * 3 - 2 : 0;
-    browL.setAttribute("transform", `translate(0 ${lift.toFixed(2)})`);
-    browR.setAttribute("transform", `translate(0 ${lift.toFixed(2)})`);
-
-    requestAnimationFrame(animate);
-  }
-  requestAnimationFrame(animate);
+  const faceState = window.NourFace ? window.NourFace.state : { speaking: false, wordPulse: 0, mode: "idle" };
 
   function setMode(mode) {
     stage.classList.remove("speaking", "listening", "thinking");
     if (mode !== "idle") stage.classList.add(mode);
     statusEl.textContent = t(mode);
-    faceState.smileTarget = mode === "thinking" ? -0.1 : 0.35;
+    faceState.mode = mode;
   }
 
   /* ================= Speech output ================= */
@@ -170,13 +83,11 @@
       const estimate = Math.min(20000, 600 + text.length * 65);
       const finish = () => {
         faceState.speaking = false;
-        stage.classList.remove("happy");
         setMode("idle");
         resolve();
       };
 
       faceState.speaking = true;
-      stage.classList.add("happy");
       setMode("speaking");
 
       if (!voiceToggle.checked || !synth) {

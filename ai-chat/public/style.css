@@ -110,21 +110,15 @@ body {
 @keyframes halo { 50% { transform: scale(1.1); opacity: .7; } }
 
 .face {
-  width: min(100%, 380px); height: auto;
-  animation: wake 1.4s cubic-bezier(.2, .9, .3, 1.2) both, float 6s ease-in-out 1.4s infinite;
-  overflow: visible;
+  display: block;
+  width: min(100%, 420px); aspect-ratio: 40 / 46; height: auto;
+  animation: wake 1.4s cubic-bezier(.2, .9, .3, 1.2) both;
+  cursor: crosshair;
+  -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent);
+  mask-image: linear-gradient(to bottom, #000 82%, transparent);
 }
 @keyframes wake { from { opacity: 0; transform: scale(.6) translateY(30px); filter: blur(12px); } }
-@keyframes float { 50% { transform: translateY(-8px); } }
-
-.sclera { fill: #0a1128; stroke: var(--cyan); stroke-width: 2; }
-.lid { fill: #0d1530; }
-.brow { fill: none; stroke: var(--cyan); stroke-width: 5; stroke-linecap: round; transition: transform .3s; transform-box: fill-box; transform-origin: center; }
-.cheek { fill: #ff4fd8; opacity: 0; transition: opacity .5s; }
-.stage.happy .cheek { opacity: .25; }
-.stage.thinking .brow { transform: translateY(-6px); }
-.circuits { animation: circuits 3s linear infinite; }
-@keyframes circuits { 50% { opacity: .9; } }
+.no-webgl { padding: 40px; color: var(--muted); text-align: center; }
 
 .status {
   color: var(--muted); font-size: .95rem;
@@ -182,7 +176,7 @@ body {
 /* ---------- mobile ---------- */
 @media (max-width: 820px) {
   .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
-  .face { width: min(70vw, 280px); }
+  .face { width: min(78vw, 320px); }
   .chat { max-height: none; }
   .log { max-height: 45vh; }
 }

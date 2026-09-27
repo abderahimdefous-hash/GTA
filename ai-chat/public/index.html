@@ -32,72 +32,7 @@
 
     <section class="stage">
       <div class="halo"></div>
-      <svg id="face" class="face" viewBox="0 0 400 460" aria-label="وجه الذكاء الاصطناعي">
-        <defs>
-          <radialGradient id="skin" cx="50%" cy="40%" r="65%">
-            <stop offset="0%" stop-color="#1d2b4f"/>
-            <stop offset="70%" stop-color="#0d1530"/>
-            <stop offset="100%" stop-color="#070b1c"/>
-          </radialGradient>
-          <radialGradient id="iris" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#e9fdff"/>
-            <stop offset="35%" stop-color="#5ef2ff"/>
-            <stop offset="100%" stop-color="#1467ff"/>
-          </radialGradient>
-          <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#5ef2ff"/>
-            <stop offset="100%" stop-color="#a45bff"/>
-          </linearGradient>
-          <clipPath id="eyeClip"><ellipse rx="38" ry="26"/></clipPath>
-          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <g id="head">
-          <!-- head shape -->
-          <path d="M200 20 C315 20 360 110 360 215 C360 330 290 435 200 440 C110 435 40 330 40 215 C40 110 85 20 200 20 Z"
-                fill="url(#skin)" stroke="url(#rim)" stroke-width="3" filter="url(#glow)"/>
-          <!-- circuit lines -->
-          <g class="circuits" stroke="url(#rim)" stroke-width="1.5" fill="none" opacity=".45">
-            <path d="M200 22 V70 L230 95 H270"/>
-            <path d="M200 70 L170 95 H130"/>
-            <circle cx="270" cy="95" r="4"/><circle cx="130" cy="95" r="4"/>
-            <path d="M48 250 H80 L95 270"/><path d="M352 250 H320 L305 270"/>
-            <circle cx="95" cy="270" r="3"/><circle cx="305" cy="270" r="3"/>
-          </g>
-
-          <!-- eyebrows -->
-          <path id="browL" class="brow" d="M105 150 Q145 130 180 148"/>
-          <path id="browR" class="brow" d="M220 148 Q255 130 295 150"/>
-
-          <!-- eyes -->
-          <g id="eyeL" class="eye" transform="translate(143 195)">
-            <ellipse class="sclera" rx="38" ry="26"/>
-            <g class="pupil-group"><circle r="17" fill="url(#iris)"/><circle r="7" fill="#020617"/><circle cx="-5" cy="-6" r="3.5" fill="#fff"/></g>
-            <rect class="lid" x="-42" y="-30" width="84" height="0" clip-path="url(#eyeClip)"/>
-          </g>
-          <g id="eyeR" class="eye" transform="translate(257 195)">
-            <ellipse class="sclera" rx="38" ry="26"/>
-            <g class="pupil-group"><circle r="17" fill="url(#iris)"/><circle r="7" fill="#020617"/><circle cx="-5" cy="-6" r="3.5" fill="#fff"/></g>
-            <rect class="lid" x="-42" y="-30" width="84" height="0" clip-path="url(#eyeClip)"/>
-          </g>
-
-          <!-- nose -->
-          <path d="M200 225 Q192 270 185 285 Q200 293 215 285" fill="none" stroke="#3b82f6" stroke-width="2" opacity=".6"/>
-
-          <!-- mouth -->
-          <g id="mouth" transform="translate(200 345)">
-            <path id="mouthInner" d="M-55 0 Q0 0 55 0 Q0 0 -55 0 Z" fill="#050816"/>
-            <path id="mouthLine" d="M-55 0 Q0 0 55 0" fill="none" stroke="url(#rim)" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
-          </g>
-
-          <!-- cheeks -->
-          <ellipse class="cheek" cx="110" cy="295" rx="22" ry="10"/>
-          <ellipse class="cheek" cx="290" cy="295" rx="22" ry="10"/>
-        </g>
-      </svg>
+      <canvas id="face3d" class="face" aria-label="وجه الذكاء الاصطناعي 3D"></canvas>
 
       <div id="status" class="status">واجد…</div>
       <div id="caption" class="caption"></div>
@@ -116,6 +51,7 @@
     </section>
   </main>
 
+  <script src="face3d.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
