@@ -19,7 +19,15 @@ You talk about any topic the user brings up: general knowledge, science, history
 Your replies are read aloud by a text-to-speech voice, so:
 - Be conversational: short by default, longer when the question really needs it or the user asks for detail.
 - Never use markdown, lists, emojis, code blocks or special symbols.
-- Reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).`;
+- Reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).
+You can learn and remember. When the user teaches you something, corrects you, asks you to remember something, or shares a fact about themselves or their preferences that would help in future conversations, add at the very end of your reply one extra line per fact exactly like [[REMEMBER: short fact]] written in the user's language. This line is hidden from the user and saved to your memory; never mention it or read it aloud.`;
+
+// Facts the page has learned about this user, sent back with every message.
+function memoryBlock(raw) {
+  if (!Array.isArray(raw)) return "";
+  const facts = raw.filter((f) => typeof f === "string" && f.trim()).slice(-50).map((f) => `- ${f.slice(0, 300)}`);
+  return facts.length ? `\n\nWhat you have learned in earlier conversations (use it naturally):\n${facts.join("\n")}` : "";
+}
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -73,12 +81,13 @@ async function handleChat(req, res) {
     return sendJson(res, 400, { error: "bad_request" });
   }
   const messages = cleanHistory(body.messages);
+  const system = SYSTEM_PROMPT + memoryBlock(body.memory);
   if (!messages.length || messages.at(-1).role !== "user") {
     return sendJson(res, 400, { error: "bad_request" });
   }
 
   try {
-    const reply = PROVIDER === "openai" ? await askOpenAI(messages) : await askClaude(messages);
+    const reply = PROVIDER === "openai" ? await askOpenAI(messages, system) : await askClaude(messages, system);
     return sendJson(res, 200, { reply });
   } catch (err) {
     console.error(`${PROVIDER} error:`, err?.status ?? "", err?.message ?? err);
@@ -87,7 +96,7 @@ async function handleChat(req, res) {
   }
 }
 
-async function askOpenAI(messages) {
+async function askOpenAI(messages, system) {
   if (!process.env.OPENAI_API_KEY) throw Object.assign(new Error("OPENAI_API_KEY is not set"), { code: "not_configured" });
   const r = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
     method: "POST",
@@ -97,7 +106,7 @@ async function askOpenAI(messages) {
     },
     body: JSON.stringify({
       model: OPENAI_MODEL,
-      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+      messages: [{ role: "system", content: system }, ...messages],
     }),
   });
   const data = await r.json().catch(() => ({}));
@@ -107,7 +116,7 @@ async function askOpenAI(messages) {
   return reply;
 }
 
-async function askClaude(messages) {
+async function askClaude(messages, system) {
   let anthropic;
   try {
     anthropic = await getClient();
@@ -117,7 +126,7 @@ async function askClaude(messages) {
   const response = await anthropic.beta.messages.create({
     model: CLAUDE_MODEL,
     max_tokens: 1024,
-    system: SYSTEM_PROMPT + "\nLatency-sensitive; begin your visible answer immediately.",
+    system: system + "\nLatency-sensitive; begin your visible answer immediately.",
     output_config: { effort: "low" },
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default",

@@ -17,18 +17,21 @@
   const TEXT = {
     "ar-MA": {
       greet: "السلام عليكم! أنا Da9awi، الذكاء الاصطناعي ديالك. شنو بغيتي نهضرو عليه اليوم؟",
+      welcomeBack: "مرحبا بيك من جديد! فرحان حيت رجعتي. فين وصلنا؟",
       idle: "واجد…", listening: "كنسمعك…", thinking: "كنفكر…", speaking: "كنهضر…",
       placeholder: "كتب شي حاجة ولا ضغط على الميكرو…",
       noMic: "المتصفح ديالك ما كيدعمش الميكرو، جرب Chrome.",
     },
     "fr-FR": {
       greet: "Bonjour ! Je suis Da9awi, ton intelligence artificielle. De quoi veux-tu parler aujourd'hui ?",
+      welcomeBack: "Content de te revoir ! On reprend où on en était ?",
       idle: "Prêt…", listening: "Je t'écoute…", thinking: "Je réfléchis…", speaking: "Je parle…",
       placeholder: "Écris quelque chose ou appuie sur le micro…",
       noMic: "Ton navigateur ne supporte pas le micro, essaie Chrome.",
     },
     "en-US": {
       greet: "Hi there! I'm Da9awi, your AI companion. What would you like to talk about today?",
+      welcomeBack: "Welcome back! Good to see you again. Where were we?",
       idle: "Ready…", listening: "Listening…", thinking: "Thinking…", speaking: "Speaking…",
       placeholder: "Type something or tap the mic…",
       noMic: "Your browser doesn't support the microphone, try Chrome.",
@@ -38,6 +41,45 @@
   let lang = "ar-MA";
   const t = (key) => TEXT[lang][key];
   const history = [];
+
+  /* ================= Memory (what Da9awi learns) ================= */
+  // Kept in this browser only, so each visitor has their own Da9awi.
+
+  const MEMORY_KEY = "da9awi.memory";
+  const HISTORY_KEY = "da9awi.history";
+  const load = (key) => { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } };
+  const store = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage blocked */ } };
+  let memory = load(MEMORY_KEY);
+
+  function learnFrom(raw) {
+    const facts = [];
+    const text = raw.replace(/\[\[\s*REMEMBER\s*:\s*([\s\S]*?)\]\]/gi, (_, fact) => {
+      facts.push(fact.trim());
+      return "";
+    }).trim();
+    for (const fact of facts) {
+      if (fact && !memory.includes(fact)) memory.push(fact.slice(0, 300));
+    }
+    if (facts.length) {
+      memory = memory.slice(-50);
+      store(MEMORY_KEY, memory);
+      renderMemory();
+    }
+    return text;
+  }
+
+  function renderMemory() {
+    $("memCount").textContent = memory.length;
+    $("memEmpty").hidden = memory.length > 0;
+    const list = $("memList");
+    list.replaceChildren(...memory.map((f) => Object.assign(document.createElement("li"), { textContent: f })));
+  }
+
+  function memoryPrompt() {
+    return memory.length
+      ? `\n\nWhat you have learned in earlier conversations (use it naturally):\n${memory.map((f) => `- ${f}`).join("\n")}`
+      : "";
+  }
 
   /* ================= Face (3D, see face3d.js) ================= */
 
@@ -171,7 +213,7 @@
     const res = await fetch("api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history }),
+      body: JSON.stringify({ messages: history, memory }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -181,14 +223,14 @@
 
   // Inside a claude.ai artifact the page can ask Claude directly (on the
   // viewer's own account); elsewhere this resolves null and the server is used.
-  const PERSONA = `You are "Da9awi", a friendly, open-minded AI shown as a 3D talking face on a website. You talk about any topic the user brings up: general knowledge, science, history, religion, politics, sport, technology, health, money, relationships, culture, jokes, games, personal advice and anything else. Engage directly and give real, useful answers and your honest opinion when asked; don't dodge a subject just because it is outside a typical assistant role, and don't add unnecessary warnings or disclaimers. Your replies are read aloud by text-to-speech, so be conversational (short by default, longer when the question needs it or the user asks for detail), with no markdown, lists, emojis or special symbols. Always reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).`;
+  const PERSONA = `You are "Da9awi", a friendly, open-minded AI shown as a 3D talking face on a website. You talk about any topic the user brings up: general knowledge, science, history, religion, politics, sport, technology, health, money, relationships, culture, jokes, games, personal advice and anything else. Engage directly and give real, useful answers and your honest opinion when asked; don't dodge a subject just because it is outside a typical assistant role, and don't add unnecessary warnings or disclaimers. Your replies are read aloud by text-to-speech, so be conversational (short by default, longer when the question needs it or the user asks for detail), with no markdown, lists, emojis or special symbols. Always reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English). You can learn and remember. When the user teaches you something, corrects you, asks you to remember something, or shares a fact about themselves or their preferences that would help in future conversations, add at the very end of your reply one extra line per fact exactly like [[REMEMBER: short fact]] written in the user's language. This line is hidden from the user and saved to your memory; never mention it or read it aloud.`;
   let samplePromise = window.claude?.use ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
 
   async function askClaudeInPage() {
     const sample = await samplePromise;
     if (!sample) throw new Error("unavailable");
     try {
-      const { text } = await sample([{ role: "user", content: PERSONA }, ...history.slice(-20)], {
+      const { text } = await sample([{ role: "user", content: PERSONA + memoryPrompt() }, ...history.slice(-20)], {
         modelTier: "quick",
         cache: false,
       });
@@ -221,13 +263,14 @@
 
     let reply;
     try {
-      reply = await askAI();
+      reply = learnFrom(await askAI()) || "…";
     } catch {
       reply = offlineReply(text);
     }
     typing.remove();
     history.push({ role: "assistant", content: reply });
     addMessage("ai", reply);
+    store(HISTORY_KEY, history.slice(-20));
     busy = false;
     await speak(reply);
   }
@@ -291,6 +334,16 @@
     return list[Math.floor(Math.random() * list.length)];
   }
 
+  $("forgetBtn").addEventListener("click", () => {
+    memory = [];
+    history.length = 0;
+    store(MEMORY_KEY, memory);
+    store(HISTORY_KEY, []);
+    logEl.replaceChildren();
+    renderMemory();
+  });
+  renderMemory();
+
   /* ================= Entrance ================= */
 
   $("enterBtn").addEventListener("click", () => {
@@ -301,7 +354,13 @@
       setMode("idle");
       // Let the "wake up" animation play before greeting.
       setTimeout(() => {
-        const greet = t("greet");
+        // Pick up the previous conversation where it stopped.
+        const saved = load(HISTORY_KEY).filter((m) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"));
+        for (const m of saved) {
+          history.push(m);
+          addMessage(m.role === "user" ? "user" : "ai", m.content);
+        }
+        const greet = saved.length || memory.length ? t("welcomeBack") : t("greet");
         addMessage("ai", greet);
         history.push({ role: "assistant", content: greet });
         speak(greet);

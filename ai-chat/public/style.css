@@ -173,6 +173,18 @@ body {
 @keyframes micPulse { 50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, .25); } }
 .voice-toggle { color: var(--muted); font-size: .9rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
+.memory { color: var(--muted); font-size: .9rem; }
+.memory summary { cursor: pointer; }
+.memory summary:focus-visible, .forget:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.memory ul { margin: 8px 0; padding-inline-start: 20px; display: grid; gap: 4px; color: var(--text); max-height: 140px; overflow-y: auto; }
+.memory-empty { margin-top: 6px; }
+.forget {
+  font: inherit; font-size: .85rem; cursor: pointer;
+  color: var(--text); background: transparent;
+  border: 1px solid var(--border); border-radius: 10px; padding: 4px 12px;
+}
+.forget:hover { border-color: #ef4444; color: #fca5a5; }
+
 /* ---------- mobile ---------- */
 @media (max-width: 820px) {
   .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
