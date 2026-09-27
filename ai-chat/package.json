@@ -1,0 +1,16 @@
+{
+  "name": "ai-face-chat",
+  "version": "1.0.0",
+  "description": "موقع فيه وجه ذكاء اصطناعي كيهضر معاك بالصوت",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
