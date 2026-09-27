@@ -6,15 +6,16 @@
 <title>البحث عن حساباتي</title>
 <style>
   :root {
-    --bg: #0f1216; --card: #181d24; --line: #2a313b; --text: #e8ecf1;
-    --muted: #9aa4b2; --accent: #4f8cff; --accent-2: #2dd4a4; --warn: #f5b942;
+    --bg: #0b0f14; --card: #141a22; --line: #26303c; --text: #e8ecf1;
+    --muted: #9aa4b2; --accent: #4f8cff; --accent-2: #2dd4a4; --warn: #f5b942; --bad: #ff6b6b;
+    --laser: #00f0ff;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--text);
     font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif; line-height: 1.6;
   }
-  main { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+  main { max-width: 920px; margin: 0 auto; padding: 24px 16px 64px; }
   h1 { font-size: 1.7rem; margin: 0 0 4px; }
   h2 { font-size: 1.2rem; margin: 0 0 12px; }
   p.lead { color: var(--muted); margin: 0 0 24px; }
@@ -26,11 +27,40 @@
   }
   .drop.over, .drop:hover { border-color: var(--accent); background: rgba(79,140,255,.06); }
   .drop input { display: none; }
-  #preview { display: none; margin-top: 16px; text-align: center; }
-  #preview img { max-width: 100%; max-height: 280px; border-radius: 10px; border: 1px solid var(--line); }
+  .hidden { display: none !important; }
+
+  /* 3D laser scan */
+  .scan { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .scan { grid-template-columns: 1fr; } }
+  .stage {
+    position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    background: #05080c; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+  }
+  .stage img { max-width: 100%; max-height: 100%; display: block; }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage .tag {
+    position: absolute; top: 8px; right: 8px; font-size: .75rem; padding: 2px 8px; border-radius: 6px;
+    background: rgba(0,240,255,.12); color: var(--laser); border: 1px solid rgba(0,240,255,.35); z-index: 2;
+  }
+  #status { margin-top: 10px; color: var(--laser); font-family: ui-monospace, monospace; font-size: .85rem; min-height: 1.4em; }
+
+  /* report */
+  .score { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .ring { --v: 0; width: 86px; height: 86px; border-radius: 50%; flex: none;
+    background: conic-gradient(var(--c, var(--accent-2)) calc(var(--v) * 1%), var(--line) 0);
+    display: grid; place-items: center; }
+  .ring span { width: 70px; height: 70px; border-radius: 50%; background: var(--card); display: grid; place-items: center; font-size: 1.3rem; font-weight: 700; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+  .fact { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+  .fact small { color: var(--muted); display: block; font-size: .8rem; }
+  .fact.ok b { color: var(--accent-2); } .fact.mid b { color: var(--warn); } .fact.bad b { color: var(--bad); }
+  ul.tips { margin: 12px 0 0; padding-inline-start: 20px; color: var(--muted); }
+  #faces { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  #faces img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; border: 2px solid var(--line); cursor: pointer; }
+  #faces img.sel { border-color: var(--laser); }
+
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
   .engine { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-  .engine b { font-size: 1rem; }
   .engine small { color: var(--muted); }
   button, .btn {
     font: inherit; border: 0; border-radius: 9px; padding: 9px 14px; cursor: pointer;
@@ -39,22 +69,28 @@
   button.secondary, .btn.secondary { background: transparent; border: 1px solid var(--line); color: var(--text); }
   button:disabled { opacity: .45; cursor: not-allowed; }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg label { padding: 7px 12px; cursor: pointer; font-size: .92rem; }
+  .seg input { display: none; }
+  .seg input:checked + span { color: var(--laser); }
   input[type=text] {
-    font: inherit; flex: 1; min-width: 180px; padding: 9px 12px; border-radius: 9px;
+    font: inherit; flex: 1; min-width: 160px; padding: 9px 12px; border-radius: 9px;
     border: 1px solid var(--line); background: var(--bg); color: var(--text);
   }
-  .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+  .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
   .links a {
     display: block; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px;
-    color: var(--text); text-decoration: none; font-size: .92rem;
+    color: var(--text); text-decoration: none; font-size: .92rem; overflow-wrap: anywhere;
   }
   .links a:hover { border-color: var(--accent-2); }
+  .variant { margin-top: 14px; }
+  .variant h3 { font-size: .95rem; margin: 0; color: var(--accent-2); direction: ltr; text-align: right; }
   .note { color: var(--muted); font-size: .9rem; }
   .warn { border-color: rgba(245,185,66,.4); }
   .warn h2 { color: var(--warn); }
   #toast {
     position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #222a35;
-    border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; display: none;
+    border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; display: none; z-index: 10; max-width: 92vw;
   }
   ol { padding-inline-start: 20px; margin: 0; }
 </style>
@@ -62,36 +98,75 @@
 <body>
 <main>
   <h1>🔍 البحث عن حساباتي فالإنترنت</h1>
-  <p class="lead">حط الصورة ديالك، والموقع يصيفطها لمحركات البحث العكسي باش تشوف فين منشورة: الحسابات ديالك، والمواقع اللي كتستعمل صورك، والحسابات المزيفة اللي منتحلة شخصيتك.</p>
+  <p class="lead">حط الصورة ديالك: الموقع كيدير ليها سكان 3D بالليزر، كيحللها، كيقطع الوجه أوتوماتيكياً، ومن بعد كيقلب عليها فمحركات البحث العكسي باش تلقى الحسابات ديالك والحسابات المزيفة اللي كتستعمل صورك.</p>
 
   <section>
     <h2>1. اختار الصورة ديالك</h2>
     <label class="drop" id="drop">
       <input type="file" id="file" accept="image/*">
-      <div>📷 كليكي هنا ولا جر الصورة لهنا</div>
-      <div class="note">الصورة كتبقى فالمتصفح ديالك، وما كتمشي لحتى محرك غير اللي كليكيتي عليه.</div>
+      <div>📷 كليكي هنا، جر الصورة لهنا، ولا لصقها بـ Ctrl+V</div>
+      <div class="note">التحليل كيتدار كامل فالمتصفح ديالك. الصورة ما كتمشي لحتى بلاصة غير المحرك اللي كليكيتي عليه.</div>
     </label>
-    <div id="preview"><img id="img" alt="الصورة المختارة"></div>
   </section>
 
-  <section>
-    <h2>2. قلّب بالصورة</h2>
-    <p class="note">كل زر كيفتح نافذة جديدة فيها النتائج. قلّب فالمحركات كاملين حيت كل واحد كيلقى حوايج ما كيلقاوهاش الآخرين. إلا ما خدمش الرفع المباشر، ورك على "نسخ الصورة" ولصقها (Ctrl+V) فالموقع.</p>
+  <section id="scanSec" class="hidden">
+    <h2>2. سكان 3D بالليزر</h2>
+    <div class="scan">
+      <div class="stage" id="stage2d">
+        <span class="tag">LASER SCAN</span>
+        <img id="img" alt="الصورة المختارة">
+        <canvas id="overlay"></canvas>
+      </div>
+      <div class="stage">
+        <span class="tag" id="tag3d">3D MODEL</span>
+        <canvas id="cloud"></canvas>
+      </div>
+    </div>
+    <div id="status"></div>
+  </section>
+
+  <section id="reportSec" class="hidden">
+    <h2>3. تقرير التحليل</h2>
+    <div class="score">
+      <div class="ring" id="ring"><span id="scoreNum">0</span></div>
+      <div>
+        <b>جودة الصورة للبحث</b>
+        <div class="note" id="scoreText"></div>
+      </div>
+    </div>
+    <div class="facts" id="facts"></div>
+    <div id="facesWrap" class="hidden">
+      <div class="note" style="margin-top:12px">الوجوه اللي تلقاو (اختار الوجه اللي بغيتي تقلب بيه):</div>
+      <div id="faces"></div>
+    </div>
+    <ul class="tips" id="tips"></ul>
+  </section>
+
+  <section id="searchSec" class="hidden">
+    <h2>4. قلّب بالصورة</h2>
+    <div class="row" style="margin-bottom:12px">
+      <span class="note">قلّب بـ:</span>
+      <div class="seg">
+        <label><input type="radio" name="mode" value="face" id="modeFace"><span>الوجه فقط</span></label>
+        <label><input type="radio" name="mode" value="full" id="modeFull" checked><span>الصورة كاملة</span></label>
+      </div>
+    </div>
+    <p class="note">نصيحة: قلّب بجوج: الصورة كاملة كتلقى نفس الصورة فين تنشرات، والوجه فقط كيلقى صور أخرى فيها نفس الوجه (Google Lens وYandex هوما الأقوى فهادشي). الصورة كتتصيفط بلا الميتاداتا ديالها (GPS والتاريخ).</p>
     <div class="grid" id="engines"></div>
     <div class="row" style="margin-top:14px">
-      <button class="secondary" id="copy" disabled>📋 نسخ الصورة</button>
-      <button id="all" disabled>🚀 قلّب فكلشي</button>
+      <button class="secondary" id="copy">📋 نسخ الصورة</button>
+      <button id="all">🚀 قلّب فكلشي (الوجه + الصورة)</button>
     </div>
   </section>
 
   <section>
-    <h2>3. قلّب باسم المستخدم ديالك</h2>
-    <p class="note">البحث بالصورة كيلقى غير الصور العمومية. باش تلقى الحسابات ديالك كاملين، كتب اسم المستخدم (username) ولا السمية ديالك.</p>
+    <h2>5. قلّب باسم المستخدم ديالك</h2>
+    <p class="note">البحث بالصورة كيلقى غير الصور العمومية. كتب السمية ديالك ولا الـ username، والموقع كيولّد الأشكال اللي كيستعملوها الناس عادة (بالنقطة، بـ _، بلا فراغ...) وكيعطيك روابط لكل موقع.</p>
     <div class="row">
-      <input type="text" id="user" placeholder="مثلاً: abderahim.defous">
+      <input type="text" id="user" placeholder="مثلاً: abderahim defous">
       <button id="go">قلّب</button>
     </div>
-    <div class="links" id="links"></div>
+    <div id="links"></div>
   </section>
 
   <section class="warn">
@@ -106,11 +181,15 @@
 </main>
 <div id="toast"></div>
 
-<script>
+<script type="module">
+const MP_VERSION = "0.10.14";
+const MP_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`;
+const MP_MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+
 const ENGINES = [
   { name: "Google Lens", desc: "الأقوى فالوجوه والحسابات", home: "https://lens.google.com/",
     action: "https://lens.google.com/v3/upload?hl=ar", field: "encoded_image" },
-  { name: "Yandex", desc: "مزيان فالحسابات الاجتماعية", home: "https://yandex.com/images/",
+  { name: "Yandex", desc: "مزيان بزاف فالوجوه والحسابات الاجتماعية", home: "https://yandex.com/images/",
     action: "https://yandex.com/images/search?rpt=imageview", field: "upfile" },
   { name: "Bing Visual", desc: "كيلقى صور مشابهة", home: "https://www.bing.com/visualsearch",
     action: "https://www.bing.com/images/search?view=detailv2&iss=sbiupload&FORM=SBIIDP", field: "imageBin", base64: true },
@@ -131,31 +210,37 @@ const SITES = [
   ["Reddit", u => `https://www.reddit.com/user/${u}`],
   ["Pinterest", u => `https://www.pinterest.com/${u}/`],
   ["Twitch", u => `https://www.twitch.tv/${u}`],
-  ["LinkedIn (بحث)", u => `https://www.linkedin.com/search/results/all/?keywords=${u}`],
-  ["Google", u => `https://www.google.com/search?q=${encodeURIComponent('"' + u + '"')}`],
-  ["Google (صور)", u => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent('"' + u + '"')}`],
-  ["Bing", u => `https://www.bing.com/search?q=${encodeURIComponent('"' + u + '"')}`],
+  ["Kick", u => `https://kick.com/${u}`],
+  ["SoundCloud", u => `https://soundcloud.com/${u}`],
+  ["Tumblr", u => `https://${u}.tumblr.com/`],
+  ["Linktree", u => `https://linktr.ee/${u}`],
+  ["Medium", u => `https://medium.com/@${u}`],
+  ["VK", u => `https://vk.com/${u}`],
+];
+const NAME_SEARCHES = [
+  ["Google", q => `https://www.google.com/search?q=${encodeURIComponent('"' + q + '"')}`],
+  ["Google (صور)", q => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent('"' + q + '"')}`],
+  ["Bing", q => `https://www.bing.com/search?q=${encodeURIComponent('"' + q + '"')}`],
+  ["Yandex", q => `https://yandex.com/search/?text=${encodeURIComponent('"' + q + '"')}`],
+  ["LinkedIn", q => `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(q)}`],
+  ["Facebook (بحث)", q => `https://www.facebook.com/search/top?q=${encodeURIComponent(q)}`],
+  ["Instagram عبر Google", q => `https://www.google.com/search?q=${encodeURIComponent('site:instagram.com "' + q + '"')}`],
+  ["TikTok عبر Google", q => `https://www.google.com/search?q=${encodeURIComponent('site:tiktok.com "' + q + '"')}`],
 ];
 
-let currentFile = null;
 const $ = id => document.getElementById(id);
+const state = { file: null, bitmap: null, faces: [], faceIdx: 0, faceBlob: null, fullBlob: null, meshEdges: null, runId: 0 };
 
 function toast(msg) {
   const t = $("toast");
   t.textContent = msg; t.style.display = "block";
   clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => (t.style.display = "none"), 3000);
+  toast.timer = setTimeout(() => (t.style.display = "none"), 3500);
 }
+const setStatus = s => ($("status").textContent = s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-function setFile(file) {
-  if (!file || !file.type.startsWith("image/")) return toast("اختار ملف ديال صورة");
-  currentFile = file;
-  $("img").src = URL.createObjectURL(file);
-  $("preview").style.display = "block";
-  document.querySelectorAll("[data-needs-image]").forEach(b => (b.disabled = false));
-  $("copy").disabled = $("all").disabled = false;
-}
-
+// ---------- input ----------
 $("file").addEventListener("change", e => setFile(e.target.files[0]));
 const drop = $("drop");
 ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
@@ -166,94 +251,484 @@ document.addEventListener("paste", e => {
   if (item) setFile(item.getAsFile());
 });
 
-function fileToBase64(file) {
+async function setFile(file) {
+  if (!file || !file.type.startsWith("image/")) return toast("اختار ملف ديال صورة");
+  const run = ++state.runId;
+  Object.assign(state, { file, faces: [], faceIdx: 0, faceBlob: null });
+  let bitmap;
+  try { bitmap = await createImageBitmap(file, { imageOrientation: "from-image" }); }
+  catch { return toast("ما قدرتش نقرا هاد الصورة"); }
+  state.bitmap = bitmap;
+  state.fullBlob = await encode(bitmap, 0, 0, bitmap.width, bitmap.height, 2000);
+  $("img").src = URL.createObjectURL(file);
+  await $("img").decode().catch(() => {});
+  for (const id of ["scanSec", "reportSec", "searchSec"]) $(id).classList.remove("hidden");
+  $("reportSec").classList.add("hidden");
+  $("scanSec").scrollIntoView({ behavior: "smooth", block: "start" });
+  runScan(run);
+}
+
+// ---------- image helpers ----------
+function canvasOf(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+
+// Re-encoding through a canvas strips EXIF (GPS, device) before anything leaves the browser.
+function encode(bitmap, sx, sy, sw, sh, maxSide, minSide = 0) {
+  let scale = Math.min(1, maxSide / Math.max(sw, sh));
+  if (minSide && Math.min(sw, sh) * scale < minSide) scale = minSide / Math.min(sw, sh);
+  const c = canvasOf(Math.round(sw * scale), Math.round(sh * scale));
+  const ctx = c.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  return new Promise(r => c.toBlob(r, "image/jpeg", 0.95));
+}
+
+function grayscale(bitmap, size) {
+  const s = Math.min(1, size / Math.max(bitmap.width, bitmap.height));
+  const w = Math.max(1, Math.round(bitmap.width * s)), h = Math.max(1, Math.round(bitmap.height * s));
+  const ctx = canvasOf(w, h).getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data;
+  const g = new Float32Array(w * h);
+  for (let i = 0; i < g.length; i++) g[i] = 0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2];
+  return { g, w, h };
+}
+
+function imageStats(bitmap) {
+  const { g, w, h } = grayscale(bitmap, 512);
+  let sum = 0;
+  for (const v of g) sum += v;
+  const brightness = sum / g.length;
+  // Variance of the Laplacian: a standard blur metric.
+  let lsum = 0, lsq = 0, n = 0;
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+    const i = y * w + x;
+    const l = g[i - 1] + g[i + 1] + g[i - w] + g[i + w] - 4 * g[i];
+    lsum += l; lsq += l * l; n++;
+  }
+  const sharpness = n ? lsq / n - (lsum / n) ** 2 : 0;
+  return { brightness, sharpness };
+}
+
+// Minimal EXIF reader: only what matters for privacy (GPS, camera, date).
+async function readExif(file) {
+  const out = { gps: false, model: "", date: "" };
+  if (!/jpe?g/i.test(file.type)) return out;
+  const v = new DataView(await file.slice(0, 256 * 1024).arrayBuffer());
+  if (v.getUint16(0) !== 0xFFD8) return out;
+  let off = 2;
+  while (off + 4 < v.byteLength) {
+    const marker = v.getUint16(off), len = v.getUint16(off + 2);
+    if (marker === 0xFFE1 && v.getUint32(off + 4) === 0x45786966) {
+      const t = off + 10, le = v.getUint16(t) === 0x4949;
+      const u16 = o => v.getUint16(t + o, le), u32 = o => v.getUint32(t + o, le);
+      const ascii = (o, n) => { let s = ""; for (let i = 0; i < n - 1 && t + o + i < v.byteLength; i++) s += String.fromCharCode(v.getUint8(t + o + i)); return s.trim(); };
+      const ifd = u32(4), count = u16(ifd);
+      for (let i = 0; i < count; i++) {
+        const e = ifd + 2 + i * 12, tag = u16(e), n = u32(e + 4), valOff = n > 4 ? u32(e + 8) : e + 8;
+        if (tag === 0x8825) out.gps = true;
+        if (tag === 0x0110) out.model = ascii(valOff, n);
+        if (tag === 0x0132) out.date = ascii(valOff, n);
+      }
+      return out;
+    }
+    if ((marker & 0xFF00) !== 0xFF00) break;
+    off += 2 + len;
+  }
+  return out;
+}
+
+// ---------- face mesh (MediaPipe, loaded on demand) ----------
+let landmarkerPromise = null;
+function loadLandmarker() {
+  landmarkerPromise ??= (async () => {
+    const vision = await import(`${MP_BASE}/vision_bundle.mjs`);
+    const fileset = await vision.FilesetResolver.forVisionTasks(`${MP_BASE}/wasm`);
+    const lm = await vision.FaceLandmarker.createFromOptions(fileset, {
+      baseOptions: { modelAssetPath: MP_MODEL, delegate: "CPU" },
+      runningMode: "IMAGE", numFaces: 6,
+    });
+    state.meshEdges = vision.FaceLandmarker.FACE_LANDMARKS_TESSELATION;
+    return lm;
+  })();
+  landmarkerPromise.catch(() => (landmarkerPromise = null));
+  return landmarkerPromise;
+}
+
+async function detectFaces(bitmap) {
+  try {
+    const lm = await Promise.race([loadLandmarker(), sleep(20000).then(() => { throw new Error("timeout"); })]);
+    return lm.detect(bitmap).faceLandmarks || [];
+  } catch (err) {
+    console.warn("Face mesh unavailable:", err);
+    return null;
+  }
+}
+
+function faceBox(points, bw, bh, pad = 0.45) {
+  let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+  for (const p of points) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
+  const cx = (x0 + x1) / 2 * bw, cy = (y0 + y1) / 2 * bh;
+  const side = Math.max((x1 - x0) * bw, (y1 - y0) * bh) * (1 + pad * 2);
+  const sx = Math.max(0, cx - side / 2), sy = Math.max(0, cy - side / 2);
+  return { sx, sy, sw: Math.min(bw - sx, side), sh: Math.min(bh - sy, side), area: (x1 - x0) * (y1 - y0) };
+}
+
+// ---------- 3D point cloud ----------
+function depthCloud(bitmap) {
+  // No face model: build a relief from luminance so the laser still has a 3D surface to trace.
+  const { g, w, h } = grayscale(bitmap, 90);
+  const pts = [];
+  const aspect = w / h;
+  for (let y = 0; y < h; y += 1) for (let x = 0; x < w; x += 1) {
+    pts.push({ x: x / w, y: y / h, z: -(g[y * w + x] / 255 - 0.5) * 0.25, aspect });
+  }
+  return { pts, edges: null, aspect };
+}
+
+function meshCloud(points, bitmap) {
+  // Work in pixels: landmark x/y are normalized per axis, z is normalized by image width.
+  const W = bitmap.width, H = bitmap.height;
+  const box = faceBox(points, W, H, 0.1);
+  const side = Math.max(box.sw, box.sh);
+  const pts = points.map(p => ({ x: (p.x * W - box.sx) / side, y: (p.y * H - box.sy) / side, z: p.z * W / side }));
+  return { pts, edges: state.meshEdges, aspect: 1 };
+}
+
+let cloudAnim = 0;
+function startCloud(cloud, run) {
+  cancelAnimationFrame(cloudAnim);
+  const c = $("cloud"), ctx = c.getContext("2d");
+  const t0 = performance.now();
+  const frame = now => {
+    if (run !== state.runId) return;
+    const dpr = devicePixelRatio || 1;
+    const W = c.clientWidth * dpr, H = c.clientHeight * dpr;
+    if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    ctx.fillStyle = "#05080c"; ctx.fillRect(0, 0, W, H);
+    const t = (now - t0) / 1000;
+    const reveal = Math.min(1, t / 2.6);
+    const ay = Math.sin(t * 0.7) * 0.75, ax = Math.sin(t * 0.45) * 0.18;
+    const cy = Math.cos(ay), sy = Math.sin(ay), cx = Math.cos(ax), sx = Math.sin(ax);
+    const size = Math.min(W, H) * 0.78;
+    const proj = p => {
+      let x = (p.x - 0.5) * (cloud.aspect >= 1 ? 1 : cloud.aspect), y = (p.y - 0.5) / (cloud.aspect >= 1 ? cloud.aspect : 1), z = p.z;
+      let x1 = x * cy + z * sy, z1 = -x * sy + z * cy;
+      let y1 = y * cx - z1 * sx, z2 = y * sx + z1 * cx;
+      const f = 2.2 / (2.2 + z2);
+      return [W / 2 + x1 * size * f, H / 2 + y1 * size * f, z2];
+    };
+    const P = cloud.pts.map(proj);
+    if (cloud.edges) {
+      ctx.strokeStyle = "rgba(0,240,255,0.22)"; ctx.lineWidth = dpr * 0.6;
+      ctx.beginPath();
+      for (const { start, end } of cloud.edges) {
+        if (cloud.pts[start].y > reveal || cloud.pts[end].y > reveal) continue;
+        ctx.moveTo(P[start][0], P[start][1]); ctx.lineTo(P[end][0], P[end][1]);
+      }
+      ctx.stroke();
+    }
+    for (let i = 0; i < P.length; i++) {
+      if (cloud.pts[i].y > reveal) continue;
+      const depth = Math.max(0.25, Math.min(1, 0.65 - P[i][2] * 2.5));
+      ctx.fillStyle = `rgba(0,240,255,${depth})`;
+      ctx.fillRect(P[i][0], P[i][1], dpr * 1.4, dpr * 1.4);
+    }
+    if (reveal < 1) {
+      // Laser plane sweeping the model.
+      const ly = H / 2 + (reveal - 0.5) * size;
+      const grad = ctx.createLinearGradient(0, ly - 14 * dpr, 0, ly + 14 * dpr);
+      grad.addColorStop(0, "rgba(255,40,80,0)"); grad.addColorStop(0.5, "rgba(255,40,80,0.9)"); grad.addColorStop(1, "rgba(255,40,80,0)");
+      ctx.fillStyle = grad; ctx.fillRect(0, ly - 14 * dpr, W, 28 * dpr);
+    }
+    cloudAnim = requestAnimationFrame(frame);
+  };
+  cloudAnim = requestAnimationFrame(frame);
+}
+
+// ---------- 2D laser overlay ----------
+function imageRect() {
+  const img = $("img"), stage = $("stage2d");
+  const s = stage.getBoundingClientRect(), r = img.getBoundingClientRect();
+  return { x: r.left - s.left, y: r.top - s.top, w: r.width, h: r.height, W: s.width, H: s.height };
+}
+
+async function laserSweep(run, duration = 2200) {
+  const c = $("overlay"), ctx = c.getContext("2d");
+  const dpr = devicePixelRatio || 1;
+  const t0 = performance.now();
+  while (run === state.runId) {
+    const r = imageRect();
+    c.width = r.W * dpr; c.height = r.H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const p = Math.min(1, (performance.now() - t0) / duration);
+    const y = r.y + r.h * p;
+    ctx.fillStyle = "rgba(0,240,255,0.07)"; ctx.fillRect(r.x, r.y, r.w, y - r.y);
+    ctx.strokeStyle = "rgba(0,240,255,0.12)"; ctx.lineWidth = 1;
+    for (let gy = r.y; gy < y; gy += 12) { ctx.beginPath(); ctx.moveTo(r.x, gy); ctx.lineTo(r.x + r.w, gy); ctx.stroke(); }
+    ctx.shadowColor = "#ff2850"; ctx.shadowBlur = 18;
+    ctx.fillStyle = "#ff2850"; ctx.fillRect(r.x, y - 1.5, r.w, 3);
+    ctx.shadowBlur = 0;
+    if (p >= 1) return;
+    await new Promise(requestAnimationFrame);
+  }
+}
+
+function drawOverlay(faces) {
+  const c = $("overlay"), ctx = c.getContext("2d");
+  const r = imageRect(), dpr = devicePixelRatio || 1;
+  c.width = r.W * dpr; c.height = r.H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  faces.forEach((pts, i) => {
+    const sel = i === state.faceIdx;
+    ctx.fillStyle = sel ? "rgba(0,240,255,0.9)" : "rgba(0,240,255,0.35)";
+    for (const p of pts) ctx.fillRect(r.x + p.x * r.w - 0.7, r.y + p.y * r.h - 0.7, 1.4, 1.4);
+    const b = faceBox(pts, r.w, r.h, 0.2);
+    ctx.strokeStyle = sel ? "#00f0ff" : "rgba(0,240,255,0.4)"; ctx.lineWidth = sel ? 2 : 1;
+    ctx.strokeRect(r.x + b.sx, r.y + b.sy, b.sw, b.sh);
+    ctx.fillStyle = "#00f0ff"; ctx.font = "bold 12px monospace";
+    ctx.fillText(`FACE ${i + 1}`, r.x + b.sx + 4, r.y + b.sy - 4);
+  });
+}
+
+// ---------- main pipeline ----------
+async function runScan(run) {
+  $("tag3d").textContent = "3D MODEL";
+  setStatus("⏳ تحميل موديل الوجه 3D...");
+  const facesPromise = detectFaces(state.bitmap);
+  startCloud(depthCloud(state.bitmap), run);
+  setStatus("🔴 سكان بالليزر...");
+  await laserSweep(run);
+  if (run !== state.runId) return;
+  setStatus("🧠 تحليل الوجه...");
+  const faces = await facesPromise;
+  if (run !== state.runId) return;
+
+  if (faces && faces.length) {
+    // Biggest face first: it is the most likely subject of the photo.
+    faces.sort((a, b) => faceBox(b, 1, 1).area - faceBox(a, 1, 1).area);
+    state.faces = faces;
+    await selectFace(0, run);
+    $("tag3d").textContent = `3D FACE MESH · ${faces[0].length} نقطة`;
+    setStatus(`✔ تلقاو ${faces.length} وجه · ${faces[0].length} نقطة 3D فكل وجه`);
+  } else {
+    state.faces = [];
+    drawOverlay([]);
+    $("tag3d").textContent = "3D DEPTH MAP";
+    setStatus(faces === null
+      ? "⚠ موديل الوجه ما تحملش (الإنترنت؟). تدار غير التحليل العادي."
+      : "⚠ ما تلقى حتى وجه واضح فهاد الصورة.");
+  }
+  $("modeFace").disabled = !state.faces.length;
+  document.querySelector("input[name=mode][value=" + (state.faces.length ? "face" : "full") + "]").checked = true;
+  await buildReport(faces);
+}
+
+async function selectFace(i, run = state.runId) {
+  state.faceIdx = i;
+  const pts = state.faces[i], bm = state.bitmap;
+  const b = faceBox(pts, bm.width, bm.height);
+  // Upscale tiny faces so the search engines have enough pixels to work with.
+  state.faceBlob = await encode(bm, b.sx, b.sy, b.sw, b.sh, 1024, 400);
+  drawOverlay(state.faces);
+  startCloud(meshCloud(pts, bm), run);
+  document.querySelectorAll("#faces img").forEach((im, k) => im.classList.toggle("sel", k === i));
+}
+
+async function buildReport(faces) {
+  const bm = state.bitmap, file = state.file;
+  const { brightness, sharpness } = imageStats(bm);
+  const exif = await readExif(file);
+  const short = Math.min(bm.width, bm.height);
+  let faceSide = 0;
+  if (state.faces.length) {
+    const b = faceBox(state.faces[0], bm.width, bm.height, 0);
+    faceSide = Math.round(Math.max(b.sw, b.sh));
+  }
+
+  const facts = [];
+  const add = (label, value, level) => facts.push({ label, value, level });
+  add("الأبعاد", `${bm.width} × ${bm.height}`, short >= 600 ? "ok" : short >= 300 ? "mid" : "bad");
+  add("الحجم", `${(file.size / 1024).toFixed(0)} KB · ${file.type.replace("image/", "").toUpperCase()}`, "ok");
+  add("الوضوح (sharpness)", sharpness.toFixed(0), sharpness >= 150 ? "ok" : sharpness >= 50 ? "mid" : "bad");
+  add("الضو", brightness.toFixed(0) + " / 255", brightness >= 70 && brightness <= 190 ? "ok" : "mid");
+  if (faces === null) add("الوجوه", "ما تحللوش", "mid");
+  else add("الوجوه", String(state.faces.length), state.faces.length === 1 ? "ok" : state.faces.length ? "mid" : "bad");
+  if (faceSide) add("حجم الوجه", `${faceSide}px`, faceSide >= 200 ? "ok" : faceSide >= 100 ? "mid" : "bad");
+  add("موقع GPS فالصورة", exif.gps ? "كاين ⚠" : "ما كاينش", exif.gps ? "bad" : "ok");
+  if (exif.model) add("الجهاز", exif.model, "mid");
+  if (exif.date) add("تاريخ التصوير", exif.date, "mid");
+
+  $("facts").innerHTML = "";
+  for (const f of facts) {
+    const d = document.createElement("div");
+    d.className = "fact " + f.level;
+    d.innerHTML = "<small></small><b></b>";
+    d.querySelector("small").textContent = f.label;
+    d.querySelector("b").textContent = f.value;
+    $("facts").appendChild(d);
+  }
+
+  let score = 0;
+  score += Math.min(25, short / 600 * 25);
+  score += Math.min(25, sharpness / 150 * 25);
+  score += brightness >= 70 && brightness <= 190 ? 15 : 7;
+  if (faces === null) score += 17;
+  else if (state.faces.length === 1) score += 20;
+  else if (state.faces.length) score += 12;
+  score += faceSide ? Math.min(15, faceSide / 200 * 15) : faces === null ? 8 : 0;
+  score = Math.round(Math.min(100, score));
+  const color = score >= 75 ? "var(--accent-2)" : score >= 50 ? "var(--warn)" : "var(--bad)";
+  $("ring").style.setProperty("--c", color);
+  animateNumber(score);
+  $("scoreText").textContent = score >= 75 ? "ممتازة للبحث، النتائج غادي تكون مزيانة."
+    : score >= 50 ? "مقبولة، ولكن صورة أوضح غادي تعطي نتائج حسن."
+    : "ضعيفة، الأحسن تستعمل صورة أخرى أوضح.";
+
+  const tips = [];
+  if (short < 300) tips.push("الصورة صغيرة بزاف. استعمل النسخة الأصلية ماشي screenshot.");
+  if (sharpness < 50) tips.push("الصورة مضببة. محركات البحث كتلقى الصور الواضحة حسن.");
+  if (brightness < 70) tips.push("الصورة مظلمة بزاف.");
+  if (brightness > 190) tips.push("الصورة فيها ضو بزاف.");
+  if (state.faces.length > 1) tips.push("فيها بزاف ديال الوجوه، اختار الوجه ديالك تحت باش البحث يركز عليه.");
+  if (faces && !faces.length) tips.push("ما تلقاش وجه. قلّب بالصورة كاملة، ولا جرب صورة الوجه فيها باين من القدام.");
+  if (exif.gps) tips.push("هاد الصورة فيها بلاصة GPS فين تصورات! إلا نشرتيها، أي واحد يقدر يعرف فين كنتي. الموقع كيحيد هاد المعلومات قبل ما يصيفطها للبحث.");
+  $("tips").innerHTML = "";
+  for (const t of tips) { const li = document.createElement("li"); li.textContent = t; $("tips").appendChild(li); }
+
+  $("faces").innerHTML = "";
+  $("facesWrap").classList.toggle("hidden", state.faces.length < 2);
+  if (state.faces.length > 1) {
+    for (let i = 0; i < state.faces.length; i++) {
+      const b = faceBox(state.faces[i], bm.width, bm.height);
+      const blob = await encode(bm, b.sx, b.sy, b.sw, b.sh, 200);
+      const im = document.createElement("img");
+      im.src = URL.createObjectURL(blob);
+      im.alt = `وجه ${i + 1}`;
+      im.onclick = () => selectFace(i);
+      if (i === state.faceIdx) im.classList.add("sel");
+      $("faces").appendChild(im);
+    }
+  }
+  $("reportSec").classList.remove("hidden");
+}
+
+function animateNumber(target) {
+  const t0 = performance.now();
+  const step = now => {
+    const v = Math.round(target * Math.min(1, (now - t0) / 900));
+    $("scoreNum").textContent = v;
+    $("ring").style.setProperty("--v", v);
+    if (v < target) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ---------- reverse image search ----------
+function currentBlob(mode = document.querySelector("input[name=mode]:checked").value) {
+  return mode === "face" && state.faceBlob ? state.faceBlob : state.fullBlob;
+}
+
+function blobToBase64(blob) {
   return new Promise((res, rej) => {
     const r = new FileReader();
     r.onload = () => res(String(r.result).split(",")[1]);
     r.onerror = rej;
-    r.readAsDataURL(file);
+    r.readAsDataURL(blob);
   });
 }
 
 // Navigation form posts are not subject to CORS, so the engine receives the image directly.
-async function searchWith(engine) {
-  if (!currentFile) return toast("اختار صورة الأول");
+async function searchWith(engine, blob = currentBlob()) {
+  if (!blob) return toast("اختار صورة الأول");
   const form = document.createElement("form");
-  form.method = "POST";
-  form.action = engine.action;
-  form.enctype = "multipart/form-data";
-  form.target = "_blank";
-  form.style.display = "none";
+  form.method = "POST"; form.action = engine.action; form.enctype = "multipart/form-data";
+  form.target = "_blank"; form.style.display = "none";
+  const input = document.createElement("input");
+  input.name = engine.field;
   if (engine.base64) {
-    const input = document.createElement("input");
-    input.type = "hidden"; input.name = engine.field;
-    input.value = await fileToBase64(currentFile);
-    form.appendChild(input);
+    input.type = "hidden";
+    input.value = await blobToBase64(blob);
   } else {
-    const input = document.createElement("input");
-    input.type = "file"; input.name = engine.field;
+    input.type = "file";
     const dt = new DataTransfer();
-    dt.items.add(currentFile);
+    dt.items.add(new File([blob], "photo.jpg", { type: "image/jpeg" }));
     input.files = dt.files;
-    form.appendChild(input);
   }
+  form.appendChild(input);
   document.body.appendChild(form);
   form.submit();
   form.remove();
 }
 
-const grid = $("engines");
-ENGINES.forEach(engine => {
+for (const engine of ENGINES) {
   const card = document.createElement("div");
   card.className = "engine";
-  card.innerHTML = `<b></b><small></small>`;
+  card.innerHTML = "<b></b><small></small>";
   card.querySelector("b").textContent = engine.name;
   card.querySelector("small").textContent = engine.desc;
   const btn = document.createElement("button");
   btn.textContent = "قلّب";
-  btn.disabled = true;
-  btn.dataset.needsImage = "";
   btn.onclick = () => searchWith(engine);
   const manual = document.createElement("a");
   manual.className = "btn secondary";
   manual.href = engine.home; manual.target = "_blank"; manual.rel = "noopener";
   manual.textContent = "فتح الموقع يدوياً";
   card.append(btn, manual);
-  grid.appendChild(card);
-});
+  $("engines").appendChild(card);
+}
 
 $("all").onclick = async () => {
   toast("إلا المتصفح بلوكا النوافذ، سمح بالـ pop-ups لهاد الموقع");
-  for (const engine of ENGINES) await searchWith(engine);
+  const blobs = state.faceBlob ? [state.faceBlob, state.fullBlob] : [state.fullBlob];
+  for (const blob of blobs) for (const engine of ENGINES) await searchWith(engine, blob);
 };
 
 $("copy").onclick = async () => {
   try {
-    // Clipboard only accepts PNG reliably, so re-encode through a canvas.
-    const bmp = await createImageBitmap(currentFile);
-    const canvas = document.createElement("canvas");
-    canvas.width = bmp.width; canvas.height = bmp.height;
-    canvas.getContext("2d").drawImage(bmp, 0, 0);
-    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    const bmp = await createImageBitmap(currentBlob());
+    const c = canvasOf(bmp.width, bmp.height);
+    c.getContext("2d").drawImage(bmp, 0, 0);
+    const png = await new Promise(r => c.toBlob(r, "image/png"));
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
     toast("تنسخات الصورة ✔ لصقها بـ Ctrl+V فالموقع");
   } catch {
     toast("ما قدرتش ننسخ الصورة، رفعها يدوياً فالموقع");
   }
 };
 
-function searchUser() {
-  const raw = $("user").value.trim().replace(/^@/, "");
-  const links = $("links");
-  links.innerHTML = "";
-  if (!raw) return toast("كتب اسم المستخدم");
-  const u = encodeURIComponent(raw);
-  SITES.forEach(([name, url]) => {
+// ---------- username search ----------
+function usernameVariants(raw) {
+  const words = raw.toLowerCase().replace(/^@/, "").split(/[\s._-]+/).filter(Boolean);
+  if (words.length < 2) return [words.join("")].filter(Boolean);
+  const [a, b] = [words[0], words[words.length - 1]];
+  return [...new Set([words.join(""), words.join("."), words.join("_"), b + a, `${b}.${a}`, `${b}_${a}`, a[0] + b, a + b[0]])];
+}
+
+function linkGroup(title, items) {
+  const wrap = document.createElement("div");
+  wrap.className = "variant";
+  const h = document.createElement("h3");
+  h.textContent = title;
+  const grid = document.createElement("div");
+  grid.className = "links";
+  for (const [name, href] of items) {
     const a = document.createElement("a");
-    a.href = url(u); a.target = "_blank"; a.rel = "noopener";
+    a.href = href; a.target = "_blank"; a.rel = "noopener";
     a.textContent = name;
-    links.appendChild(a);
-  });
+    grid.appendChild(a);
+  }
+  wrap.append(h, grid);
+  return wrap;
+}
+
+function searchUser() {
+  const raw = $("user").value.trim();
+  const out = $("links");
+  out.innerHTML = "";
+  if (!raw) return toast("كتب السمية ولا اسم المستخدم");
+  out.appendChild(linkGroup(`🔎 "${raw}"`, NAME_SEARCHES.map(([n, f]) => [n, f(raw.replace(/^@/, ""))])));
+  for (const v of usernameVariants(raw)) {
+    const u = encodeURIComponent(v);
+    out.appendChild(linkGroup("@" + v, SITES.map(([n, f]) => [n, f(u)])));
+  }
 }
 $("go").onclick = searchUser;
 $("user").addEventListener("keydown", e => e.key === "Enter" && searchUser());
