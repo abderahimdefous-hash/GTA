@@ -2,472 +2,888 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>وجه ثلاثي الأبعاد</title>
-<style>
-  :root {
-    --bg: #07080c; --panel: rgba(18, 20, 30, 0.72); --line: rgba(255, 255, 255, 0.09);
-    --text: #eef1f8; --muted: #8a91a6; --accent: #7c9cff; --accent2: #c07cff;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); overflow: hidden;
-    font-family: "Segoe UI", Tahoma, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-
-  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none;
-    cursor: grab; }
-  #scene:active { cursor: grabbing; }
-  .glow { position: fixed; inset: 0; pointer-events: none;
-    background: radial-gradient(60% 50% at 50% 45%, rgba(124,156,255,.14), transparent 70%),
-                radial-gradient(40% 40% at 80% 90%, rgba(192,124,255,.10), transparent 70%); }
-
-  header { position: fixed; top: 0; left: 0; right: 0; padding: 18px 24px; display: flex;
-    align-items: center; justify-content: space-between; z-index: 5; pointer-events: none; }
-  .logo { font-weight: 700; font-size: 20px; letter-spacing: .5px; }
-  .logo span { background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .badge { font-size: 12px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 99px;
-    color: var(--muted); background: var(--panel); backdrop-filter: blur(10px); }
-
-  /* upload screen */
-  #upload { position: fixed; inset: 0; z-index: 8; display: flex; align-items: center;
-    justify-content: center; padding: 16px; background: var(--bg); }
-  .drop { width: min(560px, 100%); padding: 48px 28px; text-align: center; border-radius: 24px;
-    border: 1.5px dashed rgba(124,156,255,.45); background: var(--panel); backdrop-filter: blur(14px);
-    box-shadow: 0 30px 80px rgba(0,0,0,.5); transition: border-color .2s, transform .2s; }
-  .drop.over { border-color: var(--accent2); transform: scale(1.02); }
-  .drop h1 { font-size: 28px; margin-bottom: 10px; }
-  .drop p { color: var(--muted); line-height: 1.7; margin-bottom: 26px; }
-  .icon { width: 74px; height: 74px; margin: 0 auto 20px; border-radius: 22px; display: grid;
-    place-items: center; font-size: 34px;
-    background: linear-gradient(135deg, rgba(124,156,255,.25), rgba(192,124,255,.25)); }
-
-  .btn { font: inherit; font-size: 15px; font-weight: 600; color: #fff; border: 0; cursor: pointer;
-    padding: 13px 26px; border-radius: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2));
-    box-shadow: 0 10px 30px rgba(124,156,255,.35); transition: transform .15s, opacity .2s; }
-  .btn:hover { transform: translateY(-2px); }
-  .btn.ghost { background: rgba(255,255,255,.06); box-shadow: none; border: 1px solid var(--line); }
-  .btn:disabled { opacity: .5; cursor: default; transform: none; }
-  .err { color: #ff7a8a; margin-top: 18px; min-height: 1.4em; font-size: 14px; }
-
-  /* loading */
-  #loading { position: fixed; inset: 0; z-index: 9; display: none; flex-direction: column; gap: 18px;
-    align-items: center; justify-content: center; background: rgba(7,8,12,.85); backdrop-filter: blur(6px); }
-  .ring { width: 64px; height: 64px; border-radius: 50%; border: 3px solid rgba(255,255,255,.08);
-    border-top-color: var(--accent); border-right-color: var(--accent2); animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* controls */
-  #controls { position: fixed; z-index: 6; bottom: 22px; left: 50%; transform: translateX(-50%);
-    width: min(720px, calc(100% - 32px)); display: none; flex-direction: column; gap: 14px;
-    padding: 18px 20px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line);
-    backdrop-filter: blur(16px); box-shadow: 0 20px 60px rgba(0,0,0,.45); }
-  .row { display: flex; align-items: center; gap: 14px; }
-  .row label { font-size: 13px; color: var(--muted); width: 92px; flex-shrink: 0; }
-  .row .val { font-size: 13px; width: 44px; text-align: left; font-variant-numeric: tabular-nums; }
-  input[type=range] { flex: 1; accent-color: var(--accent); height: 28px; direction: ltr; }
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-  .actions .btn { padding: 10px 16px; font-size: 14px; }
-  .btn.on { outline: 2px solid var(--accent); }
-
-  .hint { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 5; display: none;
-    font-size: 13px; color: var(--muted); background: var(--panel); padding: 7px 14px;
-    border-radius: 99px; border: 1px solid var(--line); white-space: nowrap; }
-
-  @media (max-width: 600px) {
-    .drop { padding: 36px 20px; } .drop h1 { font-size: 22px; }
-    .row label { width: 70px; font-size: 12px; }
-    #controls { bottom: 12px; padding: 14px; gap: 10px; }
-    .actions .btn { padding: 9px 12px; font-size: 13px; }
-    header { padding: 14px 16px; }
-  }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 </head>
 <body>
+<title>Face3D Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0c10; --panel: rgba(22, 23, 30, 0.82); --line: rgba(255, 255, 255, 0.1);
+    --text: #f1efe9; --muted: #9a978f; --accent: #e8b86a; --accent-ink: #1a1408;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: var(--bg); color: var(--text);
+    font-family: "Tajawal", "Segoe UI", Tahoma, sans-serif; }
+  button { font: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+  #scene:active { cursor: grabbing; }
+  .vignette { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(70% 60% at 50% 42%, rgba(232,184,106,.10), transparent 60%),
+                radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(0,0,0,.65)); }
+
+  header { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 4;
+    display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; pointer-events: none; }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: .3px; }
+  .logo b { color: var(--accent); }
+  .tag { font-size: 12px; color: var(--muted); border: 1px solid var(--line); padding: 4px 10px; border-radius: 99px;
+    background: var(--panel); direction: ltr; }
+
+  .screen { position: fixed; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .card { width: min(520px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 22px;
+    padding: 28px 24px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 30px 80px rgba(0,0,0,.5); text-align: center; }
+  .card h1 { margin: 0 0 8px; font-size: 26px; text-wrap: balance; }
+  .card p { margin: 0 0 20px; color: var(--muted); line-height: 1.7; }
+  #uploadScreen { align-items: flex-end; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .drop.over { border-color: var(--accent); }
+
+  .btn { border: 0; cursor: pointer; border-radius: 12px; padding: 12px 22px; font-weight: 700; font-size: 15px;
+    background: var(--accent); color: var(--accent-ink); transition: transform .15s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ghost { background: rgba(255,255,255,.07); color: var(--text); border: 1px solid var(--line); font-weight: 500; }
+  .btn.on { background: rgba(232,184,106,.2); border-color: var(--accent); }
+  .err { color: #ff8a80; min-height: 1.4em; margin-top: 12px; font-size: 14px; }
+
+  /* marker editor */
+  #editScreen { flex-direction: column; gap: 14px; background: rgba(11,12,16,.94); }
+  #editScreen h2 { margin: 0; font-size: 18px; text-align: center; }
+  #editScreen .sub { color: var(--muted); font-size: 14px; text-align: center; margin-top: -8px; }
+  .editor { position: relative; max-width: 100%; touch-action: none; }
+  .editor canvas { display: block; max-width: 100%; border-radius: 14px; }
+  .mk { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+    border: 2px solid var(--accent); background: rgba(232,184,106,.18); cursor: grab; touch-action: none;
+    display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px #000; }
+  .mk::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); position: absolute; }
+  .mk span { position: absolute; top: 30px; white-space: nowrap; }
+  .editor.analyzing .mk { display: none; }
+  .row-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  /* controls */
+  #controls { position: fixed; z-index: 5; left: 50%; transform: translateX(-50%);
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(680px, calc(100% - 32px));
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .row label { width: 84px; color: var(--muted); flex-shrink: 0; }
+  .row output { width: 42px; font-variant-numeric: tabular-nums; direction: ltr; text-align: center; }
+  input[type=color] { width: 44px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: none; padding: 2px; cursor: pointer; }
+  .colors label { width: auto; }
+  input[type=range] { flex: 1; accent-color: var(--accent); direction: ltr; min-width: 0; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .acts .btn { padding: 9px 14px; font-size: 14px; }
+
+  #shot { position: fixed; inset: 0; z-index: 9; background: rgba(0,0,0,.92); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; padding: 16px; text-align: center; }
+  #shot img { max-width: 100%; max-height: 70vh; border-radius: 10px; border: 1px solid var(--line); }
+  #shot p { color: var(--muted); margin: 0; font-size: 14px; }
+
+  #hud { position: fixed; z-index: 5; top: calc(64px + env(safe-area-inset-top, 0px)); right: 16px;
+    width: min(300px, calc(100% - 32px)); padding: 14px 16px; border-radius: 14px; direction: rtl;
+    background: rgba(0, 20, 8, 0.72); border: 1px solid rgba(0, 255, 102, 0.45); color: #3dff8a;
+    font: 13px/1.9 "Courier New", ui-monospace, monospace; box-shadow: 0 0 24px rgba(0, 255, 102, 0.18);
+    text-shadow: 0 0 6px rgba(0, 255, 102, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  #hud h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: 1px; }
+  #hud .ln { display: flex; justify-content: space-between; gap: 10px; }
+  #hud .ln b { direction: ltr; font-weight: 700; }
+  #hud .bar { height: 4px; margin-top: 8px; background: rgba(0,255,102,.15); border-radius: 2px; overflow: hidden; }
+  #hud .bar i { display: block; height: 100%; width: 0; background: #00ff66; box-shadow: 0 0 8px #00ff66; }
+  #busy { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.6); font-size: 16px; }
+
+  @media (max-width: 520px) {
+    .card h1 { font-size: 22px; }
+    .row label { width: 66px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+
 <canvas id="scene"></canvas>
-<div class="glow"></div>
+<div class="vignette"></div>
+<header><div class="logo">Face<b>3D</b></div><div class="tag">4K · 3840×2160</div></header>
 
-<header>
-  <div class="logo">Face<span>3D</span></div>
-  <div class="badge">4K · Ultra HD</div>
-</header>
-
-<div id="upload">
-  <div class="drop" id="drop">
-    <div class="icon">🙂</div>
-    <h1>حوّل أي صورة وجه إلى 3D</h1>
-    <p>ارفع صورة واضحة لوجه من الأمام، وسيتم بناء نموذج ثلاثي الأبعاد<br>يمكنك تدوير رأسه يميناً ويساراً وحفظه بجودة 4K</p>
-    <button class="btn" id="pick">📷 اختر صورة</button>
+<div class="screen" id="uploadScreen">
+  <div class="card drop" id="drop">
+    <h1>صورة واحدة ← وجه 3D حقيقي</h1>
+    <p>ارفع صورة وجه واحدة من الأمام، والموقع يحللها بالليزر تلقائياً ويبني منها وجهاً ثلاثي الأبعاد من الصورة الحقيقية تدوّره يميناً ويساراً.</p>
+    <button class="btn" id="pick">اختر صورة</button>
     <input type="file" id="file" accept="image/*" hidden>
     <div class="err" id="err"></div>
   </div>
 </div>
 
-<div id="loading"><div class="ring"></div><div id="loadMsg">جاري تحليل الوجه...</div></div>
-
-<div class="hint" id="hint">اسحب بإصبعك أو بالماوس لتدوير الرأس</div>
-
-<div id="controls">
-  <div class="row">
-    <label>دوران الرأس</label>
-    <input type="range" id="yaw" min="-75" max="75" value="0">
-    <span class="val" id="yawVal">0°</span>
+<div class="screen" id="editScreen" hidden>
+  <h2 id="editTitle">ضع النقاط على العينين ووسط الفم</h2>
+  <div class="sub" id="editSub">اسحب كل دائرة إلى مكانها بالضبط</div>
+  <div class="editor" id="editor">
+    <canvas id="photo"></canvas>
+    <div class="mk" id="mkL"><span>عين</span></div>
+    <div class="mk" id="mkR"><span>عين</span></div>
+    <div class="mk" id="mkM"><span>الفم</span></div>
   </div>
-  <div class="row">
-    <label>عمق الوجه</label>
-    <input type="range" id="depth" min="50" max="200" value="110">
-    <span class="val" id="depthVal">110%</span>
-  </div>
-  <div class="actions">
-    <button class="btn ghost" id="sway">↔ تحريك تلقائي</button>
-    <button class="btn ghost" id="wire">◈ الشبكة</button>
-    <button class="btn ghost" id="reset">⟲ توسيط</button>
-    <button class="btn ghost" id="another">🖼 صورة أخرى</button>
-    <button class="btn" id="save">⬇ حفظ 4K</button>
+  <div class="row-btns" id="editBtns">
+    <button class="btn" id="build">إنشاء الوجه 3D</button>
+    <button class="btn ghost" id="back">صورة أخرى</button>
   </div>
 </div>
 
+<div id="controls" hidden>
+  <div class="row"><label for="yaw">دوران الرأس</label><input type="range" id="yaw" min="-75" max="75" value="0"><output id="yawOut">0°</output></div>
+  <div class="row"><label for="depth">عمق الملامح</label><input type="range" id="depth" min="40" max="180" value="100"><output id="depthOut">100%</output></div>
+  <div class="row colors" id="colorRow" hidden>
+    <label for="skinColor">لون البشرة</label><input type="color" id="skinColor" value="#c9a48a">
+    <label for="hairColor">لون الشعر</label><input type="color" id="hairColor" value="#261c16">
+  </div>
+  <div class="acts">
+    <button class="btn ghost" id="mode">رأس كامل</button>
+    <button class="btn ghost" id="sway">تحريك تلقائي</button>
+    <button class="btn ghost" id="wire">الشبكة</button>
+    <button class="btn ghost" id="rescan">مسح بالليزر</button>
+    <button class="btn ghost" id="adjust">تعديل النقاط</button>
+    <button class="btn ghost" id="another">صورة أخرى</button>
+    <button class="btn" id="save">صورة 4K</button>
+  </div>
+</div>
+
+<div id="shot" hidden>
+  <img id="shotImg" alt="الوجه ثلاثي الأبعاد بدقة 4K">
+  <p>اضغط مطولاً على الصورة (أو زر الماوس الأيمن) ثم اختر حفظ الصورة</p>
+  <button class="btn ghost" id="shotClose">إغلاق</button>
+</div>
+
+<div id="hud" hidden>
+  <h3 id="hudTitle">◉ تحليل الوجه بالليزر</h3>
+  <div id="hudLines"></div>
+  <div class="bar"><i id="hudBar"></i></div>
+</div>
+
+<div id="busy" hidden>جاري التحضير...</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clmtrackr@1.1.2/build/clmtrackr.min.js"></script>
 <script>
-  // Show any failure on screen instead of leaving a dead page.
-  function showBootError(t) {
-    var e = document.getElementById("err");
-    if (e) e.textContent = t;
-    var l = document.getElementById("loading");
-    if (l) l.style.display = "none";
-  }
-  window.addEventListener("error", function (e) { showBootError("خطأ: " + (e.message || "غير معروف")); });
-  window.addEventListener("unhandledrejection", function (e) { showBootError("خطأ: " + ((e.reason && e.reason.message) || e.reason)); });
-  window.__faceReady = false;
-  setTimeout(function () {
-    if (!window.__faceReady) showBootError("تعذر تحميل مكتبة الـ 3D. تحقق من الإنترنت ثم أعد تحميل الصفحة.");
-  }, 20000);
-  document.getElementById("pick").onclick = function () {
-    if (!window.__faceReady) showBootError("انتظر قليلاً... الموقع ما زال يتحمّل.");
-  };
-</script>
-<script type="module">
-let THREE;
-for (const url of ["https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-                   "https://unpkg.com/three@0.160.0/build/three.module.js"]) {
-  try { THREE = await import(url); break; } catch (e) { console.error(url, e); }
-}
-if (!THREE) throw new Error("تعذر تحميل مكتبة الـ 3D (three.js). تحقق من الإنترنت ثم أعد تحميل الصفحة.");
+(function () {
+  const $ = id => document.getElementById(id);
+  if (!window.THREE) { $("err").textContent = "تعذر تحميل مكتبة الـ 3D. أعد تحميل الصفحة."; return; }
 
-const $ = id => document.getElementById(id);
-const MP_VERSION = "0.10.14";
-const MP_CDNS = [
-  `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`,
-  `https://unpkg.com/@mediapipe/tasks-vision@${MP_VERSION}`
-];
-const MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
-const MAX_TEX = 4096;
+  /* ---------- renderer ---------- */
+  const canvas = $("scene");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.setClearColor(0x0b0c10, 1);
 
-/* ---------------- renderer / scene ---------------- */
-const canvas = $("scene");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+  const BASE_Z = 9;
+  scene.add(new THREE.HemisphereLight(0xfff4e6, 0x20180f, 1.15));
+  const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(3, 3, 6); scene.add(key);
+  const rimL = new THREE.DirectionalLight(0xe8b86a, 0.9); rimL.position.set(-5, 2, -4); scene.add(rimL);
+  const rimR = new THREE.DirectionalLight(0x9fb4ff, 0.6); rimR.position.set(5, 0, -4); scene.add(rimR);
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
-camera.position.set(0, 0, 6.2);
+  /* laser scan: textured head shows above the laser line, green laser mesh below it */
+  renderer.localClippingEnabled = true;
+  const texPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 100);
+  const wirePlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -100);
+  const LASER = 0x00ff66;
+  const scanWireMat = new THREE.MeshBasicMaterial({ color: LASER, wireframe: true, transparent: true, opacity: 0.5,
+    blending: THREE.AdditiveBlending, depthWrite: false, clippingPlanes: [wirePlane] });
+  const scanDotMat = new THREE.PointsMaterial({ color: 0x9dffc4, size: 0.035, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false, clippingPlanes: [wirePlane] });
 
-scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x1a1420, 1.25));
-const key = new THREE.DirectionalLight(0xffffff, 1.6);
-key.position.set(2.5, 2, 4);
-scene.add(key);
-const rim = new THREE.DirectionalLight(0x9db0ff, 1.4);
-rim.position.set(-3, 1, -2);
-scene.add(rim);
-const rim2 = new THREE.DirectionalLight(0xd49bff, 1.0);
-rim2.position.set(3, -1, -2);
-scene.add(rim2);
-
-const head = new THREE.Group();
-scene.add(head);
-let faceMesh, wireMesh, material, baseZ = null;
-
-function resize() {
-  renderer.setSize(innerWidth, innerHeight, false);
-  camera.aspect = innerWidth / innerHeight;
-  // keep the whole head visible on portrait phones
-  camera.position.z = camera.aspect < 0.8 ? 6.2 / Math.max(camera.aspect, 0.45) * 0.8 : 6.2;
-  camera.updateProjectionMatrix();
-}
-addEventListener("resize", resize);
-resize();
-
-/* ---------------- face detection ---------------- */
-let landmarkerPromise;
-function getLandmarker() {
-  landmarkerPromise ??= (async () => {
-    let lastErr;
-    for (const cdn of MP_CDNS) {
-      try {
-        const vision = await import(`${cdn}/vision_bundle.mjs`);
-        const fileset = await vision.FilesetResolver.forVisionTasks(`${cdn}/wasm`);
-        const opts = delegate => ({ baseOptions: { modelAssetPath: MODEL, delegate }, runningMode: "IMAGE", numFaces: 1 });
-        try { return await vision.FaceLandmarker.createFromOptions(fileset, opts("GPU")); }
-        catch { return await vision.FaceLandmarker.createFromOptions(fileset, opts("CPU")); }
-      } catch (e) { lastErr = e; console.error(cdn, e); }
-    }
-    landmarkerPromise = null;
-    throw lastErr;
+  const glowTex = (() => {
+    const c = document.createElement("canvas"); c.width = 4; c.height = 128;
+    const x = c.getContext("2d"), gr = x.createLinearGradient(0, 0, 0, 128);
+    gr.addColorStop(0, "rgba(0,255,102,0)"); gr.addColorStop(0.5, "rgba(0,255,102,1)"); gr.addColorStop(1, "rgba(0,255,102,0)");
+    x.fillStyle = gr; x.fillRect(0, 0, 4, 128);
+    return new THREE.CanvasTexture(c);
   })();
-  return landmarkerPromise;
-}
-getLandmarker().catch(() => {}); // warm up while the user picks a photo
-
-/* ---------------- Delaunay triangulation (Bowyer–Watson) ---------------- */
-function delaunay(pts) {
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const [x, y] of pts) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); }
-  const d = Math.max(maxX - minX, maxY - minY) * 20, mx = (minX + maxX) / 2, my = (minY + maxY) / 2;
-  const P = pts.concat([[mx - d, my - d], [mx, my + d], [mx + d, my - d]]);
-  const n = pts.length;
-  const circ = (a, b, c) => {
-    const [ax, ay] = P[a], [bx, by] = P[b], [cx, cy] = P[c];
-    const D = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
-    const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / D;
-    const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / D;
-    return { a, b, c, x: ux, y: uy, r2: (ax - ux) ** 2 + (ay - uy) ** 2 };
-  };
-  let tris = [circ(n, n + 1, n + 2)];
-  for (let i = 0; i < n; i++) {
-    const [px, py] = P[i];
-    const bad = [], keep = [];
-    for (const t of tris) ((px - t.x) ** 2 + (py - t.y) ** 2 < t.r2 ? bad : keep).push(t);
-    const edges = new Map();
-    for (const t of bad) for (const [u, v] of [[t.a, t.b], [t.b, t.c], [t.c, t.a]]) {
-      const k = u < v ? u + "," + v : v + "," + u;
-      edges.set(k, edges.has(k) ? null : [u, v]);
-    }
-    tris = keep;
-    for (const e of edges.values()) if (e) tris.push(circ(e[0], e[1], i));
+  const laser = new THREE.Group();
+  laser.add(new THREE.Mesh(new THREE.PlaneGeometry(5.5, 0.02),
+    new THREE.MeshBasicMaterial({ color: 0xc8ffdc, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })));
+  laser.add(new THREE.Mesh(new THREE.PlaneGeometry(5.5, 0.5),
+    new THREE.MeshBasicMaterial({ map: glowTex, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.55, depthWrite: false })));
+  laser.position.z = 1.9;
+  laser.visible = false;
+  scene.add(laser);
+  function setScan(y) {
+    texPlane.constant = -y;   // keep y >= scan line
+    wirePlane.constant = y;   // keep y <= scan line
+    laser.position.y = y;
+    laser.visible = y > -50;
   }
-  return tris.filter(t => t.a < n && t.b < n && t.c < n).map(t => [t.a, t.b, t.c]);
-}
+  setScan(-100);
 
-/* ---------------- build the 3D head ---------------- */
-function buildHead(landmarks, imgW, imgH, texture) {
-  // pixel-space positions; MediaPipe z is in the same scale as x (image width)
-  const raw = landmarks.map(p => [p.x * imgW, p.y * imgH, p.z * imgW]);
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const [x, y] of raw) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
-  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-  const scale = 2.3 / (maxY - minY);
+  const head = new THREE.Group();
+  scene.add(head);
 
-  const pos = raw.map(([x, y, z]) => [(x - cx) * scale, -(y - cy) * scale, -z * scale]);
-  const uv = landmarks.map(p => [p.x, 1 - p.y]);
-
-  // triangulate in the front view and drop the long hull triangles outside the face outline
-  let tris = delaunay(pos.map(p => [p[0], p[1]]));
-  const len = (a, b) => Math.hypot(pos[a][0] - pos[b][0], pos[a][1] - pos[b][1]);
-  const edgeLens = tris.flatMap(([a, b, c]) => [len(a, b), len(b, c), len(c, a)]).sort((x, y) => x - y);
-  const median = edgeLens[edgeLens.length >> 1];
-  tris = tris.filter(([a, b, c]) => Math.max(len(a, b), len(b, c), len(c, a)) < median * 4.5);
-  // make every triangle face the camera (+z)
-  tris = tris.map(([a, b, c]) => {
-    const cross = (pos[b][0] - pos[a][0]) * (pos[c][1] - pos[a][1]) - (pos[b][1] - pos[a][1]) * (pos[c][0] - pos[a][0]);
-    return cross > 0 ? [a, b, c] : [a, c, b];
-  });
-
-  // boundary = directed edges without a reverse twin
-  const directed = new Set();
-  for (const [a, b, c] of tris) for (const [u, v] of [[a, b], [b, c], [c, a]]) directed.add(u + "," + v);
-  const boundary = [];
-  for (const k of directed) {
-    const [u, v] = k.split(",").map(Number);
-    if (!directed.has(v + "," + u)) boundary.push([u, v]);
+  function resize() {
+    renderer.setSize(innerWidth, innerHeight, false);
+    camera.aspect = innerWidth / innerHeight;
+    camera.position.set(0, 0, camera.aspect < 0.75 ? BASE_Z * 0.75 / camera.aspect : BASE_Z);
+    camera.updateProjectionMatrix();
   }
-
-  // skull: extrude the outline backwards (rounded) so the head has volume when turned
-  const n = pos.length;
-  const ring = [...new Set(boundary.flat())];
-  const RINGS = [
-    { shrink: 0.97, back: 0.18 }, { shrink: 0.9, back: 0.45 },
-    { shrink: 0.75, back: 0.75 }, { shrink: 0.5, back: 0.98 }
-  ];
-  const zMin = Math.min(...pos.map(p => p[2]));
-  const faceW = (maxX - minX) * scale;
-  const positions = pos.map(p => p.slice()), uvs = uv.map(t => t.slice());
-  const ringIdx = RINGS.map(() => new Map());
-  RINGS.forEach((r, ri) => {
-    for (const v of ring) {
-      const [x, y, z] = pos[v];
-      ringIdx[ri].set(v, positions.length);
-      positions.push([x * r.shrink, y * r.shrink, Math.min(z, zMin) - r.back * faceW * 0.75]);
-      uvs.push(uv[v].slice());
-    }
-  });
-  const backCenter = positions.length;
-  positions.push([0, 0, zMin - faceW * 0.8]);
-  uvs.push([0.5, 0.5]);
-
-  const indices = [];
-  for (const t of tris) indices.push(...t);
-  const layers = [new Map(ring.map(v => [v, v])), ...ringIdx];
-  for (const [u, v] of boundary) {
-    for (let l = 0; l < layers.length - 1; l++) {
-      const a = layers[l].get(u), b = layers[l].get(v), a2 = layers[l + 1].get(u), b2 = layers[l + 1].get(v);
-      indices.push(a, a2, b, b, a2, b2);
-    }
-    const last = layers[layers.length - 1];
-    indices.push(last.get(v), last.get(u), backCenter);
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions.flat(), 3));
-  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs.flat(), 2));
-  geo.setIndex(indices);
-  geo.computeVertexNormals();
-  baseZ = geo.attributes.position.array.slice();
-
-  // clear previous
-  for (const m of [faceMesh, wireMesh]) if (m) { head.remove(m); m.geometry.dispose(); }
-  material?.map?.dispose();
-  material?.dispose();
-
-  material = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.62, metalness: 0.02, side: THREE.DoubleSide });
-  faceMesh = new THREE.Mesh(geo, material);
-  const wireGeo = new THREE.BufferGeometry();
-  wireGeo.setAttribute("position", geo.attributes.position);
-  wireGeo.setIndex(tris.flat());
-  wireMesh = new THREE.Mesh(wireGeo, new THREE.MeshBasicMaterial({ color: 0x8fb0ff, wireframe: true, transparent: true, opacity: 0.35 }));
-  wireMesh.visible = wireOn;
-  head.add(faceMesh, wireMesh);
-  head.position.z = -(zMin * 0.5);
-  applyDepth();
-}
-
-function applyDepth() {
-  if (!faceMesh) return;
-  const k = +$("depth").value / 100;
-  const attr = faceMesh.geometry.attributes.position;
-  for (let i = 2; i < baseZ.length; i += 3) attr.array[i] = baseZ[i] * k;
-  attr.needsUpdate = true;
-  faceMesh.geometry.computeVertexNormals();
-  $("depthVal").textContent = Math.round(k * 100) + "%";
-}
-
-/* ---------------- image loading ---------------- */
-function showError(t) { $("err").textContent = t; $("loading").style.display = "none"; }
-
-async function handleFile(file) {
-  if (!file || !file.type.startsWith("image/")) return showError("الملف ليس صورة.");
-  $("err").textContent = "";
-  $("loading").style.display = "flex";
-  $("loadMsg").textContent = "جاري تحميل نظام التحليل...";
-  try {
-    const img = await new Promise((res, rej) => {
-      const im = new Image();
-      im.onload = () => res(im);
-      im.onerror = () => rej(new Error("تعذر قراءة الصورة"));
-      im.src = URL.createObjectURL(file);
-    });
-    // keep up to 4K texture resolution
-    const s = Math.min(1, MAX_TEX / Math.max(img.naturalWidth, img.naturalHeight));
-    const c = document.createElement("canvas");
-    c.width = Math.round(img.naturalWidth * s);
-    c.height = Math.round(img.naturalHeight * s);
-    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-    URL.revokeObjectURL(img.src);
-
-    let landmarker;
-    try { landmarker = await getLandmarker(); }
-    catch { return showError("تعذر تحميل نظام تحليل الوجه. تحقق من الإنترنت وحاول مرة أخرى."); }
-
-    $("loadMsg").textContent = "جاري بناء الوجه ثلاثي الأبعاد...";
-    await new Promise(r => setTimeout(r, 30));
-    const res = landmarker.detect(c);
-    const face = res.faceLandmarks?.[0];
-    if (!face) return showError("لم يتم العثور على وجه في الصورة. جرّب صورة أوضح لوجه من الأمام.");
-
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    tex.generateMipmaps = true;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-
-    buildHead(face, c.width, c.height, tex);
-    yaw = targetYaw = 0; pitch = targetPitch = 0;
-    $("upload").style.display = "none";
-    $("loading").style.display = "none";
-    $("controls").style.display = "flex";
-    $("hint").style.display = "block";
-    setTimeout(() => $("hint").style.display = "none", 4000);
-    // gentle intro turn
-    swayOn = true; $("sway").classList.add("on");
-    setTimeout(() => { swayOn = false; $("sway").classList.remove("on"); targetYaw = 0; }, 3500);
-  } catch (e) {
-    console.error(e);
-    showError("حدث خطأ: " + (e.message || e));
-  }
-}
-
-$("pick").onclick = () => $("file").click();
-window.__faceReady = true;
-$("file").onchange = e => handleFile(e.target.files[0]);
-const drop = $("drop");
-drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
-drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); handleFile(e.dataTransfer.files[0]); });
-
-/* ---------------- interaction ---------------- */
-const DEG = Math.PI / 180, MAX_YAW = 75 * DEG, MAX_PITCH = 20 * DEG;
-let yaw = 0, targetYaw = 0, pitch = 0, targetPitch = 0, swayOn = false, wireOn = false;
-let dragging = false, lastX = 0, lastY = 0;
-const clamp = (v, m) => Math.max(-m, Math.min(m, v));
-
-canvas.addEventListener("pointerdown", e => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); swayOn = false; $("sway").classList.remove("on"); });
-canvas.addEventListener("pointermove", e => {
-  if (!dragging) return;
-  targetYaw = clamp(targetYaw + (e.clientX - lastX) * 0.008, MAX_YAW);
-  targetPitch = clamp(targetPitch + (e.clientY - lastY) * 0.005, MAX_PITCH);
-  lastX = e.clientX; lastY = e.clientY;
-});
-addEventListener("pointerup", () => dragging = false);
-
-$("yaw").oninput = e => { swayOn = false; $("sway").classList.remove("on"); targetYaw = -e.target.value * DEG; };
-$("depth").oninput = applyDepth;
-$("sway").onclick = () => { swayOn = !swayOn; $("sway").classList.toggle("on", swayOn); if (!swayOn) targetYaw = 0; };
-$("wire").onclick = () => { wireOn = !wireOn; $("wire").classList.toggle("on", wireOn); if (wireMesh) wireMesh.visible = wireOn; };
-$("reset").onclick = () => { swayOn = false; $("sway").classList.remove("on"); targetYaw = targetPitch = 0; };
-$("another").onclick = () => { $("file").value = ""; $("upload").style.display = "flex"; $("controls").style.display = "none"; };
-
-/* ---------------- 4K export ---------------- */
-$("save").onclick = () => {
-  const W = 3840, H = 2160;
-  const prevRatio = renderer.getPixelRatio(), prevAspect = camera.aspect, prevZ = camera.position.z;
-  renderer.setPixelRatio(1);
-  renderer.setSize(W, H, false);
-  camera.aspect = W / H; camera.position.z = 6.2; camera.updateProjectionMatrix();
-  renderer.setClearColor(0x07080c, 1);
-  renderer.render(scene, camera);
-  const url = renderer.domElement.toDataURL("image/png");
-  renderer.setClearColor(0x000000, 0);
-  renderer.setPixelRatio(prevRatio);
-  camera.aspect = prevAspect; camera.position.z = prevZ;
+  addEventListener("resize", resize);
   resize();
-  const a = document.createElement("a");
-  a.href = url; a.download = "face-3d-4k.png"; a.click();
-};
 
-/* ---------------- loop ---------------- */
-const clock = new THREE.Clock();
-renderer.setAnimationLoop(() => {
-  const t = clock.getElapsedTime();
-  if (swayOn) targetYaw = Math.sin(t * 1.1) * 60 * DEG;
-  yaw += (targetYaw - yaw) * 0.12;
-  pitch += (targetPitch - pitch) * 0.12;
-  head.rotation.y = yaw;
-  head.rotation.x = pitch;
-  head.position.y = Math.sin(t * 1.3) * 0.02; // subtle breathing
-  $("yaw").value = Math.round(-yaw / DEG);
-  $("yawVal").textContent = Math.round(-yaw / DEG) + "°";
-  renderer.render(scene, camera);
-});
+  /* ---------- procedural head (units: distance between the pupils) ---------- */
+  const g = (dx, dy, sx, sy) => Math.exp(-(dx / sx) * (dx / sx) - (dy / sy) * (dy / sy));
+  const sstep = (e0, e1, v) => { const t = Math.min(Math.max((v - e0) / (e1 - e0), 0), 1); return t * t * (3 - 2 * t); };
+  const mix = (p, q, t) => p + (q - p) * t;
+
+  function features(x, y, mm) {
+    const ax = Math.abs(x);
+    const ytip = -0.62 * mm;
+    let nose;
+    if (y > ytip) {
+      const t = Math.min(Math.max((0.2 - y) / (0.2 - ytip), 0), 1);
+      const w = 0.1 + 0.09 * t;
+      nose = 0.4 * Math.pow(t, 1.6) * Math.exp(-(x / w) * (x / w));
+    } else {
+      nose = 0.4 * g(x, y - ytip, 0.2, 0.1);
+    }
+    let z = nose;
+    z += 0.1 * g(ax - 0.17, y - ytip - 0.02, 0.09, 0.08);             // nostril wings
+    z -= 0.15 * (g(x - 0.5, y, 0.26, 0.16) + g(x + 0.5, y, 0.26, 0.16)); // eye sockets
+    z += 0.06 * (g(x - 0.5, y, 0.15, 0.08) + g(x + 0.5, y, 0.15, 0.08)); // eyeballs
+    z += 0.09 * g(ax - 0.5, y - 0.3, 0.36, 0.1);                      // brow ridge
+    z += 0.05 * g(x, y - 0.95, 0.9, 0.5);                             // forehead
+    z += 0.07 * g(ax - 0.72, y + 0.35 * mm, 0.28, 0.26);              // cheekbones
+    z += 0.08 * g(x, y + mm - 0.07, 0.3, 0.07);                       // upper lip
+    z += 0.08 * g(x, y + mm + 0.1, 0.25, 0.08);                       // lower lip
+    z -= 0.035 * g(x, y + mm, 0.27, 0.025);                           // mouth line
+    z += 0.1 * g(x, y + mm + 0.6, 0.3, 0.2);                          // chin
+    z -= 0.06 * g(ax - 1.0, y - 0.3, 0.2, 0.4);                       // temples
+    return z;
+  }
+
+  // Head proportions: longer front-to-back than wide, jaw narrower than the skull.
+  function dims(mm, shape) {
+    const top = 1.95;
+    const chin = shape ? Math.min(Math.max(shape.chin, -(mm + 1.3)), -(mm + 0.5)) : -(mm + 0.85);
+    const a = shape ? Math.min(Math.max(shape.halfW * 1.04, 0.95), 1.5) : 1.18;
+    return { mm, top, chin, y0: (top + chin) / 2, b: (top - chin) / 2, a, cf: 1.15, cb: 1.55 };
+  }
+  const dimsOf = src => src ? dims(frame(src.L, src.R, src.M).mm, src.shape) : dims(1.1);
+  function shapeXY(sx, sy, sz, D, out) {
+    const y = D.y0 + D.b * sy;
+    let k = 1 - 0.27 * sstep(-0.35 * D.mm, D.chin, y);   // jaw taper
+    k *= 1 - 0.1 * sstep(1.0, D.top, y);                 // crown taper
+    if (sz > 0) k *= 1 - 0.06 * sz;                      // flatter cheeks than skull
+    out.x = D.a * sx * k;
+    out.y = y;
+    out.z = sz >= 0 ? D.cf * Math.pow(sz, 0.75) : D.cb * sz;
+    return out;
+  }
+  // 0..1 weights: where the photo's face shows, and where hair grows.
+  function faceMask(x, y, sz, D) {
+    if (sz <= 0.05) return 0;
+    const top = 1.08, bot = D.chin - 0.02, yc = (top + bot) / 2, ry = (top - bot) / 2;
+    const qx = x / 0.93, qy = (y - yc) / ry, r = Math.sqrt(qx * qx + qy * qy);
+    return (1 - sstep(0.82, 1.0, r)) * sstep(0.05, 0.3, sz);
+  }
+  function hairMask(x, y, sz) {
+    const front = 1.02 - 0.3 * x * x;          // hairline, lower at the temples
+    const limit = sz >= 0 ? mix(0.5, front, sstep(0, 0.6, sz)) : mix(0.5, -1.25, sstep(0, 0.75, -sz));
+    return sstep(limit - 0.06, limit + 0.06, y);
+  }
+
+  let meshes = [], material = null, skinMat = null, texture = null, wireOn = false, depthK = 1;
+  let current = null; // { img, L, R, M }
+  let colors = { skin: [201, 164, 138], hair: [38, 28, 22] };
+
+  function frame(L, R, M) {
+    const d = Math.hypot(R.x - L.x, R.y - L.y) || 1;
+    const ex = { x: (R.x - L.x) / d, y: (R.y - L.y) / d };
+    const ey = { x: -ex.y, y: ex.x }; // points down the face in image coords
+    const E = { x: (L.x + R.x) / 2, y: (L.y + R.y) / 2 };
+    let mm = ((M.x - E.x) * ey.x + (M.y - E.y) * ey.y) / d;
+    mm = Math.min(Math.max(mm, 0.7), 1.7);
+    return { d, ex, ey, E, mm };
+  }
+  const toPx = (F, x, y) => [F.E.x + x * F.d * F.ex.x - y * F.d * F.ey.x, F.E.y + x * F.d * F.ex.y - y * F.d * F.ey.y];
+
+  function photoData(img) {
+    const c = img.getContext("2d");
+    return { w: img.width, h: img.height, px: c.getImageData(0, 0, img.width, img.height).data };
+  }
+  function avgColor(P, F, pts, rad) {
+    let r = 0, gg = 0, b = 0, n = 0;
+    const R = Math.max(2, Math.round(rad * F.d));
+    for (const [x, y] of pts) {
+      const [cx, cy] = toPx(F, x, y);
+      for (let j = -R; j <= R; j += Math.max(1, R >> 3)) for (let i = -R; i <= R; i += Math.max(1, R >> 3)) {
+        const X = Math.round(cx + i), Y = Math.round(cy + j);
+        if (X < 0 || Y < 0 || X >= P.w || Y >= P.h) continue;
+        const o = (Y * P.w + X) * 4;
+        r += P.px[o]; gg += P.px[o + 1]; b += P.px[o + 2]; n++;
+      }
+    }
+    return n ? [r / n, gg / n, b / n] : null;
+  }
+  const hex = c => "#" + c.map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
+  const unhex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+
+  function sampleColors(src) {
+    const P = photoData(src.img), F = frame(src.L, src.R, src.M);
+    const skin = avgColor(P, F, [[-0.62, -0.45 * F.mm], [0.62, -0.45 * F.mm], [0, 0.6]], 0.1);
+    const hair = avgColor(P, F, [[0, 1.4], [-0.35, 1.32], [0.35, 1.32]], 0.1);
+    if (skin) colors.skin = skin;
+    if (hair) colors.hair = hair;
+    $("skinColor").value = hex(colors.skin);
+    $("hairColor").value = hex(colors.hair);
+  }
+
+  const hash = v => { v = Math.imul(v ^ (v >>> 16), 0x45d9f3b); v = Math.imul(v ^ (v >>> 16), 0x45d9f3b); return (v ^ (v >>> 16)) >>> 0; };
+  // Paint an equirectangular skin texture: the photo's face on the front, skin tone around it, hair on top.
+  const TW = Math.min(innerWidth, innerHeight) < 700 ? 2048 : 4096, TH = TW / 2;
+  function paintTexture(src) {
+    const D = dimsOf(src);
+    const F = src && frame(src.L, src.R, src.M);
+    const P = src && photoData(src.img);
+    const c = document.createElement("canvas");
+    c.width = TW; c.height = TH;
+    const ctx = c.getContext("2d");
+    const out = ctx.createImageData(TW, TH), o = out.data;
+    const cosP = new Float32Array(TW), sinP = new Float32Array(TW);
+    for (let i = 0; i < TW; i++) { const ph = (i + 0.5) / TW * Math.PI * 2; cosP[i] = Math.cos(ph); sinP[i] = Math.sin(ph); }
+    const S = colors.skin, Hc = colors.hair, pt = {};
+    for (let j = 0; j < TH; j++) {
+      const th = (j + 0.5) / TH * Math.PI, st = Math.sin(th), sy = Math.cos(th);
+      const strand = Math.floor(j / 5);
+      for (let i = 0; i < TW; i++) {
+        const sx = -cosP[i] * st, sz = sinP[i] * st;
+        shapeXY(sx, sy, sz, D, pt);
+        const n = hash(i * 7919 + strand * 104729) / 4294967296;
+        const skinN = 0.985 + 0.03 * hash(i * 31 + j * 131071) / 4294967296;
+        let r = S[0] * skinN, gg = S[1] * skinN, b = S[2] * skinN;
+        const hw = hairMask(pt.x, pt.y, sz);
+        if (hw > 0) {
+          const hs = 0.8 + 0.35 * n;
+          r = mix(r, Hc[0] * hs, hw); gg = mix(gg, Hc[1] * hs, hw); b = mix(b, Hc[2] * hs, hw);
+        }
+        if (P) {
+          const fw = faceMask(pt.x, pt.y, sz, D);
+          if (fw > 0) {
+            const X = F.E.x + pt.x * F.d * F.ex.x - pt.y * F.d * F.ey.x;
+            const Y = F.E.y + pt.x * F.d * F.ex.y - pt.y * F.d * F.ey.y;
+            const x0 = Math.floor(X), y0 = Math.floor(Y);
+            if (x0 >= 0 && y0 >= 0 && x0 + 1 < P.w && y0 + 1 < P.h) {
+              const fx = X - x0, fy = Y - y0, a = (y0 * P.w + x0) * 4, bb = a + P.w * 4;
+              for (let ch = 0; ch < 3; ch++) {
+                const v = mix(mix(P.px[a + ch], P.px[a + 4 + ch], fx), mix(P.px[bb + ch], P.px[bb + 4 + ch], fx), fy);
+                if (ch === 0) r = mix(r, v, fw); else if (ch === 1) gg = mix(gg, v, fw); else b = mix(b, v, fw);
+              }
+            }
+          }
+        }
+        const k = (j * TW + i) * 4;
+        o[k] = r; o[k + 1] = gg; o[k + 2] = b; o[k + 3] = 255;
+      }
+    }
+    ctx.putImageData(out, 0, 0);
+    if (texture) texture.dispose();
+    texture = new THREE.CanvasTexture(c);
+    texture.encoding = THREE.sRGBEncoding;
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  }
+
+  function deformed(seg, D) {
+    const geo = new THREE.SphereGeometry(1, seg, seg);
+    const p = geo.attributes.position, pt = {};
+    for (let i = 0; i < p.count; i++) {
+      const sx = p.getX(i), sy = p.getY(i), sz = p.getZ(i);
+      shapeXY(sx, sy, sz, D, pt);
+      const w = sstep(0.15, 0.6, sz);
+      const z = pt.z + w * features(pt.x, pt.y, D.mm) * depthK;
+      const vol = 0.09 * hairMask(pt.x, pt.y, sz) * (1 - 0.5 * faceMask(pt.x, pt.y, sz, D)); // hair volume
+      p.setXYZ(i, pt.x + sx * vol, pt.y + Math.max(sy, 0) * vol, z + sz * vol);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  function buildHead(src) {
+    for (const m of meshes) { head.remove(m); m.geometry.dispose(); }
+    meshes = [];
+    const D = dimsOf(src);
+
+    const geo = deformed(256, D);
+    const scanGeo = deformed(72, D);
+
+    if (!material) material = new THREE.MeshStandardMaterial({ roughness: 0.8, metalness: 0, color: 0x9a9a9a,
+      emissive: 0xffffff, emissiveIntensity: 0.4, clippingPlanes: [texPlane] });
+    if (!skinMat) skinMat = new THREE.MeshStandardMaterial({ roughness: 0.7, metalness: 0, clippingPlanes: [texPlane] });
+    material.map = texture; material.emissiveMap = texture; material.needsUpdate = true;
+    skinMat.color.setRGB(...colors.skin.map(v => v / 255)).convertSRGBToLinear();
+
+    // neck
+    const neckTop = D.chin + 0.55, neckLen = 2.4, nr = D.a * 0.52;
+    const ng = new THREE.CylinderGeometry(nr, nr * 1.12, neckLen, 96, 1, true);
+    ng.translate(0, neckTop - neckLen / 2, -0.35);
+    const neck = new THREE.Mesh(ng, skinMat);
+
+    // ears
+    const earY = -0.2 * D.mm, sEar = {};
+    shapeXY(1, (earY - D.y0) / D.b, 0, D, sEar);
+    const earGeo = new THREE.SphereGeometry(1, 48, 32);
+    earGeo.scale(0.09, 0.34, 0.2);
+    const ears = [-1, 1].map(s => {
+      const e = new THREE.Mesh(earGeo, skinMat);
+      e.position.set(s * (Math.abs(sEar.x) * 0.97), earY, -0.18);
+      e.rotation.y = s * 0.35;
+      return e;
+    });
+
+    const headMesh = new THREE.Mesh(geo, material);
+    const wire = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xe8b86a, wireframe: true, transparent: true, opacity: 0.15 }));
+    wire.visible = wireOn;
+    const scanWire = new THREE.Mesh(scanGeo, scanWireMat);
+    const scanDots = new THREE.Points(scanGeo, scanDotMat);
+    meshes = [neck, ...ears, headMesh, scanWire, scanDots, wire];
+    head.add(...meshes);
+    head.scale.setScalar(0.85);
+    head.position.y = 0.55;
+  }
+
+  let edit = null; // { img, pts: {L,R,M} in image px, scale }
+  const photo = $("photo"), editor = $("editor");
+
+  /* ---------- living photo: the real photo with 3D depth ---------- */
+  let photoMat = null, photoTex = null, mode = "photo";
+  function reliefDepth(x, y, D) {
+    const top = D.top + 0.25, bot = D.chin - 0.05;
+    const yc = (top + bot) / 2, ry = (top - bot) / 2;
+    let k = 1 - 0.2 * sstep(-0.35 * D.mm, bot, y);
+    const qx = x / (D.a * 1.22 * k), qy = (y - yc) / ry, r2 = qx * qx + qy * qy;
+    let z = 0;
+    if (r2 < 1) {
+      const s = Math.sqrt(1 - r2);
+      z = D.cf * 0.95 * Math.pow(1 - r2, 0.7) + sstep(0.3, 0.75, s) * features(x, y, D.mm) * 0.85 * depthK;
+    }
+    return z;
+  }
+  function reliefGeo(src, D, rows) {
+    const F = frame(src.L, src.R, src.M), W = src.img.width, H = src.img.height;
+    const x0 = Math.max(-3.6, -F.E.x / F.d), x1 = Math.min(3.6, (W - F.E.x) / F.d);
+    const y1 = Math.min(3.2, F.E.y / F.d), y0 = Math.max(-3.8, (F.E.y - H) / F.d);
+    const mx = (x1 - x0) * 0.02, my = (y1 - y0) * 0.02;
+    const [X0, X1, Y0, Y1] = [x0 + mx, x1 - mx, y0 + my, y1 - my];
+    const ny = rows, nx = Math.max(8, Math.round(rows * (X1 - X0) / (Y1 - Y0)));
+    const pos = new Float32Array((nx + 1) * (ny + 1) * 3), uv = new Float32Array((nx + 1) * (ny + 1) * 2), idx = [];
+    for (let j = 0, v = 0; j <= ny; j++) {
+      const y = Y1 - (Y1 - Y0) * j / ny;
+      for (let i = 0; i <= nx; i++, v++) {
+        const x = X0 + (X1 - X0) * i / nx;
+        const [px, py] = toPx(F, x, y);
+        const edge = sstep(0, 0.5, Math.min(x - X0, X1 - x, y - Y0, Y1 - y)); // keep the photo border flat
+        pos[v * 3] = x; pos[v * 3 + 1] = y; pos[v * 3 + 2] = reliefDepth(x, y, D) * edge;
+        uv[v * 2] = Math.min(Math.max(px / W, 0), 1); uv[v * 2 + 1] = Math.min(Math.max(1 - py / H, 0), 1);
+      }
+    }
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    return geo;
+  }
+  function buildRelief(src) {
+    for (const m of meshes) { head.remove(m); m.geometry.dispose(); }
+    const D = dimsOf(src);
+    if (!photoTex || photoTex.image !== src.img) {
+      if (photoTex) photoTex.dispose();
+      photoTex = new THREE.CanvasTexture(src.img);
+      photoTex.encoding = THREE.sRGBEncoding;
+      photoTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    }
+    if (!photoMat) photoMat = new THREE.MeshStandardMaterial({ roughness: 0.9, metalness: 0, color: 0x2e2e2e,
+      emissive: 0xffffff, emissiveIntensity: 0.88, clippingPlanes: [texPlane] });
+    photoMat.map = photoTex; photoMat.emissiveMap = photoTex; photoMat.needsUpdate = true;
+    const geo = reliefGeo(src, D, 380), scanGeo = reliefGeo(src, D, 90);
+    const wire = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xe8b86a, wireframe: true, transparent: true, opacity: 0.15 }));
+    wire.visible = wireOn;
+    meshes = [new THREE.Mesh(geo, photoMat), new THREE.Mesh(scanGeo, scanWireMat), new THREE.Points(scanGeo, scanDotMat), wire];
+    head.add(...meshes);
+    geo.computeBoundingBox();
+    const size = geo.boundingBox.getSize(new THREE.Vector3());
+    const visH = 2 * Math.tan(camera.fov * DEG / 2) * camera.position.z, visW = visH * camera.aspect;
+    head.scale.setScalar(Math.min(0.72 * visH / size.y, 0.8 * visW / size.x));
+    head.position.y = 0.45;
+  }
+  let headTexFor = null;
+  function buildScene() {
+    if (mode === "photo") return buildRelief(current);
+    if (headTexFor !== current) { sampleColors(current); paintTexture(current); headTexFor = current; }
+    buildHead(current);
+  }
+  function setMode(m) {
+    mode = m;
+    $("mode").textContent = m === "photo" ? "رأس كامل" : "صورة حية 3D";
+    $("colorRow").hidden = m === "photo";
+    const lim = m === "photo" ? 35 : 75;
+    $("yaw").min = -lim; $("yaw").max = lim;
+    MAX_YAW = lim * DEG;
+    targetYaw = clamp(targetYaw, MAX_YAW);
+  }
+
+  /* ---------- automatic laser face analysis (clmtrackr, 71 landmarks) ---------- */
+  function showPhoto(img) {
+    const maxW = Math.min(innerWidth - 32, 700), maxH = innerHeight - 220;
+    const s = Math.min(maxW / img.width, maxH / img.height);
+    photo.width = Math.round(img.width * s);
+    photo.height = Math.round(img.height * s);
+    return s;
+  }
+  const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  const CONTOURS = [range(0, 14), range(15, 18), range(19, 22), [34, 35, 36, 42, 37, 43, 38, 39, 40], [33, 41, 62],
+    [...range(44, 55), 44], [44, 56, 57, 58, 50, 59, 60, 61, 44],
+    [23, 63, 24, 64, 25, 65, 26, 66, 23], [30, 68, 29, 67, 28, 70, 31, 69, 30]];
+  function drawLaser(img, s, p, pts) {
+    const c = photo.getContext("2d"), w = photo.width, h = photo.height;
+    c.drawImage(img, 0, 0, w, h);
+    c.fillStyle = "rgba(0,30,10,0.35)"; c.fillRect(0, 0, w, h);
+    const ly = ((p * 3) % 1) * h;
+    const gr = c.createLinearGradient(0, ly - 40, 0, ly + 4);
+    gr.addColorStop(0, "rgba(0,255,102,0)"); gr.addColorStop(1, "rgba(0,255,102,0.35)");
+    c.fillStyle = gr; c.fillRect(0, ly - 40, w, 44);
+    c.fillStyle = "#b8ffd4"; c.shadowColor = "#00ff66"; c.shadowBlur = 12; c.fillRect(0, ly - 1, w, 2);
+    if (pts) {
+      c.strokeStyle = "rgba(0,255,102,0.8)"; c.lineWidth = 1.5; c.shadowBlur = 8;
+      for (const path of CONTOURS) {
+        c.beginPath();
+        path.forEach((i, n) => pts[i] && (n ? c.lineTo(pts[i].x * s, pts[i].y * s) : c.moveTo(pts[i].x * s, pts[i].y * s)));
+        c.stroke();
+      }
+      c.fillStyle = "#00ff66";
+      for (const q of pts) { c.beginPath(); c.arc(q.x * s, q.y * s, 2.2, 0, Math.PI * 2); c.fill(); }
+    }
+    c.shadowBlur = 0;
+  }
+  async function autoDetect(img) {
+    $("uploadScreen").hidden = true;
+    $("controls").hidden = true;
+    $("editScreen").hidden = false;
+    editor.classList.add("analyzing");
+    $("editBtns").hidden = true;
+    $("editTitle").textContent = "جاري تحليل الوجه بالليزر...";
+    $("editSub").textContent = "رصد ملامح الوجه تلقائياً";
+    const s = showPhoto(img);
+    const sc = Math.min(1, 640 / Math.max(img.width, img.height));
+    const small = document.createElement("canvas");
+    small.width = Math.round(img.width * sc); small.height = Math.round(img.height * sc);
+    small.getContext("2d").drawImage(img, 0, 0, small.width, small.height);
+
+    let ctrack = null, pos = null, score = 0, iters = 0;
+    if (window.clm) {
+      for (const gl of [true, false]) {
+        try {
+          ctrack = new clm.tracker({ useWebGL: gl });
+          ctrack.init();
+          ctrack.start(small); // initialises the face detector
+          ctrack.stop();       // we drive the iterations ourselves below
+          break;
+        } catch (e) { ctrack = null; }
+      }
+    }
+    paused = true; // give the analysis the whole frame budget
+    const t0 = performance.now(), MIN = 3500, MAX = 12000;
+    for (;;) {
+      const el = performance.now() - t0;
+      if (ctrack) {
+        try {
+          const tf = performance.now();
+          while (performance.now() - tf < 35) {
+            const r = ctrack.track(small);
+            if (!r) break; // still detecting (async) or lost: wait for the next frame
+            pos = r; iters++;
+          }
+          score = ctrack.getScore() || score;
+        } catch (e) { ctrack = null; }
+      }
+      drawLaser(img, s, el / MIN, pos && pos.map(q => ({ x: q[0] / sc, y: q[1] / sc })));
+      const pct = Math.min(99, Math.round(el / (pos ? MIN : MAX) * 100));
+      $("editSub").textContent = (pos ? "تم رصد " + pos.length + " نقطة" + (score ? " — دقة " + Math.round(score * 100) + "%" : "") : "البحث عن الوجه...") + " — " + pct + "%";
+      if ((el > MIN && iters > 120 && score > 0.5) || el > MAX || !ctrack) break;
+      await new Promise(r => requestAnimationFrame(r));
+    }
+    paused = false;
+    editor.classList.remove("analyzing");
+    $("editBtns").hidden = false;
+    if (!pos || pos.length < 63 || score < 0.3) return null;
+
+    const P = pos.map(q => ({ x: q[0] / sc, y: q[1] / sc }));
+    let L = P[27], R = P[32];
+    if (L.x > R.x) [L, R] = [R, L];
+    const M = { x: (P[44].x + P[50].x) / 2, y: (P[44].y + P[50].y) / 2 };
+    const F = frame(L, R, M);
+    const faceY = q => -(((q.x - F.E.x) * F.ey.x + (q.y - F.E.y) * F.ey.y) / F.d);
+    return {
+      L, R, M, count: P.length,
+      shape: { halfW: Math.hypot(P[14].x - P[0].x, P[14].y - P[0].y) / 2 / F.d, chin: faceY(P[7]) }
+    };
+  }
+
+  async function analyze(img) {
+    const found = await autoDetect(img);
+    if (!found) {
+      $("editTitle").textContent = "لم أجد الوجه تلقائياً — ضع النقاط يدوياً";
+      $("editSub").textContent = "اسحب كل دائرة إلى العينين ووسط الفم ثم اضغط إنشاء";
+      return startEditor(img, null, true);
+    }
+    current = { img, L: found.L, R: found.R, M: found.M, shape: found.shape, auto: found.count };
+    finishBuild();
+  }
+
+  function finishBuild() {
+    $("busy").hidden = false;
+    setTimeout(() => {
+      headTexFor = null;
+      buildScene();
+      $("busy").hidden = true;
+      $("editScreen").hidden = true;
+      demo = false;
+      yaw = targetYaw = 0; pitch = targetPitch = 0;
+      startScan();
+    }, 30);
+  }
+
+  /* ---------- upload ---------- */
+  const MAX_TEX = 4096;
+  function showErr(t) { $("err").textContent = t; }
+
+  function loadFile(file) {
+    if (!file || !/^image\//.test(file.type)) return showErr("هذا الملف ليس صورة.");
+    showErr("");
+    const im = new Image();
+    im.onload = () => {
+      const s = Math.min(1, MAX_TEX / Math.max(im.naturalWidth, im.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(im.src);
+      analyze(c);
+    };
+    im.onerror = () => showErr("تعذر قراءة الصورة. جرّب صورة JPG أو PNG.");
+    im.src = URL.createObjectURL(file);
+  }
+  $("pick").onclick = () => $("file").click();
+  $("file").onchange = e => loadFile(e.target.files[0]);
+  const drop = $("drop");
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); loadFile(e.dataTransfer.files[0]); });
+
+  /* ---------- marker editor ---------- */
+
+  async function startEditor(img, pts, keepTitle) {
+    if (!keepTitle) { $("editTitle").textContent = "ضع النقاط على العينين ووسط الفم"; $("editSub").textContent = "اسحب كل دائرة إلى مكانها بالضبط"; }
+    let guess = pts;
+    if (!guess && "FaceDetector" in window) {
+      try {
+        const faces = await new FaceDetector({ fastMode: false }).detect(img);
+        const lm = faces[0] && faces[0].landmarks;
+        const eyes = lm && lm.filter(l => l.type === "eye").map(l => l.locations[0]).sort((p, q) => p.x - q.x);
+        const mouth = lm && lm.find(l => l.type === "mouth");
+        if (eyes && eyes.length === 2 && mouth) guess = { L: eyes[0], R: eyes[1], M: mouth.locations[0] };
+      } catch (e) { /* not supported: fall back to default positions */ }
+    }
+    guess = guess || {
+      L: { x: img.width * 0.41, y: img.height * 0.42 },
+      R: { x: img.width * 0.59, y: img.height * 0.42 },
+      M: { x: img.width * 0.5, y: img.height * 0.62 }
+    };
+    edit = { img, pts: { L: { ...guess.L }, R: { ...guess.R }, M: { ...guess.M } } };
+    $("uploadScreen").hidden = true;
+    $("controls").hidden = true;
+    $("editScreen").hidden = false;
+    layoutEditor();
+  }
+
+  function layoutEditor() {
+    if (!edit || $("editScreen").hidden || editor.classList.contains("analyzing")) return;
+    edit.scale = showPhoto(edit.img);
+    photo.getContext("2d").drawImage(edit.img, 0, 0, photo.width, photo.height);
+    placeMarkers();
+  }
+  addEventListener("resize", layoutEditor);
+
+  function placeMarkers() {
+    for (const k of ["L", "R", "M"]) {
+      const el = $("mk" + k), p = edit.pts[k];
+      el.style.left = p.x * edit.scale + "px";
+      el.style.top = p.y * edit.scale + "px";
+    }
+  }
+
+  for (const k of ["L", "R", "M"]) {
+    const el = $("mk" + k);
+    el.addEventListener("pointerdown", e => {
+      e.preventDefault();
+      el.setPointerCapture(e.pointerId);
+      const move = ev => {
+        const r = photo.getBoundingClientRect();
+        edit.pts[k].x = Math.min(Math.max(ev.clientX - r.left, 0), r.width) / edit.scale;
+        edit.pts[k].y = Math.min(Math.max(ev.clientY - r.top, 0), r.height) / edit.scale;
+        placeMarkers();
+      };
+      const up = () => { el.removeEventListener("pointermove", move); el.removeEventListener("pointerup", up); };
+      el.addEventListener("pointermove", move);
+      el.addEventListener("pointerup", up);
+    });
+  }
+
+  $("back").onclick = () => { $("editScreen").hidden = true; $("uploadScreen").hidden = false; $("file").value = ""; };
+
+  $("build").onclick = () => {
+    $("busy").hidden = false;
+    setTimeout(() => {
+      let { L, R, M } = edit.pts;
+      if (L.x > R.x) [L, R] = [R, L];
+      const keepShape = current && current.img === edit.img ? current.shape : null;
+      current = { img: edit.img, L, R, M, shape: keepShape };
+      $("busy").hidden = true;
+      finishBuild();
+    }, 30);
+  };
+
+  const clock = new THREE.Clock();
+  /* ---------- laser analysis ---------- */
+  const SCAN_TOP = 2.7, SCAN_BOT = -2.7, SCAN_DUR = 6;
+  let scan = null;
+  function analysisLines() {
+    const F = frame(current.L, current.R, current.M);
+    const tilt = Math.atan2(current.R.y - current.L.y, current.R.x - current.L.x) / DEG;
+    const verts = meshes.find(m => m.isMesh && (m.material === material || m.material === photoMat)).geometry.attributes.position.count;
+    return [
+      ["نقاط الوجه المرصودة", current.auto ? String(current.auto) : "يدوي"],
+      ["رصد العينين", "✓"],
+      ["رصد الفم", "✓"],
+      ["المسافة بين العينين", Math.round(F.d) + " px"],
+      ["نسبة العين/الفم", F.mm.toFixed(2)],
+      ["ميل الرأس", tilt.toFixed(1) + "°"],
+      ["عرض الوجه", (dimsOf(current).a * 2).toFixed(2) + " × عين"],
+      ["نقاط الشبكة", verts.toLocaleString("en")],
+      ["دقة الصورة", current.img.width + "×" + current.img.height],
+      ["بناء الوجه الحقيقي", "✓"]
+    ];
+  }
+  function startScan() {
+    scan = { start: clock.getElapsedTime(), lines: analysisLines() };
+    $("controls").hidden = true;
+    $("hud").hidden = false;
+    $("hudTitle").textContent = "◉ تحليل الوجه بالليزر";
+    $("hudLines").innerHTML = "";
+    setSway(true);
+  }
+  function stepScan(t) {
+    const p = Math.min((t - scan.start) / SCAN_DUR, 1);
+    const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    setScan(mix(SCAN_TOP, SCAN_BOT, e));
+    const shown = Math.min(scan.lines.length, Math.floor(p * scan.lines.length) + 1);
+    const box = $("hudLines");
+    while (box.children.length < shown) {
+      const [k, v] = scan.lines[box.children.length];
+      const row = document.createElement("div");
+      row.className = "ln";
+      row.innerHTML = "<span></span><b></b>";
+      row.firstChild.textContent = k; row.lastChild.textContent = v;
+      box.appendChild(row);
+    }
+    $("hudBar").style.width = Math.round(p * 100) + "%";
+    if (p >= 1) {
+      scan = null;
+      setScan(-100);
+      $("hudTitle").textContent = "✓ اكتمل التحليل";
+      $("controls").hidden = false;
+      setTimeout(() => { if (!scan) { $("hud").hidden = true; setSway(false); } }, 2500);
+    }
+  }
+
+  /* ---------- interaction ---------- */
+  const DEG = Math.PI / 180, MAX_PITCH = 20 * DEG;
+  let MAX_YAW = 35 * DEG;
+  let yaw = 0, targetYaw = 0, pitch = 0, targetPitch = 0, sway = false, demo = true, dragging = false, lx = 0, ly = 0;
+  const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+  function setSway(on) { sway = on; $("sway").classList.toggle("on", on); if (!on) targetYaw = 0; }
+
+  canvas.addEventListener("pointerdown", e => { if (demo) return; dragging = true; lx = e.clientX; ly = e.clientY; canvas.setPointerCapture(e.pointerId); setSway(false); });
+  canvas.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    targetYaw = clamp(targetYaw + (e.clientX - lx) * 0.008, MAX_YAW);
+    targetPitch = clamp(targetPitch + (e.clientY - ly) * 0.005, MAX_PITCH);
+    lx = e.clientX; ly = e.clientY;
+  });
+  addEventListener("pointerup", () => dragging = false);
+
+  $("yaw").oninput = e => { setSway(false); targetYaw = +e.target.value * DEG; };
+  $("depth").oninput = e => { depthK = +e.target.value / 100; $("depthOut").textContent = e.target.value + "%"; if (current) buildScene(); };
+  $("sway").onclick = () => setSway(!sway);
+  $("wire").onclick = () => { wireOn = !wireOn; $("wire").classList.toggle("on", wireOn); meshes[meshes.length - 1].visible = wireOn; };
+  for (const id of ["skinColor", "hairColor"]) $(id).onchange = e => {
+    colors[id === "skinColor" ? "skin" : "hair"] = unhex(e.target.value);
+    $("busy").hidden = false;
+    setTimeout(() => { paintTexture(current); headTexFor = current; buildHead(current); $("busy").hidden = true; }, 30);
+  };
+  $("rescan").onclick = () => startScan();
+  $("mode").onclick = () => {
+    setMode(mode === "photo" ? "head" : "photo");
+    $("busy").hidden = false;
+    setTimeout(() => { buildScene(); $("busy").hidden = true; startScan(); }, 30);
+  };
+  $("adjust").onclick = () => startEditor(current.img, { L: current.L, R: current.R, M: current.M });
+  $("another").onclick = () => { scan = null; setScan(-100); $("hud").hidden = true; $("controls").hidden = true; $("uploadScreen").hidden = false; $("file").value = ""; };
+
+  /* ---------- 4K still ---------- */
+  $("save").onclick = () => {
+    $("busy").hidden = false;
+    setTimeout(() => {
+      const W = 3840, H = 2160, pr = renderer.getPixelRatio();
+      renderer.setPixelRatio(1);
+      renderer.setSize(W, H, false);
+      camera.aspect = W / H; camera.position.z = BASE_Z; camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      $("shotImg").src = renderer.domElement.toDataURL("image/png");
+      renderer.setPixelRatio(pr);
+      resize();
+      $("busy").hidden = true;
+      $("shot").hidden = false;
+    }, 30);
+  };
+  $("shotClose").onclick = () => { $("shot").hidden = true; $("shotImg").removeAttribute("src"); };
+
+  /* ---------- loop ---------- */
+  setMode("photo");
+  paintTexture(null); // mannequin demo head behind the upload card
+  buildHead(null);
+  let paused = false;
+  renderer.setAnimationLoop(() => {
+    if (paused) return;
+    const t = clock.getElapsedTime();
+    if (demo || sway) targetYaw = Math.sin(t * 0.9) * (demo ? 55 : Math.min(55, MAX_YAW / DEG - 5)) * DEG;
+    if (scan) stepScan(t);
+    else if (demo) setScan(mix(SCAN_TOP, SCAN_BOT, (t % 4.5) / 4.5)); // idle laser sweep on the mannequin
+    yaw += (targetYaw - yaw) * 0.1;
+    pitch += (targetPitch - pitch) * 0.1;
+    head.rotation.y = yaw;
+    head.rotation.x = pitch;
+    const deg = Math.round(yaw / DEG);
+    $("yaw").value = deg;
+    $("yawOut").textContent = deg + "°";
+    renderer.render(scene, camera);
+  });
+})();
 </script>
 </body>
 </html>
