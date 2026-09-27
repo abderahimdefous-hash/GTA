@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وجه ثلاثي الأبعاد</title>
+<style>
+  :root {
+    --bg: #07080c; --panel: rgba(18, 20, 30, 0.72); --line: rgba(255, 255, 255, 0.09);
+    --text: #eef1f8; --muted: #8a91a6; --accent: #7c9cff; --accent2: #c07cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); overflow: hidden;
+    font-family: "Segoe UI", Tahoma, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none;
+    cursor: grab; }
+  #scene:active { cursor: grabbing; }
+  .glow { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(60% 50% at 50% 45%, rgba(124,156,255,.14), transparent 70%),
+                radial-gradient(40% 40% at 80% 90%, rgba(192,124,255,.10), transparent 70%); }
+
+  header { position: fixed; top: 0; left: 0; right: 0; padding: 18px 24px; display: flex;
+    align-items: center; justify-content: space-between; z-index: 5; pointer-events: none; }
+  .logo { font-weight: 700; font-size: 20px; letter-spacing: .5px; }
+  .logo span { background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .badge { font-size: 12px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 99px;
+    color: var(--muted); background: var(--panel); backdrop-filter: blur(10px); }
+
+  /* upload screen */
+  #upload { position: fixed; inset: 0; z-index: 8; display: flex; align-items: center;
+    justify-content: center; padding: 16px; background: var(--bg); }
+  .drop { width: min(560px, 100%); padding: 48px 28px; text-align: center; border-radius: 24px;
+    border: 1.5px dashed rgba(124,156,255,.45); background: var(--panel); backdrop-filter: blur(14px);
+    box-shadow: 0 30px 80px rgba(0,0,0,.5); transition: border-color .2s, transform .2s; }
+  .drop.over { border-color: var(--accent2); transform: scale(1.02); }
+  .drop h1 { font-size: 28px; margin-bottom: 10px; }
+  .drop p { color: var(--muted); line-height: 1.7; margin-bottom: 26px; }
+  .icon { width: 74px; height: 74px; margin: 0 auto 20px; border-radius: 22px; display: grid;
+    place-items: center; font-size: 34px;
+    background: linear-gradient(135deg, rgba(124,156,255,.25), rgba(192,124,255,.25)); }
+
+  .btn { font: inherit; font-size: 15px; font-weight: 600; color: #fff; border: 0; cursor: pointer;
+    padding: 13px 26px; border-radius: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 10px 30px rgba(124,156,255,.35); transition: transform .15s, opacity .2s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.ghost { background: rgba(255,255,255,.06); box-shadow: none; border: 1px solid var(--line); }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; }
+  .err { color: #ff7a8a; margin-top: 18px; min-height: 1.4em; font-size: 14px; }
+
+  /* loading */
+  #loading { position: fixed; inset: 0; z-index: 9; display: none; flex-direction: column; gap: 18px;
+    align-items: center; justify-content: center; background: rgba(7,8,12,.85); backdrop-filter: blur(6px); }
+  .ring { width: 64px; height: 64px; border-radius: 50%; border: 3px solid rgba(255,255,255,.08);
+    border-top-color: var(--accent); border-right-color: var(--accent2); animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* controls */
+  #controls { position: fixed; z-index: 6; bottom: 22px; left: 50%; transform: translateX(-50%);
+    width: min(720px, calc(100% - 32px)); display: none; flex-direction: column; gap: 14px;
+    padding: 18px 20px; border-radius: 20px; background: var(--panel); border: 1px solid var(--line);
+    backdrop-filter: blur(16px); box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+  .row { display: flex; align-items: center; gap: 14px; }
+  .row label { font-size: 13px; color: var(--muted); width: 92px; flex-shrink: 0; }
+  .row .val { font-size: 13px; width: 44px; text-align: left; font-variant-numeric: tabular-nums; }
+  input[type=range] { flex: 1; accent-color: var(--accent); height: 28px; direction: ltr; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .actions .btn { padding: 10px 16px; font-size: 14px; }
+  .btn.on { outline: 2px solid var(--accent); }
+
+  .hint { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 5; display: none;
+    font-size: 13px; color: var(--muted); background: var(--panel); padding: 7px 14px;
+    border-radius: 99px; border: 1px solid var(--line); white-space: nowrap; }
+
+  @media (max-width: 600px) {
+    .drop { padding: 36px 20px; } .drop h1 { font-size: 22px; }
+    .row label { width: 70px; font-size: 12px; }
+    #controls { bottom: 12px; padding: 14px; gap: 10px; }
+    .actions .btn { padding: 9px 12px; font-size: 13px; }
+    header { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div class="glow"></div>
+
+<header>
+  <div class="logo">Face<span>3D</span></div>
+  <div class="badge">4K · Ultra HD</div>
+</header>
+
+<div id="upload">
+  <div class="drop" id="drop">
+    <div class="icon">🙂</div>
+    <h1>حوّل أي صورة وجه إلى 3D</h1>
+    <p>ارفع صورة واضحة لوجه من الأمام، وسيتم بناء نموذج ثلاثي الأبعاد<br>يمكنك تدوير رأسه يميناً ويساراً وحفظه بجودة 4K</p>
+    <button class="btn" id="pick">📷 اختر صورة</button>
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<div id="loading"><div class="ring"></div><div id="loadMsg">جاري تحليل الوجه...</div></div>
+
+<div class="hint" id="hint">اسحب بإصبعك أو بالماوس لتدوير الرأس</div>
+
+<div id="controls">
+  <div class="row">
+    <label>دوران الرأس</label>
+    <input type="range" id="yaw" min="-75" max="75" value="0">
+    <span class="val" id="yawVal">0°</span>
+  </div>
+  <div class="row">
+    <label>عمق الوجه</label>
+    <input type="range" id="depth" min="50" max="200" value="110">
+    <span class="val" id="depthVal">110%</span>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="sway">↔ تحريك تلقائي</button>
+    <button class="btn ghost" id="wire">◈ الشبكة</button>
+    <button class="btn ghost" id="reset">⟲ توسيط</button>
+    <button class="btn ghost" id="another">🖼 صورة أخرى</button>
+    <button class="btn" id="save">⬇ حفظ 4K</button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from "three";
+
+const $ = id => document.getElementById(id);
+const MP_VERSION = "0.10.14";
+const MP_CDNS = [
+  `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}`,
+  `https://unpkg.com/@mediapipe/tasks-vision@${MP_VERSION}`
+];
+const MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+const MAX_TEX = 4096;
+
+/* ---------------- renderer / scene ---------------- */
+const canvas = $("scene");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+camera.position.set(0, 0, 6.2);
+
+scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x1a1420, 1.25));
+const key = new THREE.DirectionalLight(0xffffff, 1.6);
+key.position.set(2.5, 2, 4);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x9db0ff, 1.4);
+rim.position.set(-3, 1, -2);
+scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xd49bff, 1.0);
+rim2.position.set(3, -1, -2);
+scene.add(rim2);
+
+const head = new THREE.Group();
+scene.add(head);
+let faceMesh, wireMesh, material, baseZ = null;
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  // keep the whole head visible on portrait phones
+  camera.position.z = camera.aspect < 0.8 ? 6.2 / Math.max(camera.aspect, 0.45) * 0.8 : 6.2;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+resize();
+
+/* ---------------- face detection ---------------- */
+let landmarkerPromise;
+function getLandmarker() {
+  landmarkerPromise ??= (async () => {
+    let lastErr;
+    for (const cdn of MP_CDNS) {
+      try {
+        const vision = await import(`${cdn}/vision_bundle.mjs`);
+        const fileset = await vision.FilesetResolver.forVisionTasks(`${cdn}/wasm`);
+        const opts = delegate => ({ baseOptions: { modelAssetPath: MODEL, delegate }, runningMode: "IMAGE", numFaces: 1 });
+        try { return await vision.FaceLandmarker.createFromOptions(fileset, opts("GPU")); }
+        catch { return await vision.FaceLandmarker.createFromOptions(fileset, opts("CPU")); }
+      } catch (e) { lastErr = e; console.error(cdn, e); }
+    }
+    landmarkerPromise = null;
+    throw lastErr;
+  })();
+  return landmarkerPromise;
+}
+getLandmarker().catch(() => {}); // warm up while the user picks a photo
+
+/* ---------------- Delaunay triangulation (Bowyer–Watson) ---------------- */
+function delaunay(pts) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const [x, y] of pts) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); }
+  const d = Math.max(maxX - minX, maxY - minY) * 20, mx = (minX + maxX) / 2, my = (minY + maxY) / 2;
+  const P = pts.concat([[mx - d, my - d], [mx, my + d], [mx + d, my - d]]);
+  const n = pts.length;
+  const circ = (a, b, c) => {
+    const [ax, ay] = P[a], [bx, by] = P[b], [cx, cy] = P[c];
+    const D = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+    const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / D;
+    const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / D;
+    return { a, b, c, x: ux, y: uy, r2: (ax - ux) ** 2 + (ay - uy) ** 2 };
+  };
+  let tris = [circ(n, n + 1, n + 2)];
+  for (let i = 0; i < n; i++) {
+    const [px, py] = P[i];
+    const bad = [], keep = [];
+    for (const t of tris) ((px - t.x) ** 2 + (py - t.y) ** 2 < t.r2 ? bad : keep).push(t);
+    const edges = new Map();
+    for (const t of bad) for (const [u, v] of [[t.a, t.b], [t.b, t.c], [t.c, t.a]]) {
+      const k = u < v ? u + "," + v : v + "," + u;
+      edges.set(k, edges.has(k) ? null : [u, v]);
+    }
+    tris = keep;
+    for (const e of edges.values()) if (e) tris.push(circ(e[0], e[1], i));
+  }
+  return tris.filter(t => t.a < n && t.b < n && t.c < n).map(t => [t.a, t.b, t.c]);
+}
+
+/* ---------------- build the 3D head ---------------- */
+function buildHead(landmarks, imgW, imgH, texture) {
+  // pixel-space positions; MediaPipe z is in the same scale as x (image width)
+  const raw = landmarks.map(p => [p.x * imgW, p.y * imgH, p.z * imgW]);
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const [x, y] of raw) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+  const scale = 2.3 / (maxY - minY);
+
+  const pos = raw.map(([x, y, z]) => [(x - cx) * scale, -(y - cy) * scale, -z * scale]);
+  const uv = landmarks.map(p => [p.x, 1 - p.y]);
+
+  // triangulate in the front view and drop the long hull triangles outside the face outline
+  let tris = delaunay(pos.map(p => [p[0], p[1]]));
+  const len = (a, b) => Math.hypot(pos[a][0] - pos[b][0], pos[a][1] - pos[b][1]);
+  const edgeLens = tris.flatMap(([a, b, c]) => [len(a, b), len(b, c), len(c, a)]).sort((x, y) => x - y);
+  const median = edgeLens[edgeLens.length >> 1];
+  tris = tris.filter(([a, b, c]) => Math.max(len(a, b), len(b, c), len(c, a)) < median * 4.5);
+  // make every triangle face the camera (+z)
+  tris = tris.map(([a, b, c]) => {
+    const cross = (pos[b][0] - pos[a][0]) * (pos[c][1] - pos[a][1]) - (pos[b][1] - pos[a][1]) * (pos[c][0] - pos[a][0]);
+    return cross > 0 ? [a, b, c] : [a, c, b];
+  });
+
+  // boundary = directed edges without a reverse twin
+  const directed = new Set();
+  for (const [a, b, c] of tris) for (const [u, v] of [[a, b], [b, c], [c, a]]) directed.add(u + "," + v);
+  const boundary = [];
+  for (const k of directed) {
+    const [u, v] = k.split(",").map(Number);
+    if (!directed.has(v + "," + u)) boundary.push([u, v]);
+  }
+
+  // skull: extrude the outline backwards (rounded) so the head has volume when turned
+  const n = pos.length;
+  const ring = [...new Set(boundary.flat())];
+  const RINGS = [
+    { shrink: 0.97, back: 0.18 }, { shrink: 0.9, back: 0.45 },
+    { shrink: 0.75, back: 0.75 }, { shrink: 0.5, back: 0.98 }
+  ];
+  const zMin = Math.min(...pos.map(p => p[2]));
+  const faceW = (maxX - minX) * scale;
+  const positions = pos.map(p => p.slice()), uvs = uv.map(t => t.slice());
+  const ringIdx = RINGS.map(() => new Map());
+  RINGS.forEach((r, ri) => {
+    for (const v of ring) {
+      const [x, y, z] = pos[v];
+      ringIdx[ri].set(v, positions.length);
+      positions.push([x * r.shrink, y * r.shrink, Math.min(z, zMin) - r.back * faceW * 0.75]);
+      uvs.push(uv[v].slice());
+    }
+  });
+  const backCenter = positions.length;
+  positions.push([0, 0, zMin - faceW * 0.8]);
+  uvs.push([0.5, 0.5]);
+
+  const indices = [];
+  for (const t of tris) indices.push(...t);
+  const layers = [new Map(ring.map(v => [v, v])), ...ringIdx];
+  for (const [u, v] of boundary) {
+    for (let l = 0; l < layers.length - 1; l++) {
+      const a = layers[l].get(u), b = layers[l].get(v), a2 = layers[l + 1].get(u), b2 = layers[l + 1].get(v);
+      indices.push(a, a2, b, b, a2, b2);
+    }
+    const last = layers[layers.length - 1];
+    indices.push(last.get(v), last.get(u), backCenter);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions.flat(), 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs.flat(), 2));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  baseZ = geo.attributes.position.array.slice();
+
+  // clear previous
+  for (const m of [faceMesh, wireMesh]) if (m) { head.remove(m); m.geometry.dispose(); }
+  material?.map?.dispose();
+  material?.dispose();
+
+  material = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.62, metalness: 0.02, side: THREE.DoubleSide });
+  faceMesh = new THREE.Mesh(geo, material);
+  const wireGeo = new THREE.BufferGeometry();
+  wireGeo.setAttribute("position", geo.attributes.position);
+  wireGeo.setIndex(tris.flat());
+  wireMesh = new THREE.Mesh(wireGeo, new THREE.MeshBasicMaterial({ color: 0x8fb0ff, wireframe: true, transparent: true, opacity: 0.35 }));
+  wireMesh.visible = wireOn;
+  head.add(faceMesh, wireMesh);
+  head.position.z = -(zMin * 0.5);
+  applyDepth();
+}
+
+function applyDepth() {
+  if (!faceMesh) return;
+  const k = +$("depth").value / 100;
+  const attr = faceMesh.geometry.attributes.position;
+  for (let i = 2; i < baseZ.length; i += 3) attr.array[i] = baseZ[i] * k;
+  attr.needsUpdate = true;
+  faceMesh.geometry.computeVertexNormals();
+  $("depthVal").textContent = Math.round(k * 100) + "%";
+}
+
+/* ---------------- image loading ---------------- */
+function showError(t) { $("err").textContent = t; $("loading").style.display = "none"; }
+
+async function handleFile(file) {
+  if (!file || !file.type.startsWith("image/")) return showError("الملف ليس صورة.");
+  $("err").textContent = "";
+  $("loading").style.display = "flex";
+  $("loadMsg").textContent = "جاري تحميل نظام التحليل...";
+  try {
+    const img = await new Promise((res, rej) => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = () => rej(new Error("تعذر قراءة الصورة"));
+      im.src = URL.createObjectURL(file);
+    });
+    // keep up to 4K texture resolution
+    const s = Math.min(1, MAX_TEX / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * s);
+    c.height = Math.round(img.naturalHeight * s);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(img.src);
+
+    let landmarker;
+    try { landmarker = await getLandmarker(); }
+    catch { return showError("تعذر تحميل نظام تحليل الوجه. تحقق من الإنترنت وحاول مرة أخرى."); }
+
+    $("loadMsg").textContent = "جاري بناء الوجه ثلاثي الأبعاد...";
+    await new Promise(r => setTimeout(r, 30));
+    const res = landmarker.detect(c);
+    const face = res.faceLandmarks?.[0];
+    if (!face) return showError("لم يتم العثور على وجه في الصورة. جرّب صورة أوضح لوجه من الأمام.");
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+
+    buildHead(face, c.width, c.height, tex);
+    yaw = targetYaw = 0; pitch = targetPitch = 0;
+    $("upload").style.display = "none";
+    $("loading").style.display = "none";
+    $("controls").style.display = "flex";
+    $("hint").style.display = "block";
+    setTimeout(() => $("hint").style.display = "none", 4000);
+    // gentle intro turn
+    swayOn = true; $("sway").classList.add("on");
+    setTimeout(() => { swayOn = false; $("sway").classList.remove("on"); targetYaw = 0; }, 3500);
+  } catch (e) {
+    console.error(e);
+    showError("حدث خطأ: " + (e.message || e));
+  }
+}
+
+$("pick").onclick = () => $("file").click();
+$("file").onchange = e => handleFile(e.target.files[0]);
+const drop = $("drop");
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); handleFile(e.dataTransfer.files[0]); });
+
+/* ---------------- interaction ---------------- */
+const DEG = Math.PI / 180, MAX_YAW = 75 * DEG, MAX_PITCH = 20 * DEG;
+let yaw = 0, targetYaw = 0, pitch = 0, targetPitch = 0, swayOn = false, wireOn = false;
+let dragging = false, lastX = 0, lastY = 0;
+const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+
+canvas.addEventListener("pointerdown", e => { dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId); swayOn = false; $("sway").classList.remove("on"); });
+canvas.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  targetYaw = clamp(targetYaw + (e.clientX - lastX) * 0.008, MAX_YAW);
+  targetPitch = clamp(targetPitch + (e.clientY - lastY) * 0.005, MAX_PITCH);
+  lastX = e.clientX; lastY = e.clientY;
+});
+addEventListener("pointerup", () => dragging = false);
+
+$("yaw").oninput = e => { swayOn = false; $("sway").classList.remove("on"); targetYaw = -e.target.value * DEG; };
+$("depth").oninput = applyDepth;
+$("sway").onclick = () => { swayOn = !swayOn; $("sway").classList.toggle("on", swayOn); if (!swayOn) targetYaw = 0; };
+$("wire").onclick = () => { wireOn = !wireOn; $("wire").classList.toggle("on", wireOn); if (wireMesh) wireMesh.visible = wireOn; };
+$("reset").onclick = () => { swayOn = false; $("sway").classList.remove("on"); targetYaw = targetPitch = 0; };
+$("another").onclick = () => { $("file").value = ""; $("upload").style.display = "flex"; $("controls").style.display = "none"; };
+
+/* ---------------- 4K export ---------------- */
+$("save").onclick = () => {
+  const W = 3840, H = 2160;
+  const prevRatio = renderer.getPixelRatio(), prevAspect = camera.aspect, prevZ = camera.position.z;
+  renderer.setPixelRatio(1);
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H; camera.position.z = 6.2; camera.updateProjectionMatrix();
+  renderer.setClearColor(0x07080c, 1);
+  renderer.render(scene, camera);
+  const url = renderer.domElement.toDataURL("image/png");
+  renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(prevRatio);
+  camera.aspect = prevAspect; camera.position.z = prevZ;
+  resize();
+  const a = document.createElement("a");
+  a.href = url; a.download = "face-3d-4k.png"; a.click();
+};
+
+/* ---------------- loop ---------------- */
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const t = clock.getElapsedTime();
+  if (swayOn) targetYaw = Math.sin(t * 1.1) * 60 * DEG;
+  yaw += (targetYaw - yaw) * 0.12;
+  pitch += (targetPitch - pitch) * 0.12;
+  head.rotation.y = yaw;
+  head.rotation.x = pitch;
+  head.position.y = Math.sin(t * 1.3) * 0.02; // subtle breathing
+  $("yaw").value = Math.round(-yaw / DEG);
+  $("yawVal").textContent = Math.round(-yaw / DEG) + "°";
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
