@@ -179,6 +179,35 @@
     return data.reply;
   }
 
+  // Inside a claude.ai artifact the page can ask Claude directly (on the
+  // viewer's own account); elsewhere this resolves null and the server is used.
+  const PERSONA = `You are "Nour", a friendly AI shown as a 3D talking face on a website. Your replies are read aloud by text-to-speech, so keep them short and conversational (1 to 3 sentences unless asked for detail), with no markdown, lists, emojis or special symbols. Always reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).`;
+  let samplePromise = window.claude?.use ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
+
+  async function askClaudeInPage() {
+    const sample = await samplePromise;
+    if (!sample) throw new Error("unavailable");
+    try {
+      const { text } = await sample([{ role: "user", content: PERSONA }, ...history.slice(-20)], {
+        modelTier: "quick",
+        cache: false,
+      });
+      return text.trim();
+    } catch (e) {
+      if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e?.code)) {
+        samplePromise = Promise.resolve(null);
+      }
+      throw e;
+    }
+  }
+
+  async function askAI() {
+    if (window.claude) {
+      try { return await askClaudeInPage(); } catch { /* fall through */ }
+    }
+    return askServer();
+  }
+
   let busy = false;
   async function send(text) {
     if (busy || !text.trim()) return;
@@ -192,7 +221,7 @@
 
     let reply;
     try {
-      reply = await askServer();
+      reply = await askAI();
     } catch {
       reply = offlineReply(text);
     }
