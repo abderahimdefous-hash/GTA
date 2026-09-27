@@ -126,11 +126,31 @@
   </div>
 </div>
 
-<script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+<script>
+  // Show any failure on screen instead of leaving a dead page.
+  function showBootError(t) {
+    var e = document.getElementById("err");
+    if (e) e.textContent = t;
+    var l = document.getElementById("loading");
+    if (l) l.style.display = "none";
+  }
+  window.addEventListener("error", function (e) { showBootError("خطأ: " + (e.message || "غير معروف")); });
+  window.addEventListener("unhandledrejection", function (e) { showBootError("خطأ: " + ((e.reason && e.reason.message) || e.reason)); });
+  window.__faceReady = false;
+  setTimeout(function () {
+    if (!window.__faceReady) showBootError("تعذر تحميل مكتبة الـ 3D. تحقق من الإنترنت ثم أعد تحميل الصفحة.");
+  }, 20000);
+  document.getElementById("pick").onclick = function () {
+    if (!window.__faceReady) showBootError("انتظر قليلاً... الموقع ما زال يتحمّل.");
+  };
 </script>
 <script type="module">
-import * as THREE from "three";
+let THREE;
+for (const url of ["https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                   "https://unpkg.com/three@0.160.0/build/three.module.js"]) {
+  try { THREE = await import(url); break; } catch (e) { console.error(url, e); }
+}
+if (!THREE) throw new Error("تعذر تحميل مكتبة الـ 3D (three.js). تحقق من الإنترنت ثم أعد تحميل الصفحة.");
 
 const $ = id => document.getElementById(id);
 const MP_VERSION = "0.10.14";
@@ -387,6 +407,7 @@ async function handleFile(file) {
 }
 
 $("pick").onclick = () => $("file").click();
+window.__faceReady = true;
 $("file").onchange = e => handleFile(e.target.files[0]);
 const drop = $("drop");
 drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
