@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>البحث عن حساباتي</title>
+<style>
+  :root {
+    --bg: #0f1216; --card: #181d24; --line: #2a313b; --text: #e8ecf1;
+    --muted: #9aa4b2; --accent: #4f8cff; --accent-2: #2dd4a4; --warn: #f5b942;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif; line-height: 1.6;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  h2 { font-size: 1.2rem; margin: 0 0 12px; }
+  p.lead { color: var(--muted); margin: 0 0 24px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .drop {
+    display: block;
+    border: 2px dashed var(--line); border-radius: 12px; padding: 28px 16px; text-align: center;
+    cursor: pointer; transition: border-color .2s, background .2s;
+  }
+  .drop.over, .drop:hover { border-color: var(--accent); background: rgba(79,140,255,.06); }
+  .drop input { display: none; }
+  #preview { display: none; margin-top: 16px; text-align: center; }
+  #preview img { max-width: 100%; max-height: 280px; border-radius: 10px; border: 1px solid var(--line); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .engine { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .engine b { font-size: 1rem; }
+  .engine small { color: var(--muted); }
+  button, .btn {
+    font: inherit; border: 0; border-radius: 9px; padding: 9px 14px; cursor: pointer;
+    background: var(--accent); color: #fff; text-decoration: none; text-align: center; display: inline-block;
+  }
+  button.secondary, .btn.secondary { background: transparent; border: 1px solid var(--line); color: var(--text); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input[type=text] {
+    font: inherit; flex: 1; min-width: 180px; padding: 9px 12px; border-radius: 9px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  }
+  .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+  .links a {
+    display: block; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px;
+    color: var(--text); text-decoration: none; font-size: .92rem;
+  }
+  .links a:hover { border-color: var(--accent-2); }
+  .note { color: var(--muted); font-size: .9rem; }
+  .warn { border-color: rgba(245,185,66,.4); }
+  .warn h2 { color: var(--warn); }
+  #toast {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #222a35;
+    border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; display: none;
+  }
+  ol { padding-inline-start: 20px; margin: 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🔍 البحث عن حساباتي فالإنترنت</h1>
+  <p class="lead">حط الصورة ديالك، والموقع يصيفطها لمحركات البحث العكسي باش تشوف فين منشورة: الحسابات ديالك، والمواقع اللي كتستعمل صورك، والحسابات المزيفة اللي منتحلة شخصيتك.</p>
+
+  <section>
+    <h2>1. اختار الصورة ديالك</h2>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept="image/*">
+      <div>📷 كليكي هنا ولا جر الصورة لهنا</div>
+      <div class="note">الصورة كتبقى فالمتصفح ديالك، وما كتمشي لحتى محرك غير اللي كليكيتي عليه.</div>
+    </label>
+    <div id="preview"><img id="img" alt="الصورة المختارة"></div>
+  </section>
+
+  <section>
+    <h2>2. قلّب بالصورة</h2>
+    <p class="note">كل زر كيفتح نافذة جديدة فيها النتائج. قلّب فالمحركات كاملين حيت كل واحد كيلقى حوايج ما كيلقاوهاش الآخرين. إلا ما خدمش الرفع المباشر، ورك على "نسخ الصورة" ولصقها (Ctrl+V) فالموقع.</p>
+    <div class="grid" id="engines"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="secondary" id="copy" disabled>📋 نسخ الصورة</button>
+      <button id="all" disabled>🚀 قلّب فكلشي</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. قلّب باسم المستخدم ديالك</h2>
+    <p class="note">البحث بالصورة كيلقى غير الصور العمومية. باش تلقى الحسابات ديالك كاملين، كتب اسم المستخدم (username) ولا السمية ديالك.</p>
+    <div class="row">
+      <input type="text" id="user" placeholder="مثلاً: abderahim.defous">
+      <button id="go">قلّب</button>
+    </div>
+    <div class="links" id="links"></div>
+  </section>
+
+  <section class="warn">
+    <h2>نصائح إلا لقيتي شي حساب مزيف</h2>
+    <ol>
+      <li>خود screenshot للحساب وللرابط ديالو.</li>
+      <li>دير له بلاغ (Report) كـ"انتحال الشخصية" من داخل التطبيق.</li>
+      <li>Instagram وFacebook وTikTok عندهم فورمولير خاص بانتحال الشخصية فمركز المساعدة ديالهم.</li>
+      <li>باش تحيد صورك من نتائج Google، استعمل "Results about you" فالحساب ديالك ف Google.</li>
+    </ol>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+const ENGINES = [
+  { name: "Google Lens", desc: "الأقوى فالوجوه والحسابات", home: "https://lens.google.com/",
+    action: "https://lens.google.com/v3/upload?hl=ar", field: "encoded_image" },
+  { name: "Yandex", desc: "مزيان فالحسابات الاجتماعية", home: "https://yandex.com/images/",
+    action: "https://yandex.com/images/search?rpt=imageview", field: "upfile" },
+  { name: "Bing Visual", desc: "كيلقى صور مشابهة", home: "https://www.bing.com/visualsearch",
+    action: "https://www.bing.com/images/search?view=detailv2&iss=sbiupload&FORM=SBIIDP", field: "imageBin", base64: true },
+  { name: "TinEye", desc: "كيلقى النسخ الدقيقة ديال الصورة", home: "https://tineye.com/",
+    action: "https://tineye.com/search", field: "image" },
+];
+
+const SITES = [
+  ["Instagram", u => `https://www.instagram.com/${u}/`],
+  ["Facebook", u => `https://www.facebook.com/${u}`],
+  ["TikTok", u => `https://www.tiktok.com/@${u}`],
+  ["X / Twitter", u => `https://x.com/${u}`],
+  ["YouTube", u => `https://www.youtube.com/@${u}`],
+  ["Snapchat", u => `https://www.snapchat.com/add/${u}`],
+  ["Threads", u => `https://www.threads.net/@${u}`],
+  ["Telegram", u => `https://t.me/${u}`],
+  ["GitHub", u => `https://github.com/${u}`],
+  ["Reddit", u => `https://www.reddit.com/user/${u}`],
+  ["Pinterest", u => `https://www.pinterest.com/${u}/`],
+  ["Twitch", u => `https://www.twitch.tv/${u}`],
+  ["LinkedIn (بحث)", u => `https://www.linkedin.com/search/results/all/?keywords=${u}`],
+  ["Google", u => `https://www.google.com/search?q=${encodeURIComponent('"' + u + '"')}`],
+  ["Google (صور)", u => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent('"' + u + '"')}`],
+  ["Bing", u => `https://www.bing.com/search?q=${encodeURIComponent('"' + u + '"')}`],
+];
+
+let currentFile = null;
+const $ = id => document.getElementById(id);
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => (t.style.display = "none"), 3000);
+}
+
+function setFile(file) {
+  if (!file || !file.type.startsWith("image/")) return toast("اختار ملف ديال صورة");
+  currentFile = file;
+  $("img").src = URL.createObjectURL(file);
+  $("preview").style.display = "block";
+  document.querySelectorAll("[data-needs-image]").forEach(b => (b.disabled = false));
+  $("copy").disabled = $("all").disabled = false;
+}
+
+$("file").addEventListener("change", e => setFile(e.target.files[0]));
+const drop = $("drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
+document.addEventListener("paste", e => {
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/"));
+  if (item) setFile(item.getAsFile());
+});
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(",")[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// Navigation form posts are not subject to CORS, so the engine receives the image directly.
+async function searchWith(engine) {
+  if (!currentFile) return toast("اختار صورة الأول");
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = engine.action;
+  form.enctype = "multipart/form-data";
+  form.target = "_blank";
+  form.style.display = "none";
+  if (engine.base64) {
+    const input = document.createElement("input");
+    input.type = "hidden"; input.name = engine.field;
+    input.value = await fileToBase64(currentFile);
+    form.appendChild(input);
+  } else {
+    const input = document.createElement("input");
+    input.type = "file"; input.name = engine.field;
+    const dt = new DataTransfer();
+    dt.items.add(currentFile);
+    input.files = dt.files;
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
+}
+
+const grid = $("engines");
+ENGINES.forEach(engine => {
+  const card = document.createElement("div");
+  card.className = "engine";
+  card.innerHTML = `<b></b><small></small>`;
+  card.querySelector("b").textContent = engine.name;
+  card.querySelector("small").textContent = engine.desc;
+  const btn = document.createElement("button");
+  btn.textContent = "قلّب";
+  btn.disabled = true;
+  btn.dataset.needsImage = "";
+  btn.onclick = () => searchWith(engine);
+  const manual = document.createElement("a");
+  manual.className = "btn secondary";
+  manual.href = engine.home; manual.target = "_blank"; manual.rel = "noopener";
+  manual.textContent = "فتح الموقع يدوياً";
+  card.append(btn, manual);
+  grid.appendChild(card);
+});
+
+$("all").onclick = async () => {
+  toast("إلا المتصفح بلوكا النوافذ، سمح بالـ pop-ups لهاد الموقع");
+  for (const engine of ENGINES) await searchWith(engine);
+};
+
+$("copy").onclick = async () => {
+  try {
+    // Clipboard only accepts PNG reliably, so re-encode through a canvas.
+    const bmp = await createImageBitmap(currentFile);
+    const canvas = document.createElement("canvas");
+    canvas.width = bmp.width; canvas.height = bmp.height;
+    canvas.getContext("2d").drawImage(bmp, 0, 0);
+    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    toast("تنسخات الصورة ✔ لصقها بـ Ctrl+V فالموقع");
+  } catch {
+    toast("ما قدرتش ننسخ الصورة، رفعها يدوياً فالموقع");
+  }
+};
+
+function searchUser() {
+  const raw = $("user").value.trim().replace(/^@/, "");
+  const links = $("links");
+  links.innerHTML = "";
+  if (!raw) return toast("كتب اسم المستخدم");
+  const u = encodeURIComponent(raw);
+  SITES.forEach(([name, url]) => {
+    const a = document.createElement("a");
+    a.href = url(u); a.target = "_blank"; a.rel = "noopener";
+    a.textContent = name;
+    links.appendChild(a);
+  });
+}
+$("go").onclick = searchUser;
+$("user").addEventListener("keydown", e => e.key === "Enter" && searchUser());
+</script>
+</body>
+</html>
