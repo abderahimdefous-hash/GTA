@@ -14,7 +14,7 @@ const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || "https://api.openai.com/
 // ChatGPT is used when an OpenAI key is set, unless AI_PROVIDER says otherwise.
 const PROVIDER = (process.env.AI_PROVIDER || (process.env.OPENAI_API_KEY ? "openai" : "claude")).toLowerCase();
 
-const SYSTEM_PROMPT = `You are "Nour", a friendly AI shown to the user as an animated talking face on a website.
+const SYSTEM_PROMPT = `You are "Da9awi", a friendly AI shown to the user as an animated talking face on a website.
 Your replies are read aloud by a text-to-speech voice, so:
 - Keep answers short and conversational: 1 to 3 sentences unless the user asks for detail.
 - Never use markdown, lists, emojis, code blocks or special symbols.

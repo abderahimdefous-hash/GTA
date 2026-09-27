@@ -16,19 +16,19 @@
 
   const TEXT = {
     "ar-MA": {
-      greet: "السلام عليكم! أنا نور، الذكاء الاصطناعي ديالك. شنو بغيتي نهضرو عليه اليوم؟",
+      greet: "السلام عليكم! أنا Da9awi، الذكاء الاصطناعي ديالك. شنو بغيتي نهضرو عليه اليوم؟",
       idle: "واجد…", listening: "كنسمعك…", thinking: "كنفكر…", speaking: "كنهضر…",
       placeholder: "كتب شي حاجة ولا ضغط على الميكرو…",
       noMic: "المتصفح ديالك ما كيدعمش الميكرو، جرب Chrome.",
     },
     "fr-FR": {
-      greet: "Bonjour ! Je suis Nour, ton intelligence artificielle. De quoi veux-tu parler aujourd'hui ?",
-      idle: "Prête…", listening: "Je t'écoute…", thinking: "Je réfléchis…", speaking: "Je parle…",
+      greet: "Bonjour ! Je suis Da9awi, ton intelligence artificielle. De quoi veux-tu parler aujourd'hui ?",
+      idle: "Prêt…", listening: "Je t'écoute…", thinking: "Je réfléchis…", speaking: "Je parle…",
       placeholder: "Écris quelque chose ou appuie sur le micro…",
       noMic: "Ton navigateur ne supporte pas le micro, essaie Chrome.",
     },
     "en-US": {
-      greet: "Hi there! I'm Nour, your AI companion. What would you like to talk about today?",
+      greet: "Hi there! I'm Da9awi, your AI companion. What would you like to talk about today?",
       idle: "Ready…", listening: "Listening…", thinking: "Thinking…", speaking: "Speaking…",
       placeholder: "Type something or tap the mic…",
       noMic: "Your browser doesn't support the microphone, try Chrome.",
@@ -41,7 +41,7 @@
 
   /* ================= Face (3D, see face3d.js) ================= */
 
-  const faceState = window.NourFace ? window.NourFace.state : { speaking: false, wordPulse: 0, mode: "idle" };
+  const faceState = window.Da9awiFace ? window.Da9awiFace.state : { speaking: false, wordPulse: 0, mode: "idle" };
 
   function setMode(mode) {
     stage.classList.remove("speaking", "listening", "thinking");
@@ -181,7 +181,7 @@
 
   // Inside a claude.ai artifact the page can ask Claude directly (on the
   // viewer's own account); elsewhere this resolves null and the server is used.
-  const PERSONA = `You are "Nour", a friendly AI shown as a 3D talking face on a website. Your replies are read aloud by text-to-speech, so keep them short and conversational (1 to 3 sentences unless asked for detail), with no markdown, lists, emojis or special symbols. Always reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).`;
+  const PERSONA = `You are "Da9awi", a friendly AI shown as a 3D talking face on a website. Your replies are read aloud by text-to-speech, so keep them short and conversational (1 to 3 sentences unless asked for detail), with no markdown, lists, emojis or special symbols. Always reply in the same language and dialect the user writes in (Moroccan Darija, Arabic, French or English).`;
   let samplePromise = window.claude?.use ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
 
   async function askClaudeInPage() {
@@ -255,11 +255,11 @@
 
   const RULES = [
     { k: ["سلام", "salam", "slm", "مرحبا", "اهلا", "أهلا", "bonjour", "salut", "hello", "hi", "hey"],
-      a: { ar: "وعليكم السلام! لاباس عليك؟ فرحانة بزاف حيت جيتي تهضر معايا.", fr: "Salut ! Ça va ? Contente de te parler.", en: "Hey! How are you? Really happy you came to chat." } },
+      a: { ar: "وعليكم السلام! لاباس عليك؟ فرحان بزاف حيت جيتي تهضر معايا.", fr: "Salut ! Ça va ? Content de te parler.", en: "Hey! How are you? Really happy you came to chat." } },
     { k: ["لاباس", "labas", "كيداير", "كي داير", "كيف حالك", "ça va", "ca va", "how are you"],
       a: { ar: "أنا بخير الحمد لله! وانت كيداير؟", fr: "Je vais très bien, merci ! Et toi ?", en: "I'm doing great, thanks! How about you?" } },
     { k: ["سميتك", "اسمك", "شكون نتا", "شكون نتي", "من انت", "ton nom", "qui es", "your name", "who are you"],
-      a: { ar: "سميتي نور، ذكاء اصطناعي صاوبوني باش نهضر معاك ونعاونك.", fr: "Je m'appelle Nour, une IA créée pour discuter avec toi et t'aider.", en: "My name is Nour, an AI made to chat with you and help out." } },
+      a: { ar: "سميتي Da9awi، ذكاء اصطناعي صاوبوني باش نهضر معاك ونعاونك.", fr: "Je m'appelle Da9awi, une IA créée pour discuter avec toi et t'aider.", en: "My name is Da9awi, an AI made to chat with you and help out." } },
     { k: ["شكرا", "merci", "thank"],
       a: { ar: "العفو! ديما فالخدمة ديالك.", fr: "Avec plaisir ! Toujours là pour toi.", en: "You're welcome! Always here for you." } },
     { k: ["نكتة", "blague", "joke"],
@@ -273,7 +273,7 @@
   ];
 
   const FALLBACK = {
-    ar: ["مزيان! عاود ليا كثر على هادشي.", "فهمتك، وشنو رأيك نتا؟", "سؤال زوين! دابا أنا خدامة بوضع بسيط، ولكن ملي يتربط السيرفر غادي نجاوبك بذكاء كامل."],
+    ar: ["مزيان! عاود ليا كثر على هادشي.", "فهمتك، وشنو رأيك نتا؟", "سؤال زوين! دابا أنا خدام بوضع بسيط، ولكن ملي يتربط السيرفر غادي نجاوبك بذكاء كامل."],
     fr: ["Intéressant ! Dis-m'en plus.", "Je vois. Et toi, qu'en penses-tu ?", "Bonne question ! Je suis en mode simple pour l'instant ; connecte le serveur pour des réponses complètes."],
     en: ["Interesting! Tell me more.", "I see. What do you think about it?", "Good question! I'm in simple mode right now; connect the server for full AI answers."],
   };

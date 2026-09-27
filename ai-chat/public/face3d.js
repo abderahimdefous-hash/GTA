@@ -1,5 +1,5 @@
 // 3D talking head rendered with plain WebGL (no library needed).
-// app.js drives it through window.NourFace.state.
+// app.js drives it through window.Da9awiFace.state.
 (() => {
   "use strict";
 
@@ -11,7 +11,7 @@
     wordPulse: 0,      // extra mouth kick on each spoken word
     mode: "idle",      // idle | listening | thinking | speaking
   };
-  window.NourFace = { state, supported: !!gl };
+  window.Da9awiFace = { state, supported: !!gl };
 
   if (!gl) {
     canvas.replaceWith(Object.assign(document.createElement("div"), {
