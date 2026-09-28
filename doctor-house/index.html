@@ -360,6 +360,13 @@
         .visual.gift { isolation: isolate; }
         .visual.gift .brand { display: flex; align-items: center; gap: 8px; }
         .visual.gift .gift-logo { width: 22px; height: 22px; }
+        .bina-logo {
+            width: 30px; height: 30px; border-radius: 9px; flex: none;
+            background: #ffc400;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 2px #111, 0 4px 10px rgba(0, 0, 0, .3);
+        }
+        .bina-logo svg { width: 20px; height: 20px; }
         .visual.gift .tag { background: rgba(0, 0, 0, .22); border-color: rgba(255, 255, 255, .3); }
         .visual.gift .visual-value strong { font-size: 38px; }
         html.dark .visual.gift { box-shadow: 0 10px 30px rgba(31, 191, 107, .2); }
@@ -1020,13 +1027,19 @@
             <path d="M12 7c-1.2-2.8-3.9-4.3-5.4-3.1-1.3 1 -.4 3.1 2.1 3.1H12zM12 7c1.2-2.8 3.9-4.3 5.4-3.1 1.3 1 .4 3.1-2.1 3.1H12z" fill="#ffc400"/>
             <rect x="2" y="11" width="20" height="1.2" fill="#0b7a45" opacity=".25"/>
         </svg>`;
+        const binaLogo = `<svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="10" width="18" height="11" rx="2" fill="#111"/>
+            <rect x="2" y="7" width="20" height="5" rx="1.5" fill="#111"/>
+            <rect x="10.6" y="7" width="2.8" height="14" fill="#ffc400"/>
+            <path d="M12 7c-1.2-2.8-3.9-4.3-5.4-3.1-1.3 1 -.4 3.1 2.1 3.1H12zM12 7c1.2-2.8 3.9-4.3 5.4-3.1 1.3 1 .4 3.1-2.1 3.1H12z" fill="#111"/>
+        </svg>`;
         document.getElementById('giftHeadLogo').innerHTML = giftLogo;
         document.getElementById('giftGrid').innerHTML = gifts.map(g => `
             <article class="card">
                 <div class="visual gift">
                     <span class="gift-ribbon" aria-hidden="true"></span>
                     <div class="visual-top">
-                        <div class="brand">${giftLogo}GTA</div>
+                        <div class="brand"><span class="bina-logo">${binaLogo}</span>Bina</div>
                         <div class="tag">Carte cadeau</div>
                     </div>
                     <div></div>
