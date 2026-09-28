@@ -638,6 +638,7 @@
     <div class="modal-bg" id="signupModal">
         <div class="modal">
             <h3>Créer un compte</h3>
+            <p class="warn" id="signupReason" hidden>Inscrivez-vous pour continuer votre paiement.</p>
             <form class="form" id="signupForm" novalidate>
                 <label>Prénom<input id="firstName" type="text" autocomplete="given-name" required></label>
                 <label>Nom<input id="lastName" type="text" autocomplete="family-name" required></label>
@@ -736,6 +737,7 @@
                 renderOrders();
                 profileModal.classList.add('open');
             } else {
+                document.getElementById('signupReason').hidden = true;
                 signupModal.classList.add('open');
                 document.getElementById('firstName').focus();
             }
@@ -854,7 +856,16 @@
         grid.addEventListener('click', e => {
             const pay = e.target.closest('.pay-btn');
             if (!pay) return;
-            openPayment(cards.find(x => x.id == pay.dataset.id));
+            const card = cards.find(x => x.id == pay.dataset.id);
+            if (!user) {
+                // Après l'inscription, la page se recharge puis reprend le paiement
+                try { sessionStorage.setItem('dh_pending_card', card.id); } catch (err) {}
+                document.getElementById('signupReason').hidden = false;
+                signupModal.classList.add('open');
+                document.getElementById('firstName').focus();
+                return;
+            }
+            openPayment(card);
         });
 
         trc20Btn.addEventListener('click', () => {
@@ -1025,6 +1036,22 @@
             profileModal.classList.remove('open');
             openVerify(orders.find(o => o.id === b.dataset.order));
         });
+
+        // Annuler l'inscription annule aussi la reprise du paiement
+        const clearPending = () => { try { sessionStorage.removeItem('dh_pending_card'); } catch (e) {} };
+        document.querySelector('[data-close="signupModal"]').addEventListener('click', clearPending);
+        signupModal.addEventListener('click', e => { if (e.target === signupModal) clearPending(); });
+
+        // Reprise du paiement après inscription
+        if (user) {
+            let pending = null;
+            try { pending = sessionStorage.getItem('dh_pending_card'); sessionStorage.removeItem('dh_pending_card'); } catch (e) {}
+            const card = pending && cards.find(x => x.id == pending);
+            if (card) {
+                document.getElementById('invites').scrollIntoView();
+                openPayment(card);
+            }
+        }
     </script>
 </body>
 </html>
