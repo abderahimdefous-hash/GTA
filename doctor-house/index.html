@@ -318,6 +318,9 @@
         .section + .section { margin-top: 70px; }
         .section-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; }
         .section-head h2 { margin: 0; }
+        .head-text { text-align: left; }
+        .head-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+        .head-sub strong { color: var(--text); }
         .tt-badge {
             width: 44px; height: 44px; border-radius: 12px; background: #0b0b10;
             display: flex; align-items: center; justify-content: center; flex: none;
@@ -846,7 +849,10 @@
         <section class="section" id="gifts">
             <div class="section-head">
                 <div class="gift-badge" id="giftHeadLogo"></div>
-                <h2>Cartes cadeaux GTA</h2>
+                <div class="head-text">
+                    <h2>Cartes cadeaux GTA</h2>
+                    <p class="head-sub">Codes pour le serveur <strong>Bina</strong></p>
+                </div>
             </div>
             <div class="grid" id="giftGrid"></div>
         </section>
