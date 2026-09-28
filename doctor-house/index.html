@@ -293,6 +293,118 @@
         .profile-info { text-align: left; display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
         .profile-info span { color: var(--muted); font-size: 13px; display: block; }
 
+        /* Paiement crypto */
+        .modal { max-height: calc(100vh - 32px); overflow-y: auto; }
+        .pay-modal { text-align: left; }
+        .pay-modal h3 { text-align: center; }
+        .order-sum {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            background: #f4f7ff; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .order-sum strong { font-size: 18px; color: var(--text); font-variant-numeric: tabular-nums; }
+        .step-label { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .network-btn {
+            width: 100%;
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color .2s ease, background .2s ease;
+        }
+        .network-btn:hover, .network-btn.selected { border-color: #eb0029; background: #fff5f6; }
+        .network-btn .n-title { font-weight: 800; font-size: 15px; color: var(--text); }
+        .network-btn .n-sub { font-size: 12px; color: var(--muted); }
+        .network-btn .n-check { margin-left: auto; color: #eb0029; font-weight: 800; }
+        .trx-logo { width: 38px; height: 38px; flex: none; }
+        .pay-details { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+        .qr-box {
+            align-self: center;
+            position: relative;
+            padding: 10px; border-radius: 16px; background: #fff;
+            box-shadow: 0 0 0 1px var(--border), 0 8px 20px rgba(30, 94, 255, .08);
+        }
+        .qr-box img { display: block; width: 190px; max-width: 100%; height: auto; border-radius: 8px; }
+        .net-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 800; color: #eb0029;
+            background: #fff0f2; padding: 4px 10px 4px 4px; border-radius: 999px;
+        }
+        .net-pill svg { width: 20px; height: 20px; }
+        .addr {
+            display: flex; gap: 8px; align-items: stretch;
+        }
+        .addr code {
+            flex: 1; min-width: 0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 13px; line-height: 1.4;
+            background: #f4f7ff; border-radius: 10px; padding: 10px 12px;
+            word-break: break-all; user-select: all;
+        }
+        .copy-btn {
+            flex: none; border: none; border-radius: 10px; padding: 0 14px;
+            background: var(--blue); color: #fff; font-weight: 700; cursor: pointer;
+        }
+        .warn { font-size: 12px; color: var(--muted); line-height: 1.5; }
+        .upload {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+            border: 2px dashed #c9d4f2; border-radius: 14px; padding: 16px;
+            cursor: pointer; text-align: center; font-size: 14px; color: var(--muted);
+            transition: border-color .2s ease, background .2s ease;
+        }
+        .upload:hover { border-color: var(--blue); background: #f7f9ff; }
+        .upload strong { color: var(--blue); }
+        .upload input { display: none; }
+        .upload img { max-width: 100%; max-height: 160px; border-radius: 10px; }
+        .paid-btn {
+            width: 100%;
+            padding: 14px; border: none; border-radius: 999px;
+            background: var(--yellow); color: var(--text);
+            font-size: 16px; font-weight: 800; cursor: pointer;
+        }
+        .paid-btn:disabled { background: #eef0f5; color: #a3aabb; cursor: not-allowed; }
+
+        /* Vérification (37 s) */
+        .verify { text-align: center; }
+        .ring { width: 150px; height: 150px; margin: 10px auto 14px; position: relative; }
+        .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ring circle { fill: none; stroke-width: 10; }
+        .ring .track { stroke: #eef2fd; }
+        .ring .bar { stroke: var(--blue); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+        .ring .count {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: 38px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums;
+        }
+        .ring .count small { font-size: 12px; color: var(--muted); font-weight: 600; }
+        .status-pill {
+            display: inline-block; padding: 6px 12px; border-radius: 999px;
+            font-size: 13px; font-weight: 800;
+        }
+        .status-pending { background: #fff6d6; color: #8a6a00; }
+        .status-confirmed { background: #e3f7f0; color: #0f7a5c; }
+
+        /* Mes commandes */
+        .orders { margin-top: 50px; text-align: left; }
+        .orders h2 { text-align: center; }
+        .order-list { display: flex; flex-direction: column; gap: 12px; max-width: 620px; margin: 0 auto; }
+        .order-row {
+            display: flex; align-items: center; gap: 14px;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border); border-radius: 16px;
+            background: #fff; cursor: pointer; text-align: left;
+            transition: box-shadow .2s ease, transform .2s ease;
+        }
+        .order-row:hover { box-shadow: 0 10px 24px rgba(30, 94, 255, .12); transform: translateY(-2px); }
+        .order-row img { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; flex: none; }
+        .order-row .o-main { flex: 1; min-width: 0; }
+        .order-row .o-title { font-weight: 800; color: var(--text); }
+        .order-row .o-sub { font-size: 13px; color: var(--muted); }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: none; }
@@ -330,14 +442,69 @@
             <h2>Cartes d'invitation</h2>
             <div class="grid" id="grid"></div>
         </section>
+
+        <section class="orders" id="ordersSection" hidden>
+            <h2>Mes commandes</h2>
+            <div class="order-list" id="orderList"></div>
+        </section>
     </main>
 
     <div class="modal-bg" id="modal">
-        <div class="modal">
-            <h3>Paiement</h3>
-            <p id="modalCard"></p>
-            <p id="modalPrice"></p>
-            <button class="close" id="closeModal">Fermer</button>
+        <div class="modal pay-modal">
+            <h3>Paiement crypto</h3>
+            <div class="order-sum">
+                <div><div class="label" id="payCard"></div></div>
+                <strong id="payAmount"></strong>
+            </div>
+
+            <div class="step-label">Choisissez le réseau</div>
+            <button class="network-btn" id="trc20Btn" type="button">
+                <svg class="trx-logo" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#eb0029"/><path d="M11 11.5l19.5 4.2-12 15.8z M13.6 13.9l5.4 5.6 7.9-3.3z M19.9 20.9l-1.1 7.2 7-9.3z" fill="#fff" fill-rule="evenodd"/></svg>
+                <div>
+                    <div class="n-title">USDT (TRC20)</div>
+                    <div class="n-sub">Réseau TRON</div>
+                </div>
+                <span class="n-check" id="trc20Check" hidden>✓</span>
+            </button>
+
+            <div class="pay-details" id="payDetails" hidden>
+                <div class="qr-box"><img src="assets/qr-trc20.jpg" alt="QR code de l'adresse USDT TRC20"></div>
+                <div><span class="net-pill"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#eb0029"/><path d="M11 11.5l19.5 4.2-12 15.8z M13.6 13.9l5.4 5.6 7.9-3.3z M19.9 20.9l-1.1 7.2 7-9.3z" fill="#fff" fill-rule="evenodd"/></svg>TRC20</span></div>
+                <div>
+                    <div class="step-label">Adresse de paiement</div>
+                    <div class="addr">
+                        <code id="walletAddr">TU2YKsjJ78vMEtXDJoyMUtou93bzDAvFXa</code>
+                        <button class="copy-btn" id="copyBtn" type="button">Copier</button>
+                    </div>
+                </div>
+                <p class="warn">Envoyez exactement <strong id="payAmount2"></strong> via le réseau TRC20 uniquement. Un envoi sur un autre réseau peut être perdu.</p>
+
+                <div>
+                    <div class="step-label">Preuve de paiement</div>
+                    <label class="upload" id="uploadBox">
+                        <input type="file" id="proofInput" accept="image/*">
+                        <span id="uploadText"><strong>Ajouter une capture d'écran</strong><br>PNG ou JPG</span>
+                        <img id="proofPreview" alt="Aperçu de la preuve" hidden>
+                    </label>
+                </div>
+
+                <button class="paid-btn" id="paidBtn" type="button" disabled>J'ai payé</button>
+            </div>
+            <div style="text-align:center"><button class="link-btn" id="closeModal" type="button">Annuler</button></div>
+        </div>
+    </div>
+
+    <div class="modal-bg" id="verifyModal">
+        <div class="modal verify">
+            <h3>Vérification du paiement</h3>
+            <p class="label" id="verifyOrder"></p>
+            <div class="ring">
+                <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="ringBar" cx="60" cy="60" r="52"/></svg>
+                <div class="count"><span id="countNum">37</span><small>secondes</small></div>
+            </div>
+            <p id="verifyText">Nous vérifions votre transaction, merci de patienter…</p>
+            <div id="verifyStatus" hidden></div>
+            <button class="close" id="closeVerify" type="button">Fermer</button>
         </div>
     </div>
 
@@ -410,17 +577,6 @@
             btn.classList.toggle('active');
         });
 
-        const modal = document.getElementById('modal');
-        grid.addEventListener('click', e => {
-            const pay = e.target.closest('.pay-btn');
-            if (!pay) return;
-            const c = cards.find(x => x.id == pay.dataset.id);
-            document.getElementById('modalCard').textContent = `Carte d'invitation ${c.id} — ${c.value}`;
-            document.getElementById('modalPrice').textContent = `Montant : ${c.price}`;
-            modal.classList.add('open');
-        });
-        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
-        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
         // Compte (stocké uniquement dans ce navigateur ; le mot de passe n'est jamais enregistré)
         const KEY = 'dh_user';
         function getUser() {
@@ -476,24 +632,214 @@
             m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
 
         // Notifications
-        const notifs = user ? [
-            { text: `Bienvenue ${user.firstName} ! Votre compte a été créé.`, when: new Date(user.since).toLocaleString('fr-FR') },
-            { text: "Découvrez nos cartes d'invitation dans Produits.", when: '' },
-        ] : [];
+        const NOTIF_KEY = 'dh_notifs';
+        let extraNotifs = [];
+        try { extraNotifs = JSON.parse(localStorage.getItem(NOTIF_KEY)) || []; } catch (e) {}
         const notifBadge = document.getElementById('notifBadge');
         const notifMenu = document.getElementById('notifMenu');
-        document.getElementById('notifList').innerHTML = notifs.length
-            ? notifs.map(n => `<div class="notif">${n.text.replace(/</g, '&lt;')}${n.when ? `<small>${n.when}</small>` : ''}</div>`).join('')
-            : '<div class="empty">Connectez-vous pour recevoir des notifications.</div>';
-        if (notifs.length) { notifBadge.textContent = notifs.length; notifBadge.hidden = false; }
+        function renderNotifs() {
+            const notifs = extraNotifs.concat(user ? [
+                { text: `Bienvenue ${user.firstName} ! Votre compte a été créé.`, when: new Date(user.since).toLocaleString('fr-FR') },
+                { text: "Découvrez nos cartes d'invitation dans Produits.", when: '' },
+            ] : []);
+            document.getElementById('notifList').innerHTML = notifs.length
+                ? notifs.map(n => `<div class="notif">${n.text.replace(/</g, '&lt;')}${n.when ? `<small>${n.when}</small>` : ''}</div>`).join('')
+                : '<div class="empty">Connectez-vous pour recevoir des notifications.</div>';
+            return notifs.length;
+        }
+        function addNotif(text) {
+            extraNotifs.unshift({ text, when: new Date().toLocaleString('fr-FR') });
+            try { localStorage.setItem(NOTIF_KEY, JSON.stringify(extraNotifs.slice(0, 20))); } catch (e) {}
+            renderNotifs();
+            notifBadge.textContent = (parseInt(notifBadge.textContent, 10) || 0) + 1;
+            notifBadge.hidden = false;
+        }
+        const notifCount = renderNotifs();
+        if (notifCount) { notifBadge.textContent = notifCount; notifBadge.hidden = false; }
         document.getElementById('notifBtn').addEventListener('click', e => {
             e.stopPropagation();
             notifMenu.hidden = !notifMenu.hidden;
             notifBadge.hidden = true;
+            notifBadge.textContent = '0';
         });
         document.addEventListener('click', e => {
             if (!notifMenu.contains(e.target)) notifMenu.hidden = true;
         });
+        // ===== Paiement crypto =====
+        const VERIFY_SECONDS = 37;
+        const ORDERS_KEY = 'dh_orders';
+        function getOrders() {
+            try { return JSON.parse(localStorage.getItem(ORDERS_KEY)) || []; } catch (e) { return []; }
+        }
+        function saveOrders(list) {
+            try { localStorage.setItem(ORDERS_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
+        }
+        let orders = getOrders();
+
+        // À remplacer par l'appel à votre serveur (ex. fetch('/api/orders/' + order.id)).
+        async function fetchOrderStatus(order) {
+            return order.status;
+        }
+
+        const modal = document.getElementById('modal');
+        const payDetails = document.getElementById('payDetails');
+        const trc20Btn = document.getElementById('trc20Btn');
+        const proofInput = document.getElementById('proofInput');
+        const proofPreview = document.getElementById('proofPreview');
+        const paidBtn = document.getElementById('paidBtn');
+        let currentCard = null;
+        let proofData = null;
+
+        function openPayment(c) {
+            currentCard = c;
+            proofData = null;
+            document.getElementById('payCard').textContent = `Carte d'invitation ${c.id} — ${c.value}`;
+            document.getElementById('payAmount').textContent = c.price;
+            document.getElementById('payAmount2').textContent = c.price;
+            payDetails.hidden = true;
+            trc20Btn.classList.remove('selected');
+            document.getElementById('trc20Check').hidden = true;
+            proofInput.value = '';
+            proofPreview.hidden = true;
+            document.getElementById('uploadText').hidden = false;
+            paidBtn.disabled = true;
+            modal.classList.add('open');
+        }
+
+        grid.addEventListener('click', e => {
+            const pay = e.target.closest('.pay-btn');
+            if (!pay) return;
+            openPayment(cards.find(x => x.id == pay.dataset.id));
+        });
+
+        trc20Btn.addEventListener('click', () => {
+            trc20Btn.classList.add('selected');
+            document.getElementById('trc20Check').hidden = false;
+            payDetails.hidden = false;
+        });
+
+        const copyBtn = document.getElementById('copyBtn');
+        copyBtn.addEventListener('click', () => {
+            const text = document.getElementById('walletAddr').textContent;
+            const done = () => { copyBtn.textContent = 'Copié ✓'; setTimeout(() => copyBtn.textContent = 'Copier', 1800); };
+            const fallback = () => {
+                const r = document.createRange();
+                r.selectNodeContents(document.getElementById('walletAddr'));
+                const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+                copyBtn.textContent = 'Sélectionné';
+                setTimeout(() => copyBtn.textContent = 'Copier', 1800);
+            };
+            try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+        });
+
+        // Réduit l'image pour pouvoir la garder avec la commande
+        proofInput.addEventListener('change', () => {
+            const file = proofInput.files[0];
+            if (!file) return;
+            const img = new Image();
+            img.onload = () => {
+                const scale = Math.min(1, 480 / Math.max(img.width, img.height));
+                const cv = document.createElement('canvas');
+                cv.width = Math.round(img.width * scale);
+                cv.height = Math.round(img.height * scale);
+                cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+                proofData = cv.toDataURL('image/jpeg', 0.7);
+                proofPreview.src = proofData;
+                proofPreview.hidden = false;
+                document.getElementById('uploadText').hidden = true;
+                paidBtn.disabled = false;
+                URL.revokeObjectURL(img.src);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+        paidBtn.addEventListener('click', () => {
+            const order = {
+                id: 'DH' + Date.now().toString().slice(-6),
+                cardId: currentCard.id,
+                value: currentCard.value,
+                price: currentCard.price,
+                network: 'TRC20',
+                proof: proofData,
+                status: 'pending',
+                createdAt: Date.now(),
+            };
+            orders.unshift(order);
+            if (!saveOrders(orders)) { order.proof = null; saveOrders(orders); }
+            addNotif(`Commande ${order.id} envoyée : ${order.value} (${order.price}).`);
+            renderOrders();
+            modal.classList.remove('open');
+            openVerify(order);
+        });
+
+        // Fenêtre de vérification : 37 s à chaque ouverture de la commande
+        const verifyModal = document.getElementById('verifyModal');
+        const ringBar = document.getElementById('ringBar');
+        const CIRC = 2 * Math.PI * 52;
+        ringBar.style.strokeDasharray = CIRC;
+        let timer = null;
+
+        function statusHtml(status) {
+            return status === 'confirmed'
+                ? '<span class="status-pill status-confirmed">Paiement confirmé</span>'
+                : '<span class="status-pill status-pending">En attente de confirmation</span>';
+        }
+
+        function openVerify(order) {
+            clearInterval(timer);
+            let left = VERIFY_SECONDS;
+            document.getElementById('verifyOrder').textContent = `Commande ${order.id} — ${order.value} (${order.price})`;
+            document.getElementById('verifyText').hidden = false;
+            document.getElementById('verifyStatus').hidden = true;
+            const countNum = document.getElementById('countNum');
+            const draw = () => {
+                countNum.textContent = left;
+                ringBar.style.strokeDashoffset = CIRC * (1 - left / VERIFY_SECONDS);
+            };
+            ringBar.style.transition = 'none';
+            draw();
+            requestAnimationFrame(() => { ringBar.style.transition = ''; });
+            verifyModal.classList.add('open');
+            timer = setInterval(async () => {
+                left--;
+                draw();
+                if (left > 0) return;
+                clearInterval(timer);
+                const status = await fetchOrderStatus(order);
+                document.getElementById('verifyText').hidden = true;
+                const box = document.getElementById('verifyStatus');
+                box.innerHTML = statusHtml(status) + (status === 'confirmed'
+                    ? ''
+                    : '<p class="warn" style="margin-top:10px">Vous recevrez une notification dès la validation de votre paiement.</p>');
+                box.hidden = false;
+            }, 1000);
+        }
+
+        function closeVerify() { clearInterval(timer); verifyModal.classList.remove('open'); }
+        document.getElementById('closeVerify').addEventListener('click', closeVerify);
+        verifyModal.addEventListener('click', e => { if (e.target === verifyModal) closeVerify(); });
+
+        const orderList = document.getElementById('orderList');
+        function renderOrders() {
+            document.getElementById('ordersSection').hidden = orders.length === 0;
+            orderList.innerHTML = orders.map(o => `
+                <button class="order-row" type="button" data-order="${o.id}">
+                    ${o.proof ? `<img src="${o.proof}" alt="">` : ''}
+                    <div class="o-main">
+                        <div class="o-title">Commande ${o.id}</div>
+                        <div class="o-sub">${o.value} · ${o.price} · ${new Date(o.createdAt).toLocaleString('fr-FR')}</div>
+                    </div>
+                    ${statusHtml(o.status)}
+                </button>`).join('');
+        }
+        orderList.addEventListener('click', e => {
+            const row = e.target.closest('.order-row');
+            if (row) openVerify(orders.find(o => o.id === row.dataset.order));
+        });
+        renderOrders();
     </script>
 </body>
 </html>
