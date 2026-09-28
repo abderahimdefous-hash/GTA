@@ -35,6 +35,7 @@
             --yellow-soft: #fff6d6;
             --yellow-ink: #8a6a00;
             --shadow: rgba(30, 94, 255, .10);
+            --header-bg: rgba(255, 255, 255, .93);
         }
 
         /* Mode sombre */
@@ -56,6 +57,7 @@
             --yellow-soft: #3a2f08;
             --yellow-ink: #ffd54d;
             --shadow: rgba(0, 0, 0, .45);
+            --header-bg: rgba(8, 12, 26, .93);
         }
         body, header, .card, .modal, .icon-btn, .dropdown, .order-card, .chat { transition: background-color .35s ease, border-color .35s ease, color .35s ease; }
 
@@ -140,7 +142,16 @@
         .snow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .page-snow { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .hero, main { position: relative; z-index: 1; }
-        header { position: relative; z-index: 40; }
+        /* Barre du haut toujours visible */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            padding-top: calc(20px + env(safe-area-inset-top, 0px));
+            background: var(--header-bg);
+            -webkit-backdrop-filter: saturate(1.6) blur(14px);
+            backdrop-filter: saturate(1.6) blur(14px);
+        }
         .hero > :not(.snow) { position: relative; z-index: 1; }
         .hero > .scroll-hint { position: absolute; }
         .title3d { perspective: 700px; animation: float3d 6s ease-in-out 1.6s infinite; }
@@ -826,7 +837,7 @@
         }
 
         @media (max-width: 600px) {
-            header { padding: 16px; }
+            header { padding: 16px; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
             .logo { font-size: 24px; }
             main { padding: 40px 16px; }
         }
