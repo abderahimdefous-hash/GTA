@@ -127,6 +127,8 @@
 
         /* Titre 3D + neige jaune */
         .snow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .page-snow { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .hero, main, header { position: relative; z-index: 1; }
         .hero > :not(.snow) { position: relative; z-index: 1; }
         .hero > .scroll-hint { position: absolute; }
         .title3d { perspective: 700px; animation: float3d 6s ease-in-out 1.6s infinite; }
@@ -152,7 +154,7 @@
         @keyframes float3d { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @media (prefers-reduced-motion: reduce) {
             .title3d { animation: none; }
-            .snow { display: none; }
+            .snow, .page-snow { display: none; }
         }
         .hero-line {
             width: 0; height: 6px; border-radius: 3px;
@@ -873,6 +875,8 @@
         <p class="hero-sub">Vos cartes d'invitation, payables en crypto en quelques minutes.</p>
         <a class="scroll-hint" href="#invites"><span class="mouse"></span>Découvrir les produits</a>
     </section>
+
+    <canvas class="page-snow" id="pageSnow" aria-hidden="true"></canvas>
 
     <main>
 
@@ -1644,22 +1648,16 @@
             heroTitle.style.setProperty('--trx', '16deg');
         });
 
-        // Neige jaune en 3D (profondeur : taille, vitesse et flou)
-        (function snow() {
+        // Neige 3D (profondeur : taille, vitesse, éclat) — jaune, rouge en mode sombre
+        function snowColor() {
+            return document.documentElement.classList.contains('dark') ? [255, 45, 70] : [255, 196, 0];
+        }
+        function createSnow(cv, box, { density, alpha, maxCount, fixed }) {
             if (reduceMotion) return;
-            const cv = document.getElementById('snow');
             const ctx = cv.getContext('2d');
-            let w, h, dpr, flakes = [];
-            function resize() {
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
-                w = heroEl.clientWidth; h = heroEl.clientHeight;
-                cv.width = w * dpr; cv.height = h * dpr;
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                const count = Math.round(Math.min(140, w * h / 6000));
-                flakes = Array.from({ length: count }, () => make(true));
-            }
+            let w, h, flakes = [], windX = 0;
             function make(anywhere) {
-                const z = Math.random();              // 0 = loin, 1 = proche
+                const z = Math.random();
                 return {
                     x: Math.random() * w,
                     y: anywhere ? Math.random() * h : -10,
@@ -1668,27 +1666,35 @@
                     vy: .3 + z * 1.6,
                     sway: Math.random() * Math.PI * 2,
                     swaySpeed: .005 + Math.random() * .015,
-                    alpha: .35 + z * .6,
+                    alpha: (.35 + z * .6) * alpha,
                 };
             }
-            let windX = 0;
-            heroEl.addEventListener('pointermove', e => {
-                const r = heroEl.getBoundingClientRect();
-                windX = ((e.clientX - r.left) / r.width - .5) * 1.2;
+            function resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                w = fixed ? innerWidth : box.clientWidth;
+                h = fixed ? innerHeight : box.clientHeight;
+                cv.width = w * dpr; cv.height = h * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const count = Math.round(Math.min(maxCount, w * h / density));
+                flakes = Array.from({ length: count }, () => make(true));
+            }
+            box.addEventListener('pointermove', e => {
+                windX = (e.clientX / innerWidth - .5) * 1.2;
             });
             function frame() {
                 ctx.clearRect(0, 0, w, h);
+                const [r, g, b] = snowColor();
                 for (const f of flakes) {
                     f.sway += f.swaySpeed;
                     f.y += f.vy;
                     f.x += Math.sin(f.sway) * (.3 + f.z * .6) + windX * f.z;
                     if (f.y > h + 10) Object.assign(f, make(false));
                     if (f.x < -10) f.x = w + 10; else if (f.x > w + 10) f.x = -10;
-                    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2);
-                    g.addColorStop(0, `rgba(255, 214, 51, ${f.alpha})`);
-                    g.addColorStop(.45, `rgba(255, 196, 0, ${f.alpha * .8})`);
-                    g.addColorStop(1, 'rgba(255, 196, 0, 0)');
-                    ctx.fillStyle = g;
+                    const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2);
+                    grad.addColorStop(0, `rgba(${r}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 50)}, ${f.alpha})`);
+                    grad.addColorStop(.45, `rgba(${r}, ${g}, ${b}, ${f.alpha * .8})`);
+                    grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+                    ctx.fillStyle = grad;
                     ctx.beginPath();
                     ctx.arc(f.x, f.y, f.r * 2, 0, Math.PI * 2);
                     ctx.fill();
@@ -1698,7 +1704,10 @@
             resize();
             window.addEventListener('resize', resize);
             frame();
-        })();
+        }
+        // Neige dense dans l'écran d'accueil, légère derrière les sections
+        createSnow(document.getElementById('snow'), heroEl, { density: 6000, alpha: 1, maxCount: 140 });
+        createSnow(document.getElementById('pageSnow'), document.body, { density: 16000, alpha: .45, maxCount: 60, fixed: true });
     </script>
 </body>
 </html>
