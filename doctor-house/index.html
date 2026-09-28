@@ -226,6 +226,46 @@
         }
         .card:hover .visual::after { transform: translateX(100%); }
 
+        /* Effet 3D */
+        .card { perspective: 900px; }
+        .visual {
+            transform-style: preserve-3d;
+            transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1));
+            transition: transform .6s cubic-bezier(.2, .8, .2, 1), box-shadow .6s ease;
+            will-change: transform;
+            touch-action: pan-y;
+            cursor: pointer;
+        }
+        .visual.tilting {
+            transition: transform .08s linear, box-shadow .3s ease;
+            box-shadow: 0 26px 44px rgba(16, 24, 64, .35);
+        }
+        .visual::before {
+            content: "";
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .38) 0, rgba(255, 255, 255, 0) 55%);
+            opacity: 0;
+            transition: opacity .4s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .visual.tilting::before { opacity: 1; }
+        .visual > * { transform: translateZ(28px); position: relative; z-index: 1; }
+        .visual .visual-value { transform: translateZ(46px); }
+        .visual .chip { transform: translateZ(38px); }
+        .visual.spin { animation: spin3d .9s cubic-bezier(.2, .8, .2, 1); }
+        @keyframes spin3d {
+            0% { transform: rotateY(0) scale(1); }
+            40% { transform: rotateY(-18deg) rotateX(8deg) scale(1.04); }
+            70% { transform: rotateY(10deg) rotateX(-4deg) scale(1.03); }
+            100% { transform: rotateY(0) scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .visual, .visual.tilting { transform: none !important; transition: none; }
+            .visual.spin { animation: none; }
+        }
+
         .visual-top { display: flex; justify-content: space-between; align-items: center; }
         .brand { font-weight: 800; font-size: 14px; letter-spacing: .3px; }
         .brand b { color: var(--yellow); font-weight: 800; }
@@ -902,7 +942,7 @@
             { id: 2, value: '1900 EUR', price: '180 USDT' },
             { id: 3, value: '5500 EUR', price: '511 USDT' },
             { id: 4, value: '1500 EUR', price: '90 USDT' },
-        ].map(c => ({ ...c, label: `Carte d'invitation ${c.id}` }));
+        ].map(c => ({ ...c, label: `Carte ${c.id}` }));
 
         // Comptes TikTok (prix en $, payés en USDT : 1 USDT = 1 $)
         const tiktok = [
@@ -963,7 +1003,7 @@
                 </div>
                 <div class="card-info">
                     <div>
-                        <div class="label">Carte d'invitation ${c.id}</div>
+                        <div class="label">Carte ${c.id}</div>
                         <div class="title">Valeur ${c.value}</div>
                     </div>
                     <div class="price"><strong>${price}</strong><span>${pcur}</span></div>
@@ -1289,7 +1329,7 @@
                         ${o.proof ? `<img src="${o.proof}" alt="Preuve de paiement">` : ''}
                         <div class="o-main">
                             <div class="o-title">Commande ${o.id}</div>
-                            <div class="o-sub">${o.label || "Carte d'invitation"} · ${o.value} · ${new Date(o.createdAt).toLocaleString('fr-FR')}</div>
+                            <div class="o-sub">${o.label || "Carte"} · ${o.value} · ${new Date(o.createdAt).toLocaleString('fr-FR')}</div>
                         </div>
                         <div class="o-price">${o.price}</div>
                     </div>
@@ -1405,6 +1445,41 @@
             const dark = document.documentElement.classList.toggle('dark');
             try { localStorage.setItem('dh_theme', dark ? 'dark' : 'light'); } catch (e) {}
         });
+
+        // Cartes en 3D : inclinaison au toucher / à la souris
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function tilt(v, e) {
+            const r = v.getBoundingClientRect();
+            const x = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+            const y = Math.min(Math.max((e.clientY - r.top) / r.height, 0), 1);
+            v.style.setProperty('--ry', ((x - .5) * 26).toFixed(2) + 'deg');
+            v.style.setProperty('--rx', ((.5 - y) * 22).toFixed(2) + 'deg');
+            v.style.setProperty('--gx', (x * 100).toFixed(1) + '%');
+            v.style.setProperty('--gy', (y * 100).toFixed(1) + '%');
+            v.style.setProperty('--sc', '1.04');
+            v.classList.add('tilting');
+        }
+        function untilt(v) {
+            v.classList.remove('tilting');
+            v.style.setProperty('--rx', '0deg');
+            v.style.setProperty('--ry', '0deg');
+            v.style.setProperty('--sc', '1');
+        }
+        if (!reduceMotion) {
+            document.querySelectorAll('.visual').forEach(v => {
+                v.addEventListener('pointermove', e => tilt(v, e));
+                v.addEventListener('pointerdown', e => tilt(v, e));
+                v.addEventListener('pointerleave', () => untilt(v));
+                v.addEventListener('pointercancel', () => untilt(v));
+                v.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') setTimeout(() => untilt(v), 350); });
+                v.addEventListener('click', () => {
+                    v.classList.remove('spin');
+                    void v.offsetWidth;
+                    v.classList.add('spin');
+                });
+                v.addEventListener('animationend', () => v.classList.remove('spin'));
+            });
+        }
     </script>
 </body>
 </html>
