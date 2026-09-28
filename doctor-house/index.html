@@ -263,6 +263,7 @@
 
         /* Fenêtre de paiement */
         .modal-bg {
+            z-index: 100;
             position: fixed;
             inset: 0;
             background: rgba(20, 25, 40, .45);
@@ -538,6 +539,118 @@
         .no-orders { font-size: 14px; color: var(--muted); text-align: center; padding: 16px; background: #f7f9ff; border-radius: 14px; }
         .profile-actions { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 18px; }
 
+        /* Support */
+        .support-btn {
+            position: fixed;
+            right: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            z-index: 50;
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 18px 12px 14px;
+            border: none; border-radius: 999px;
+            background: linear-gradient(135deg, var(--blue), #0f37b0);
+            color: #fff; font-weight: 800; font-size: 15px;
+            box-shadow: 0 10px 26px rgba(30, 94, 255, .35);
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .support-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(30, 94, 255, .45); }
+        .support-btn svg { width: 22px; height: 22px; }
+        .support-btn .online {
+            width: 9px; height: 9px; border-radius: 50%; background: #3ddc97;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.9);
+        }
+        .chat {
+            position: fixed;
+            right: 16px;
+            bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+            z-index: 60;
+            width: min(370px, calc(100vw - 32px));
+            height: min(520px, calc(100svh - 120px));
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 24px 60px rgba(16, 24, 64, .25);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            animation: chatIn .25s ease;
+        }
+        @keyframes chatIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
+        .chat-head {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, var(--blue), #0f37b0);
+            color: #fff;
+        }
+        .chat-avatar {
+            width: 40px; height: 40px; border-radius: 50%; flex: none;
+            background: var(--yellow); color: var(--text);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 14px;
+        }
+        .chat-head .c-name { font-weight: 800; }
+        .chat-head .c-status { font-size: 12px; opacity: .85; display: flex; align-items: center; gap: 6px; }
+        .chat-head .c-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #3ddc97; }
+        .chat-close {
+            margin-left: auto; width: 34px; height: 34px; border-radius: 50%;
+            border: none; background: rgba(255,255,255,.15); color: #fff;
+            font-size: 18px; cursor: pointer;
+        }
+        .chat-body {
+            flex: 1; overflow-y: auto;
+            padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
+            background: #f6f8fd;
+        }
+        .msg {
+            max-width: 82%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px; line-height: 1.45;
+            white-space: pre-wrap; word-wrap: break-word;
+            animation: chatIn .2s ease;
+        }
+        .msg.bot { align-self: flex-start; background: #fff; color: var(--text); border-bottom-left-radius: 6px; box-shadow: 0 1px 3px rgba(16,24,64,.08); }
+        .msg.me { align-self: flex-end; background: var(--blue); color: #fff; border-bottom-right-radius: 6px; }
+        .typing { display: inline-flex; gap: 4px; align-items: center; }
+        .typing i { width: 7px; height: 7px; border-radius: 50%; background: #a3aabb; animation: blink 1.2s infinite; }
+        .typing i:nth-child(2) { animation-delay: .2s; }
+        .typing i:nth-child(3) { animation-delay: .4s; }
+        @keyframes blink { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+        .scan {
+            display: flex; flex-direction: column; gap: 8px;
+            min-width: 210px;
+        }
+        .scan-bar { height: 6px; border-radius: 3px; background: #eef2fd; overflow: hidden; position: relative; }
+        .scan-bar::after {
+            content: ""; position: absolute; inset: 0; width: 40%;
+            background: linear-gradient(90deg, var(--blue), var(--yellow));
+            border-radius: 3px;
+            animation: scanMove 1.4s ease-in-out infinite;
+        }
+        @keyframes scanMove { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+        .scan small { color: var(--muted); font-size: 12px; }
+        .chat-form {
+            display: flex; gap: 8px; padding: 12px;
+            border-top: 1px solid var(--border); background: #fff;
+        }
+        .chat-form textarea {
+            flex: 1; resize: none;
+            border: 1px solid var(--border); border-radius: 14px;
+            padding: 10px 12px; font: inherit; font-size: 14px;
+            max-height: 90px; color: var(--text); background: #fff;
+        }
+        .chat-form textarea:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
+        .chat-send {
+            width: 44px; border: none; border-radius: 14px;
+            background: var(--yellow); color: var(--text);
+            cursor: pointer; flex: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .chat-send svg { width: 20px; height: 20px; }
+        @media (prefers-reduced-motion: reduce) {
+            .typing i, .scan-bar::after, .chat, .msg { animation: none; }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: none; }
@@ -698,6 +811,30 @@
             </div>
         </div>
     </div>
+
+    <button class="support-btn" id="supportBtn" type="button" aria-label="Support">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg>
+        Support
+        <span class="online"></span>
+    </button>
+
+    <section class="chat" id="chat" hidden aria-label="Support Doctor Script">
+        <div class="chat-head">
+            <div class="chat-avatar">DS</div>
+            <div>
+                <div class="c-name">Support Doctor Script</div>
+                <div class="c-status">En ligne</div>
+            </div>
+            <button class="chat-close" id="chatClose" type="button" aria-label="Fermer">×</button>
+        </div>
+        <div class="chat-body" id="chatBody"></div>
+        <form class="chat-form" id="chatForm">
+            <textarea id="chatInput" rows="1" placeholder="Écrivez votre message…"></textarea>
+            <button class="chat-send" type="submit" aria-label="Envoyer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+        </form>
+    </section>
 
     <script>
         const cards = [
@@ -1123,6 +1260,85 @@
                 openPayment(card);
             }
         }
+
+        // ===== Support (chat) =====
+        // À remplacer par l'appel à votre IA : reçoit l'historique et renvoie la réponse.
+        async function askSupportAI(chatHistory) {
+            return null; // null = analyse toujours en cours
+        }
+
+        const chat = document.getElementById('chat');
+        const chatBody = document.getElementById('chatBody');
+        const chatInput = document.getElementById('chatInput');
+        const chatHistory = [];
+        let chatStep = 0; // 0 : problème, 1 : détails, 2 : analyse
+        let started = false;
+
+        function addMsg(from, text) {
+            const el = document.createElement('div');
+            el.className = 'msg ' + from;
+            el.textContent = text;
+            chatBody.appendChild(el);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            chatHistory.push({ from, text });
+            return el;
+        }
+        function botSay(text, delay = 900) {
+            const t = document.createElement('div');
+            t.className = 'msg bot';
+            t.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+            chatBody.appendChild(t);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return new Promise(res => setTimeout(() => { t.remove(); res(addMsg('bot', text)); }, delay));
+        }
+        function showScan() {
+            const el = document.createElement('div');
+            el.className = 'msg bot scan';
+            el.innerHTML = '<strong>Analyse du site en cours…</strong><div class="scan-bar"></div><small>Veuillez patienter, nous vérifions votre problème.</small>';
+            chatBody.appendChild(el);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        document.getElementById('supportBtn').addEventListener('click', () => {
+            chat.hidden = !chat.hidden;
+            if (!chat.hidden) {
+                chatInput.focus();
+                if (!started) {
+                    started = true;
+                    const name = user ? ` ${user.firstName}` : '';
+                    botSay(`Bonjour${name} ! 👋 Je suis l'assistant Doctor Script.\nQuel est votre problème ?`, 700);
+                }
+            }
+        });
+        document.getElementById('chatClose').addEventListener('click', () => { chat.hidden = true; });
+
+        document.getElementById('chatForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            chatInput.value = '';
+            addMsg('me', text);
+            if (chatStep === 0) {
+                chatStep = 1;
+                await botSay("D'accord. Expliquez-moi votre problème en détail, étape par étape : que faisiez-vous, et que s'est-il passé ?");
+            } else if (chatStep === 1) {
+                chatStep = 2;
+                await botSay('Merci pour ces détails. Je lance une analyse du site, attendez un instant…');
+                showScan();
+                const answer = await askSupportAI(chatHistory);
+                if (answer) await botSay(answer);
+            } else {
+                const answer = await askSupportAI(chatHistory);
+                if (answer) await botSay(answer);
+                else await botSay("Message reçu. L'analyse est toujours en cours, merci de patienter.", 700);
+            }
+        });
+        chatInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('chatForm').requestSubmit();
+            }
+        });
     </script>
 </body>
 </html>
