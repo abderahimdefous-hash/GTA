@@ -445,23 +445,78 @@
         .status-pending { background: #fff6d6; color: #8a6a00; }
         .status-confirmed { background: #e3f7f0; color: #0f7a5c; }
 
-        /* Mes commandes */
-        .orders { margin-top: 50px; text-align: left; }
-        .orders h2 { text-align: center; }
-        .order-list { display: flex; flex-direction: column; gap: 12px; max-width: 620px; margin: 0 auto; }
-        .order-row {
+        /* Mes commandes (dans le profil) */
+        .modal.profile { max-width: 460px; text-align: left; }
+        .modal.profile h3 { text-align: center; }
+        .profile-head {
             display: flex; align-items: center; gap: 14px;
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--border); border-radius: 16px;
-            background: #fff; cursor: pointer; text-align: left;
-            transition: box-shadow .2s ease, transform .2s ease;
+            background: #f4f7ff; border-radius: 16px; padding: 14px;
         }
-        .order-row:hover { box-shadow: 0 10px 24px rgba(30, 94, 255, .12); transform: translateY(-2px); }
-        .order-row img { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; flex: none; }
-        .order-row .o-main { flex: 1; min-width: 0; }
-        .order-row .o-title { font-weight: 800; color: var(--text); }
-        .order-row .o-sub { font-size: 13px; color: var(--muted); }
+        .avatar {
+            width: 52px; height: 52px; border-radius: 50%; flex: none;
+            background: var(--blue); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px;
+        }
+        .profile-head .p-name { font-weight: 800; font-size: 16px; }
+        .profile-head .p-mail { font-size: 13px; color: var(--muted); word-break: break-all; }
+        .orders-title {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin: 22px 0 12px;
+        }
+        .orders-title h4 { font-size: 16px; }
+        .orders-title span { font-size: 13px; color: var(--muted); }
+        .order-list { display: flex; flex-direction: column; gap: 14px; }
+        .order-card {
+            border: 1px solid var(--border); border-radius: 18px;
+            padding: 14px; background: #fff;
+            box-shadow: 0 6px 18px rgba(30, 94, 255, .06);
+        }
+        .order-top { display: flex; align-items: center; gap: 12px; }
+        .order-top img { width: 46px; height: 46px; object-fit: cover; border-radius: 12px; flex: none; }
+        .order-top .o-main { flex: 1; min-width: 0; }
+        .o-title { font-weight: 800; font-size: 15px; }
+        .o-sub { font-size: 12px; color: var(--muted); }
+        .o-price { font-weight: 800; font-size: 16px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+        /* Étapes 1 · 2 · 3 */
+        .steps { display: flex; margin: 18px 0 6px; }
+        .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; text-align: center; }
+        .step::before {
+            content: ""; position: absolute; top: 17px; right: 50%; width: 100%; height: 4px;
+            background: #e6e9f0; z-index: 0;
+        }
+        .step:first-child::before { display: none; }
+        .step.done::before, .step.active::before { background: #19b37d; }
+        .step.active::before { background: linear-gradient(90deg, #19b37d, var(--yellow)); }
+        .dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 15px;
+            background: #eef0f5; color: #a3aabb;
+            position: relative; z-index: 1;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 1px #e6e9f0;
+        }
+        .step.done .dot { background: #19b37d; color: #fff; box-shadow: 0 0 0 1px #19b37d; }
+        .step.active .dot { background: var(--yellow); color: var(--text); box-shadow: 0 0 0 1px var(--yellow); animation: pulse 1.6s ease infinite; }
+        .step-name { font-size: 12px; font-weight: 700; color: #a3aabb; line-height: 1.3; max-width: 11ch; }
+        .step.done .step-name { color: #0f7a5c; }
+        .step.active .step-name { color: #8a6a00; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 1px var(--yellow), 0 0 0 0 rgba(255, 196, 0, .45); }
+            50% { box-shadow: 0 0 0 1px var(--yellow), 0 0 0 8px rgba(255, 196, 0, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) { .step.active .dot { animation: none; } }
+        .check-btn {
+            margin-top: 10px; width: 100%;
+            padding: 10px; border-radius: 12px;
+            border: 1px solid var(--border); background: #f7f9ff;
+            color: var(--blue); font-weight: 700; cursor: pointer;
+        }
+        .check-btn:hover { background: #eef3ff; }
+        .no-orders { font-size: 14px; color: var(--muted); text-align: center; padding: 16px; background: #f7f9ff; border-radius: 14px; }
+        .profile-actions { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 18px; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -508,10 +563,6 @@
             <div class="grid" id="grid"></div>
         </section>
 
-        <section class="orders" id="ordersSection" hidden>
-            <h2>Mes commandes</h2>
-            <div class="order-list" id="orderList"></div>
-        </section>
     </main>
 
     <div class="modal-bg" id="modal">
@@ -600,15 +651,22 @@
     </div>
 
     <div class="modal-bg" id="profileModal">
-        <div class="modal">
+        <div class="modal profile">
             <h3>Mon profil</h3>
-            <div class="profile-info">
-                <div><span>Nom complet</span><strong id="pName"></strong></div>
-                <div><span>E-mail</span><strong id="pEmail"></strong></div>
+            <div class="profile-head" id="profileHead">
+                <div class="avatar" id="pAvatar"></div>
+                <div>
+                    <div class="p-name" id="pName"></div>
+                    <div class="p-mail" id="pEmail"></div>
+                </div>
             </div>
-            <button class="close" id="logoutBtn">Se déconnecter</button>
-            <br>
-            <button class="link-btn" data-close="profileModal">Fermer</button>
+            <div class="orders-title"><h4>Mes commandes</h4><span id="ordersCount"></span></div>
+            <div class="order-list" id="orderList"></div>
+            <div class="profile-actions">
+                <button class="close" id="logoutBtn" type="button">Se déconnecter</button>
+                <button class="submit-btn" id="goSignup" type="button" hidden>Créer un compte</button>
+                <button class="link-btn" data-close="profileModal" type="button">Fermer</button>
+            </div>
         </div>
     </div>
 
@@ -670,11 +728,21 @@
             profileBtn.textContent = (user.firstName[0] + user.lastName[0]).toUpperCase();
             document.getElementById('pName').textContent = user.firstName + ' ' + user.lastName;
             document.getElementById('pEmail').textContent = user.email;
+            document.getElementById('pAvatar').textContent = (user.firstName[0] + user.lastName[0]).toUpperCase();
         }
 
         profileBtn.addEventListener('click', () => {
-            (user ? profileModal : signupModal).classList.add('open');
-            if (!user) document.getElementById('firstName').focus();
+            if (user || orders.length) {
+                renderOrders();
+                profileModal.classList.add('open');
+            } else {
+                signupModal.classList.add('open');
+                document.getElementById('firstName').focus();
+            }
+        });
+        document.getElementById('goSignup').addEventListener('click', () => {
+            profileModal.classList.remove('open');
+            signupModal.classList.add('open');
         });
 
         document.getElementById('signupForm').addEventListener('submit', e => {
@@ -922,23 +990,41 @@
         verifyModal.addEventListener('click', e => { if (e.target === verifyModal) closeVerify(); });
 
         const orderList = document.getElementById('orderList');
+        const STEPS = ['Paiement envoyé', 'Vérification du paiement', 'Paiement confirmé'];
+        function stepsHtml(status) {
+            const confirmed = status === 'confirmed';
+            return '<div class="steps">' + STEPS.map((name, i) => {
+                const cls = i === 0 || confirmed ? 'done' : i === 1 ? 'active' : '';
+                const mark = cls === 'done' ? '✓' : i + 1;
+                return `<div class="step ${cls}"><div class="dot">${mark}</div><div class="step-name">${name}</div></div>`;
+            }).join('') + '</div>';
+        }
         function renderOrders() {
-            document.getElementById('ordersSection').hidden = orders.length === 0;
-            orderList.innerHTML = orders.map(o => `
-                <button class="order-row" type="button" data-order="${o.id}">
-                    ${o.proof ? `<img src="${o.proof}" alt="">` : ''}
-                    <div class="o-main">
-                        <div class="o-title">Commande ${o.id}</div>
-                        <div class="o-sub">${o.value} · ${o.price} · ${new Date(o.createdAt).toLocaleString('fr-FR')}</div>
+            document.getElementById('profileHead').hidden = !user;
+            document.getElementById('logoutBtn').hidden = !user;
+            document.getElementById('goSignup').hidden = !!user;
+            document.getElementById('ordersCount').textContent = orders.length ? `${orders.length} commande${orders.length > 1 ? 's' : ''}` : '';
+            orderList.innerHTML = orders.length ? orders.map(o => `
+                <div class="order-card">
+                    <div class="order-top">
+                        ${o.proof ? `<img src="${o.proof}" alt="Preuve de paiement">` : ''}
+                        <div class="o-main">
+                            <div class="o-title">Commande ${o.id}</div>
+                            <div class="o-sub">Carte ${o.value} · ${new Date(o.createdAt).toLocaleString('fr-FR')}</div>
+                        </div>
+                        <div class="o-price">${o.price}</div>
                     </div>
-                    ${statusHtml(o.status)}
-                </button>`).join('');
+                    ${stepsHtml(o.status)}
+                    <button class="check-btn" type="button" data-order="${o.id}">Vérifier le paiement</button>
+                </div>`).join('')
+                : '<div class="no-orders">Aucune commande pour le moment.</div>';
         }
         orderList.addEventListener('click', e => {
-            const row = e.target.closest('.order-row');
-            if (row) openVerify(orders.find(o => o.id === row.dataset.order));
+            const b = e.target.closest('.check-btn');
+            if (!b) return;
+            profileModal.classList.remove('open');
+            openVerify(orders.find(o => o.id === b.dataset.order));
         });
-        renderOrders();
     </script>
 </body>
 </html>
