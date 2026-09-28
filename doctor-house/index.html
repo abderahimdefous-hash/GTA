@@ -13,7 +13,40 @@
             --text: #1c2233;
             --muted: #6b7489;
             --border: #e6e9f0;
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --soft: #f4f7ff;
+            --track: #eef0f5;
+            --dash: #c9d4f2;
+            --red-soft: #fff0f2;
+            --green-soft: #e3f7f0;
+            --green-ink: #0f7a5c;
+            --yellow-soft: #fff6d6;
+            --yellow-ink: #8a6a00;
+            --shadow: rgba(30, 94, 255, .10);
         }
+
+        /* Mode sombre */
+        html.dark {
+            color-scheme: dark;
+            --blue: #4d7dff;
+            --blue-dark: #3a66e0;
+            --text: #e9edf8;
+            --muted: #98a2bd;
+            --border: #252d4a;
+            --bg: #080c1a;
+            --surface: #111831;
+            --soft: #182142;
+            --track: #222b4d;
+            --dash: #34406b;
+            --red-soft: #3a1420;
+            --green-soft: #0f3328;
+            --green-ink: #4fe0a8;
+            --yellow-soft: #3a2f08;
+            --yellow-ink: #ffd54d;
+            --shadow: rgba(0, 0, 0, .45);
+        }
+        body, header, .card, .modal, .icon-btn, .dropdown, .order-card, .chat { transition: background-color .35s ease, border-color .35s ease, color .35s ease; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         [hidden] { display: none !important; }
@@ -22,7 +55,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: #ffffff;
+            background: var(--bg);
             color: var(--text);
             min-height: 100vh;
         }
@@ -66,9 +99,9 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at 15% 20%, rgba(30, 94, 255, .10) 0, rgba(30, 94, 255, 0) 40%),
+                radial-gradient(circle at 15% 20%, var(--shadow) 0, rgba(30, 94, 255, 0) 40%),
                 radial-gradient(circle at 85% 75%, rgba(255, 196, 0, .16) 0, rgba(255, 196, 0, 0) 40%),
-                #fff;
+                var(--bg);
         }
         .hero-kicker {
             font-size: clamp(20px, 5vw, 30px);
@@ -151,10 +184,10 @@
 
         /* Carte moderne */
         .card {
-            background: #fff;
+            background: var(--surface);
             border-radius: 24px;
             padding: 12px 12px 18px;
-            box-shadow: 0 1px 2px rgba(16, 24, 64, .06), 0 10px 30px rgba(30, 94, 255, .10);
+            box-shadow: 0 1px 2px rgba(16, 24, 64, .06), 0 10px 30px var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -222,7 +255,7 @@
         .price strong { font-size: 24px; font-weight: 800; color: var(--text); }
         .price span {
             font-size: 11px; font-weight: 800; color: #0f9d75;
-            background: #e3f7f0; padding: 3px 7px; border-radius: 999px;
+            background: var(--green-soft); padding: 3px 7px; border-radius: 999px;
         }
 
         .pay-btn {
@@ -231,7 +264,7 @@
             border: none;
             border-radius: 999px;
             background: var(--yellow);
-            color: var(--text);
+            color: #1c2233;
             font-size: 16px;
             font-weight: 800;
             cursor: pointer;
@@ -274,7 +307,7 @@
         }
         .modal-bg.open { display: flex; }
         .modal {
-            background: #fff;
+            background: var(--surface);
             border-radius: 16px;
             padding: 28px;
             max-width: 380px;
@@ -303,7 +336,7 @@
             width: 44px; height: 44px;
             border-radius: 50%;
             border: 2px solid var(--blue);
-            background: #fff;
+            background: var(--surface);
             color: var(--blue);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
@@ -317,14 +350,14 @@
             position: absolute; top: -4px; right: -4px;
             min-width: 18px; height: 18px; padding: 0 4px;
             border-radius: 9px;
-            background: var(--yellow); color: var(--text);
+            background: var(--yellow); color: #1c2233;
             font-size: 11px; font-weight: 800;
             display: flex; align-items: center; justify-content: center;
         }
         .dropdown {
             position: absolute; top: 54px; right: 0;
             width: min(300px, calc(100vw - 32px));
-            background: #fff;
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 14px;
             box-shadow: 0 12px 28px rgba(30, 94, 255, .15);
@@ -350,7 +383,7 @@
             border-radius: 10px;
             font-size: 15px;
             color: var(--text);
-            background: #fff;
+            background: var(--surface);
         }
         .form input:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
         .form .error { color: #d12c2c; font-size: 13px; min-height: 16px; }
@@ -359,7 +392,7 @@
             border: none;
             border-radius: 10px;
             background: var(--yellow);
-            color: var(--text);
+            color: #1c2233;
             font-size: 16px;
             font-weight: 800;
             cursor: pointer;
@@ -378,10 +411,10 @@
         .pay-modal h3 { text-align: center; }
         .order-sum {
             display: flex; justify-content: space-between; align-items: center; gap: 10px;
-            background: #f4f7ff; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+            background: var(--soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
             font-size: 14px;
         }
-        .order-sum strong { font-size: 18px; color: var(--text); font-variant-numeric: tabular-nums; }
+        .order-sum strong { white-space: nowrap; font-size: 18px; color: var(--text); font-variant-numeric: tabular-nums; }
         .step-label { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
         .network-btn {
             width: 100%;
@@ -389,12 +422,12 @@
             padding: 12px 14px;
             border: 2px solid var(--border);
             border-radius: 14px;
-            background: #fff;
+            background: var(--surface);
             cursor: pointer;
             text-align: left;
             transition: border-color .2s ease, background .2s ease;
         }
-        .network-btn:hover, .network-btn.selected { border-color: #eb0029; background: #fff5f6; }
+        .network-btn:hover, .network-btn.selected { border-color: #eb0029; background: var(--red-soft); }
         .network-btn .n-title { font-weight: 800; font-size: 15px; color: var(--text); }
         .network-btn .n-sub { font-size: 12px; color: var(--muted); }
         .network-btn .n-check { margin-left: auto; color: #eb0029; font-weight: 800; }
@@ -403,14 +436,14 @@
         .qr-box {
             align-self: center;
             position: relative;
-            padding: 10px; border-radius: 16px; background: #fff;
-            box-shadow: 0 0 0 1px var(--border), 0 8px 20px rgba(30, 94, 255, .08);
+            padding: 10px; border-radius: 16px; background: #ffffff;
+            box-shadow: 0 0 0 1px var(--border), 0 8px 20px var(--shadow);
         }
         .qr-box img { display: block; width: 190px; max-width: 100%; height: auto; border-radius: 8px; }
         .net-pill {
             display: inline-flex; align-items: center; gap: 6px;
             font-size: 12px; font-weight: 800; color: #eb0029;
-            background: #fff0f2; padding: 4px 10px 4px 4px; border-radius: 999px;
+            background: var(--red-soft); padding: 4px 10px 4px 4px; border-radius: 999px;
         }
         .net-pill svg { width: 20px; height: 20px; }
         .addr {
@@ -420,7 +453,7 @@
             flex: 1; min-width: 0;
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-size: 13px; line-height: 1.4;
-            background: #f4f7ff; border-radius: 10px; padding: 10px 12px;
+            background: var(--soft); border-radius: 10px; padding: 10px 12px;
             word-break: break-all; user-select: all;
         }
         .copy-btn {
@@ -430,28 +463,28 @@
         .warn { font-size: 12px; color: var(--muted); line-height: 1.5; }
         .upload {
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-            border: 2px dashed #c9d4f2; border-radius: 14px; padding: 16px;
+            border: 2px dashed var(--dash); border-radius: 14px; padding: 16px;
             cursor: pointer; text-align: center; font-size: 14px; color: var(--muted);
             transition: border-color .2s ease, background .2s ease;
         }
-        .upload:hover { border-color: var(--blue); background: #f7f9ff; }
+        .upload:hover { border-color: var(--blue); background: var(--soft); }
         .upload strong { color: var(--blue); }
         .upload input { display: none; }
         .upload img { max-width: 100%; max-height: 160px; border-radius: 10px; }
         .paid-btn {
             width: 100%;
             padding: 14px; border: none; border-radius: 999px;
-            background: var(--yellow); color: var(--text);
+            background: var(--yellow); color: #1c2233;
             font-size: 16px; font-weight: 800; cursor: pointer;
         }
-        .paid-btn:disabled { background: #eef0f5; color: #a3aabb; cursor: not-allowed; }
+        .paid-btn:disabled { background: var(--track); color: #a3aabb; cursor: not-allowed; }
 
         /* Vérification (37 s) */
         .verify { text-align: center; }
         .ring { width: 150px; height: 150px; margin: 10px auto 14px; position: relative; }
         .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .ring circle { fill: none; stroke-width: 10; }
-        .ring .track { stroke: #eef2fd; }
+        .ring .track { stroke: var(--track); }
         .ring .bar { stroke: var(--blue); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
         .ring .count {
             position: absolute; inset: 0;
@@ -463,15 +496,15 @@
             display: inline-block; padding: 6px 12px; border-radius: 999px;
             font-size: 13px; font-weight: 800;
         }
-        .status-pending { background: #fff6d6; color: #8a6a00; }
-        .status-confirmed { background: #e3f7f0; color: #0f7a5c; }
+        .status-pending { background: var(--yellow-soft); color: var(--yellow-ink); }
+        .status-confirmed { background: var(--green-soft); color: var(--green-ink); }
 
         /* Mes commandes (dans le profil) */
         .modal.profile { max-width: 460px; text-align: left; }
         .modal.profile h3 { text-align: center; }
         .profile-head {
             display: flex; align-items: center; gap: 14px;
-            background: #f4f7ff; border-radius: 16px; padding: 14px;
+            background: var(--soft); border-radius: 16px; padding: 14px;
         }
         .avatar {
             width: 52px; height: 52px; border-radius: 50%; flex: none;
@@ -490,8 +523,8 @@
         .order-list { display: flex; flex-direction: column; gap: 14px; }
         .order-card {
             border: 1px solid var(--border); border-radius: 18px;
-            padding: 14px; background: #fff;
-            box-shadow: 0 6px 18px rgba(30, 94, 255, .06);
+            padding: 14px; background: var(--surface);
+            box-shadow: 0 6px 18px var(--shadow);
         }
         .order-top { display: flex; align-items: center; gap: 12px; }
         .order-top img { width: 46px; height: 46px; object-fit: cover; border-radius: 12px; flex: none; }
@@ -505,7 +538,7 @@
         .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; text-align: center; }
         .step::before {
             content: ""; position: absolute; top: 17px; right: 50%; width: 100%; height: 4px;
-            background: #e6e9f0; z-index: 0;
+            background: var(--track); z-index: 0;
         }
         .step:first-child::before { display: none; }
         .step.done::before, .step.active::before { background: #19b37d; }
@@ -514,16 +547,16 @@
             width: 36px; height: 36px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: 800; font-size: 15px;
-            background: #eef0f5; color: #a3aabb;
+            background: var(--track); color: #a3aabb;
             position: relative; z-index: 1;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 1px #e6e9f0;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0 0 1px var(--border);
         }
         .step.done .dot { background: #19b37d; color: #fff; box-shadow: 0 0 0 1px #19b37d; }
-        .step.active .dot { background: var(--yellow); color: var(--text); box-shadow: 0 0 0 1px var(--yellow); animation: pulse 1.6s ease infinite; }
+        .step.active .dot { background: var(--yellow); color: #1c2233; box-shadow: 0 0 0 1px var(--yellow); animation: pulse 1.6s ease infinite; }
         .step-name { font-size: 12px; font-weight: 700; color: #a3aabb; line-height: 1.3; max-width: 11ch; }
-        .step.done .step-name { color: #0f7a5c; }
-        .step.active .step-name { color: #8a6a00; }
+        .step.done .step-name { color: var(--green-ink); }
+        .step.active .step-name { color: var(--yellow-ink); }
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 1px var(--yellow), 0 0 0 0 rgba(255, 196, 0, .45); }
             50% { box-shadow: 0 0 0 1px var(--yellow), 0 0 0 8px rgba(255, 196, 0, 0); }
@@ -532,11 +565,11 @@
         .check-btn {
             margin-top: 10px; width: 100%;
             padding: 10px; border-radius: 12px;
-            border: 1px solid var(--border); background: #f7f9ff;
+            border: 1px solid var(--border); background: var(--soft);
             color: var(--blue); font-weight: 700; cursor: pointer;
         }
-        .check-btn:hover { background: #eef3ff; }
-        .no-orders { font-size: 14px; color: var(--muted); text-align: center; padding: 16px; background: #f7f9ff; border-radius: 14px; }
+        .check-btn:hover { background: var(--track); }
+        .no-orders { font-size: 14px; color: var(--muted); text-align: center; padding: 16px; background: var(--soft); border-radius: 14px; }
         .profile-actions { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 18px; }
 
         /* Support */
@@ -567,7 +600,7 @@
             z-index: 60;
             width: min(370px, calc(100vw - 32px));
             height: min(520px, calc(100svh - 120px));
-            background: #fff;
+            background: var(--surface);
             border-radius: 22px;
             box-shadow: 0 24px 60px rgba(16, 24, 64, .25);
             display: flex; flex-direction: column;
@@ -583,7 +616,7 @@
         }
         .chat-avatar {
             width: 40px; height: 40px; border-radius: 50%; flex: none;
-            background: var(--yellow); color: var(--text);
+            background: var(--yellow); color: #1c2233;
             display: flex; align-items: center; justify-content: center;
             font-weight: 800; font-size: 14px;
         }
@@ -599,7 +632,7 @@
             flex: 1; overflow-y: auto;
             padding: 16px;
             display: flex; flex-direction: column; gap: 10px;
-            background: #f6f8fd;
+            background: var(--soft);
         }
         .msg {
             max-width: 82%;
@@ -609,7 +642,7 @@
             white-space: pre-wrap; word-wrap: break-word;
             animation: chatIn .2s ease;
         }
-        .msg.bot { align-self: flex-start; background: #fff; color: var(--text); border-bottom-left-radius: 6px; box-shadow: 0 1px 3px rgba(16,24,64,.08); }
+        .msg.bot { align-self: flex-start; background: var(--surface); color: var(--text); border-bottom-left-radius: 6px; box-shadow: 0 1px 3px rgba(16,24,64,.08); }
         .msg.me { align-self: flex-end; background: var(--blue); color: #fff; border-bottom-right-radius: 6px; }
         .typing { display: inline-flex; gap: 4px; align-items: center; }
         .typing i { width: 7px; height: 7px; border-radius: 50%; background: #a3aabb; animation: blink 1.2s infinite; }
@@ -620,7 +653,7 @@
             display: flex; flex-direction: column; gap: 8px;
             min-width: 210px;
         }
-        .scan-bar { height: 6px; border-radius: 3px; background: #eef2fd; overflow: hidden; position: relative; }
+        .scan-bar { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; position: relative; }
         .scan-bar::after {
             content: ""; position: absolute; inset: 0; width: 40%;
             background: linear-gradient(90deg, var(--blue), var(--yellow));
@@ -631,18 +664,18 @@
         .scan small { color: var(--muted); font-size: 12px; }
         .chat-form {
             display: flex; gap: 8px; padding: 12px;
-            border-top: 1px solid var(--border); background: #fff;
+            border-top: 1px solid var(--border); background: var(--surface);
         }
         .chat-form textarea {
             flex: 1; resize: none;
             border: 1px solid var(--border); border-radius: 14px;
             padding: 10px 12px; font: inherit; font-size: 14px;
-            max-height: 90px; color: var(--text); background: #fff;
+            max-height: 90px; color: var(--text); background: var(--surface);
         }
         .chat-form textarea:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
         .chat-send {
             width: 44px; border: none; border-radius: 14px;
-            background: var(--yellow); color: var(--text);
+            background: var(--yellow); color: #1c2233;
             cursor: pointer; flex: none;
             display: flex; align-items: center; justify-content: center;
         }
@@ -661,12 +694,39 @@
             .logo { font-size: 24px; }
             main { padding: 40px 16px; }
         }
-    </style>
+    
+        /* Bouton thème */
+        .theme-btn svg { transition: transform .5s ease; }
+        .theme-btn:hover svg { transform: rotate(25deg); }
+        .theme-btn .sun { display: none; }
+        html.dark .theme-btn .sun { display: block; }
+        html.dark .theme-btn .moon { display: none; }
+        html.dark .hero {
+            background:
+                radial-gradient(circle at 15% 20%, rgba(77, 125, 255, .22) 0, rgba(77, 125, 255, 0) 45%),
+                radial-gradient(circle at 85% 75%, rgba(255, 196, 0, .14) 0, rgba(255, 196, 0, 0) 45%),
+                var(--bg);
+        }
+        html.dark .card { box-shadow: 0 0 0 1px var(--border), 0 14px 36px rgba(0, 0, 0, .45); }
+        html.dark .visual { box-shadow: 0 10px 30px rgba(30, 94, 255, .25); }
+        html.dark .visual.tt { box-shadow: 0 10px 30px rgba(254, 44, 85, .15); }
+        html.dark .modal-bg { background: rgba(2, 4, 12, .7); }
+        html.dark .icon-btn.logged { color: #fff; }
+        html.dark .chat { box-shadow: 0 0 0 1px var(--border), 0 24px 60px rgba(0, 0, 0, .6); }
+        html.dark .msg.bot { box-shadow: 0 0 0 1px var(--border); }
+</style>
 </head>
 <body>
+    <script>
+        try { if (localStorage.getItem('dh_theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+    </script>
     <header>
         <a class="logo" href="#"><span class="doctor">Doctor</span> <span class="house">Script</span></a>
         <div class="actions">
+            <button class="icon-btn theme-btn" id="themeBtn" type="button" aria-label="Changer le thème">
+                <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+                <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            </button>
             <button class="icon-btn" id="notifBtn" aria-label="Notifications">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
                 <span class="badge" id="notifBadge" hidden>0</span>
@@ -1338,6 +1398,12 @@
                 e.preventDefault();
                 document.getElementById('chatForm').requestSubmit();
             }
+        });
+
+        // Mode sombre / clair
+        document.getElementById('themeBtn').addEventListener('click', () => {
+            const dark = document.documentElement.classList.toggle('dark');
+            try { localStorage.setItem('dh_theme', dark ? 'dark' : 'light'); } catch (e) {}
         });
     </script>
 </body>
