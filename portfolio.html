@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dark Solana — متتبع المحفظة</title>
+<style>
+  :root {
+    --bg: #07080d;
+    --card: #14151c;
+    --card-2: #1b1c25;
+    --line: rgba(255,255,255,0.07);
+    --text: #f2f3f7;
+    --muted: #8b8fa3;
+    --accent: #9d7bff;
+    --accent-2: #5ee6c3;
+    --up: #34d399;
+    --down: #f04444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 120px; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: conic-gradient(from 200deg, var(--accent), var(--accent-2), var(--accent));
+    display: grid; place-items: center; font-weight: 800; color: #0b0b12;
+  }
+  .brand b { font-size: 17px; }
+  .brand small { display: block; color: var(--muted); font-size: 12px; }
+  .refresh {
+    background: var(--card); border: 1px solid var(--line); color: var(--text);
+    border-radius: 999px; padding: 9px 14px; font-size: 13px; cursor: pointer;
+  }
+
+  .label { color: var(--muted); font-size: 15px; font-weight: 600; }
+  .total { font-size: 54px; font-weight: 800; letter-spacing: -1.5px; margin: 6px 0 8px; direction: ltr; text-align: right; }
+  .change { display: flex; gap: 10px; align-items: center; justify-content: flex-end; direction: ltr; font-weight: 700; font-size: 17px; }
+  .pill { padding: 3px 8px; border-radius: 8px; color: #fff; font-size: 15px; }
+  .up { color: var(--up); } .down { color: var(--down); }
+  .pill.up { background: var(--up); color: #04150e; } .pill.down { background: var(--down); }
+  .updated { color: var(--muted); font-size: 12px; margin-top: 10px; }
+
+  h2 { font-size: 24px; margin: 34px 0 14px; }
+  .list { display: flex; flex-direction: column; gap: 12px; }
+  .asset {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 22px; padding: 16px; cursor: pointer; transition: background .15s;
+  }
+  .asset:hover { background: var(--card-2); }
+  .icon {
+    width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center; font-weight: 800; font-size: 15px; color: #fff;
+  }
+  .info { flex: 1; min-width: 0; }
+  .info b { display: block; font-size: 17px; }
+  .info span { color: var(--muted); font-size: 14px; direction: ltr; display: inline-block; }
+  .vals { text-align: left; direction: ltr; }
+  .vals b { display: block; font-size: 17px; }
+  .vals span { font-size: 14px; font-weight: 600; }
+
+  .empty { color: var(--muted); text-align: center; padding: 30px 0; }
+
+  .fab {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #0b0b12; border: none; border-radius: 999px;
+    padding: 15px 26px; font-size: 16px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(157,123,255,.35);
+  }
+
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
+  .sheet-bg.open { display: flex; }
+  .sheet {
+    width: 100%; max-width: 480px; background: var(--card); border-radius: 26px 26px 0 0;
+    padding: 22px 16px 30px; border-top: 1px solid var(--line);
+  }
+  .sheet h3 { font-size: 19px; margin-bottom: 16px; }
+  .sheet label { display: block; color: var(--muted); font-size: 13px; margin: 12px 0 6px; }
+  .sheet select, .sheet input {
+    width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px; font-size: 17px; outline: none;
+  }
+  .sheet input:focus, .sheet select:focus { border-color: var(--accent); }
+  .row { display: flex; gap: 10px; margin-top: 20px; }
+  .row button { flex: 1; border: none; border-radius: 14px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .save { background: var(--accent); color: #0b0b12; }
+  .del { background: rgba(240,68,68,.15); color: var(--down); }
+  .cancel { background: var(--card-2); color: var(--text); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">
+      <div class="logo">DS</div>
+      <div><b>Dark Solana</b><small>متتبع محفظة شخصي</small></div>
+    </div>
+    <button class="refresh" id="refresh">↻ تحديث الأسعار</button>
+  </div>
+
+  <div class="label">القيمة الإجمالية لممتلكاتك</div>
+  <div class="total" id="total">$0.00</div>
+  <div class="change" id="change"></div>
+  <div class="updated" id="updated">جارٍ جلب الأسعار…</div>
+
+  <h2>الرموز</h2>
+  <div class="list" id="list"></div>
+</div>
+
+<button class="fab" id="add">+ إضافة رمز</button>
+
+<div class="sheet-bg" id="sheetBg">
+  <div class="sheet">
+    <h3 id="sheetTitle">إضافة رمز</h3>
+    <label for="coin">العملة</label>
+    <select id="coin"></select>
+    <label for="amount">الكمية التي تملكها</label>
+    <input id="amount" type="number" inputmode="decimal" min="0" step="any" placeholder="0.00">
+    <div class="row">
+      <button class="save" id="save">حفظ</button>
+      <button class="del" id="del">حذف</button>
+      <button class="cancel" id="cancel">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const COINS = {
+    solana:   { name: 'Solana',   sym: 'SOL',  color: 'linear-gradient(135deg,#9945ff,#14f195)' },
+    ethereum: { name: 'Ethereum', sym: 'ETH',  color: '#627eea' },
+    bitcoin:  { name: 'Bitcoin',  sym: 'BTC',  color: '#f7931a' },
+    'usd-coin': { name: 'USDC',   sym: 'USDC', color: '#2775ca' },
+    tether:   { name: 'Tether',   sym: 'USDT', color: '#26a17b' },
+    binancecoin: { name: 'BNB',   sym: 'BNB',  color: '#f3ba2f' },
+  };
+  // Fallback prices used only if the live price API is unreachable.
+  const FALLBACK = {
+    solana: { usd: 150, usd_24h_change: 0 }, ethereum: { usd: 3000, usd_24h_change: 0 },
+    bitcoin: { usd: 60000, usd_24h_change: 0 }, 'usd-coin': { usd: 1, usd_24h_change: 0 },
+    tether: { usd: 1, usd_24h_change: 0 }, binancecoin: { usd: 550, usd_24h_change: 0 },
+  };
+  const KEY = 'ds-portfolio-holdings';
+
+  let holdings = load();
+  let prices = {};
+  let live = false;
+  let editing = null;
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+  }
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(holdings)); } catch {}
+  }
+
+  const usd = n => {
+    const abs = Math.abs(n);
+    if (abs > 0 && abs < 0.01) return (n < 0 ? '-' : '') + '<$0.01';
+    return (n < 0 ? '-$' : '$') + abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  const qty = n => n.toLocaleString('en-US', { maximumFractionDigits: 6 });
+
+  async function fetchPrices() {
+    document.getElementById('updated').textContent = 'جارٍ جلب الأسعار…';
+    try {
+      const ids = Object.keys(COINS).join(',');
+      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+      if (!res.ok) throw new Error(res.status);
+      prices = await res.json();
+      live = true;
+    } catch {
+      prices = FALLBACK;
+      live = false;
+    }
+    render();
+  }
+
+  function render() {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    let total = 0, prevTotal = 0;
+    const ids = Object.keys(holdings).filter(id => COINS[id]);
+
+    if (!ids.length) {
+      list.innerHTML = '<div class="empty">لا توجد رموز بعد — اضغط «إضافة رمز» لإدخال ما تملكه.</div>';
+    }
+
+    ids.forEach(id => {
+      const c = COINS[id], amt = holdings[id];
+      const p = prices[id] || FALLBACK[id];
+      const value = amt * p.usd;
+      const pct = p.usd_24h_change || 0;
+      const diff = value - value / (1 + pct / 100);
+      total += value; prevTotal += value - diff;
+
+      const el = document.createElement('div');
+      el.className = 'asset';
+      el.innerHTML = `
+        <div class="icon" style="background:${c.color}">${c.sym.slice(0, 3)}</div>
+        <div class="info"><b>${c.name}</b><span>${qty(amt)} ${c.sym}</span></div>
+        <div class="vals"><b>${usd(value)}</b><span class="${diff >= 0 ? 'up' : 'down'}">${diff >= 0 ? '+' : ''}${usd(diff)}</span></div>`;
+      el.onclick = () => openSheet(id);
+      list.appendChild(el);
+    });
+
+    const diff = total - prevTotal;
+    const pct = prevTotal ? (diff / prevTotal) * 100 : 0;
+    const cls = diff >= 0 ? 'up' : 'down';
+    document.getElementById('total').textContent = usd(total);
+    document.getElementById('change').innerHTML = total
+      ? `<span class="${cls}">${diff >= 0 ? '+' : ''}${usd(diff)}</span><span class="pill ${cls}">${diff >= 0 ? '+' : ''}${pct.toFixed(2)}%</span>`
+      : '';
+    document.getElementById('updated').textContent = live
+      ? 'الأسعار مباشرة من CoinGecko · ' + new Date().toLocaleTimeString('ar')
+      : 'تعذّر جلب الأسعار المباشرة — يتم عرض أسعار تقريبية';
+  }
+
+  const bg = document.getElementById('sheetBg');
+  const coinSel = document.getElementById('coin');
+  const amountIn = document.getElementById('amount');
+  coinSel.innerHTML = Object.entries(COINS).map(([id, c]) => `<option value="${id}">${c.name} (${c.sym})</option>`).join('');
+
+  function openSheet(id) {
+    editing = id || null;
+    document.getElementById('sheetTitle').textContent = id ? 'تعديل الكمية' : 'إضافة رمز';
+    document.getElementById('del').style.display = id ? '' : 'none';
+    coinSel.disabled = !!id;
+    coinSel.value = id || Object.keys(COINS).find(k => !(k in holdings)) || 'solana';
+    amountIn.value = id ? holdings[id] : '';
+    bg.classList.add('open');
+    setTimeout(() => amountIn.focus(), 50);
+  }
+  const close = () => bg.classList.remove('open');
+
+  document.getElementById('add').onclick = () => openSheet();
+  document.getElementById('cancel').onclick = close;
+  bg.onclick = e => { if (e.target === bg) close(); };
+  document.getElementById('save').onclick = () => {
+    const v = parseFloat(amountIn.value);
+    if (!(v >= 0)) { amountIn.focus(); return; }
+    holdings[editing || coinSel.value] = v;
+    persist(); close(); render();
+  };
+  document.getElementById('del').onclick = () => {
+    delete holdings[editing]; persist(); close(); render();
+  };
+  amountIn.onkeydown = e => { if (e.key === 'Enter') document.getElementById('save').click(); };
+  document.getElementById('refresh').onclick = fetchPrices;
+
+  fetchPrices();
+  setInterval(fetchPrices, 60000);
+</script>
+</body>
+</html>
