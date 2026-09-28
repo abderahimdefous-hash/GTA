@@ -522,6 +522,7 @@
                 <strong id="payAmount"></strong>
             </div>
 
+            <div id="payStep">
             <div class="step-label">Choisissez le réseau</div>
             <button class="network-btn" id="trc20Btn" type="button">
                 <svg class="trx-logo" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#eb0029"/><path d="M11 11.5l19.5 4.2-12 15.8z M13.6 13.9l5.4 5.6 7.9-3.3z M19.9 20.9l-1.1 7.2 7-9.3z" fill="#fff" fill-rule="evenodd"/></svg>
@@ -555,6 +556,16 @@
 
                 <button class="paid-btn" id="paidBtn" type="button" disabled>J'ai payé</button>
             </div>
+            </div>
+
+            <form class="form" id="emailStep" novalidate hidden>
+                <div class="step-label">Votre e-mail</div>
+                <p class="warn">Indiquez l'adresse e-mail à laquelle nous vous enverrons la confirmation de votre commande.</p>
+                <label>E-mail<input id="orderEmail" type="email" autocomplete="email" required></label>
+                <div class="error" id="emailError"></div>
+                <button class="paid-btn" type="submit">Confirmer la commande</button>
+                <button class="link-btn" id="emailBack" type="button">Retour</button>
+            </form>
             <div style="text-align:center"><button class="link-btn" id="closeModal" type="button">Annuler</button></div>
         </div>
     </div>
@@ -760,6 +771,9 @@
             document.getElementById('payAmount').textContent = c.price;
             document.getElementById('payAmount2').textContent = c.price;
             payDetails.hidden = true;
+            document.getElementById('payStep').hidden = false;
+            emailStep.hidden = true;
+            document.getElementById('emailError').textContent = '';
             trc20Btn.classList.remove('selected');
             document.getElementById('trc20Check').hidden = true;
             proofInput.value = '';
@@ -819,8 +833,30 @@
         document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
         modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 
+        // Étape e-mail avant la vérification
+        const emailStep = document.getElementById('emailStep');
+        const orderEmail = document.getElementById('orderEmail');
         paidBtn.addEventListener('click', () => {
+            document.getElementById('payStep').hidden = true;
+            emailStep.hidden = false;
+            if (!orderEmail.value && user) orderEmail.value = user.email;
+            orderEmail.focus();
+        });
+        orderEmail.addEventListener('input', () => document.getElementById('emailError').textContent = '');
+        document.getElementById('emailBack').addEventListener('click', () => {
+            emailStep.hidden = true;
+            document.getElementById('payStep').hidden = false;
+        });
+
+        emailStep.addEventListener('submit', e => {
+            e.preventDefault();
+            const email = orderEmail.value.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById('emailError').textContent = 'Veuillez saisir une adresse e-mail valide.';
+                return;
+            }
             const order = {
+                email,
                 id: 'DH' + Date.now().toString().slice(-6),
                 cardId: currentCard.id,
                 value: currentCard.value,
@@ -832,7 +868,7 @@
             };
             orders.unshift(order);
             if (!saveOrders(orders)) { order.proof = null; saveOrders(orders); }
-            addNotif(`Commande ${order.id} envoyée : ${order.value} (${order.price}).`);
+            addNotif(`Commande ${order.id} (${order.value} · ${order.price}) : paiement en attente de vérification. Confirmation envoyée à ${order.email} après validation.`);
             renderOrders();
             modal.classList.remove('open');
             openVerify(order);
