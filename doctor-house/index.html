@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor House</title>
+    <style>
+        :root {
+            --blue: #1e5eff;
+            --blue-dark: #1747c4;
+            --yellow: #ffc400;
+            --yellow-dark: #e6b000;
+            --text: #1c2233;
+            --muted: #6b7489;
+            --border: #e6e9f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: #ffffff;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* الشريط العلوي: اسم الموقع في الجانب */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            direction: ltr;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+        }
+        .logo .doctor { color: var(--blue); }
+        .logo .house { color: var(--yellow); }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 16px;
+            text-align: center;
+        }
+
+        /* زر المنتجات في الوسط */
+        .products-btn {
+            font-size: 22px;
+            font-weight: 700;
+            padding: 16px 48px;
+            border: 2px solid var(--blue);
+            background: #fff;
+            color: var(--blue);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        .products-btn:hover,
+        .products-btn.active {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        /* قسم بطاقات الدعوة */
+        .section {
+            display: none;
+            margin-top: 50px;
+            animation: fadeIn .3s ease;
+        }
+        .section.open { display: block; }
+
+        .section h2 {
+            font-size: 26px;
+            margin-bottom: 30px;
+            color: var(--text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 22px;
+        }
+
+        /* النافذة */
+        .window {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(30, 94, 255, .08);
+            display: flex;
+            flex-direction: column;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .window:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(30, 94, 255, .15);
+        }
+
+        .window-bar {
+            background: var(--blue);
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dots { display: flex; gap: 5px; direction: ltr; }
+        .dots span {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: rgba(255,255,255,.55);
+        }
+        .dots span:first-child { background: var(--yellow); }
+
+        .window-body {
+            padding: 26px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .label { color: var(--muted); font-size: 14px; }
+        .value {
+            direction: ltr;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--blue);
+        }
+        .price {
+            direction: ltr;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .pay-btn {
+            margin-top: auto;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            background: var(--yellow);
+            color: #1c2233;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background .2s ease;
+        }
+        .pay-btn:hover { background: var(--yellow-dark); }
+
+        /* نافذة الدفع */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 25, 40, .45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-bg.open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border-top: 6px solid var(--yellow);
+        }
+        .modal h3 { margin-bottom: 12px; color: var(--blue); }
+        .modal p { margin-bottom: 8px; }
+        .modal .close {
+            margin-top: 16px;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 10px;
+            background: var(--blue);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @media (max-width: 600px) {
+            header { padding: 16px; }
+            .logo { font-size: 24px; }
+            main { padding: 40px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="logo" href="#"><span class="doctor">Doctor</span> <span class="house">House</span></a>
+    </header>
+
+    <main>
+        <button class="products-btn" id="productsBtn">المنتجات</button>
+
+        <section class="section" id="invites">
+            <h2>بطاقات الدعوة</h2>
+            <div class="grid" id="grid"></div>
+        </section>
+    </main>
+
+    <div class="modal-bg" id="modal">
+        <div class="modal">
+            <h3>الدفع</h3>
+            <p id="modalCard"></p>
+            <p id="modalPrice"></p>
+            <button class="close" id="closeModal">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        const cards = [
+            { id: 1, value: '2500 EUR', price: '280 USDT' },
+            { id: 2, value: '1900 EUR', price: '180 USDT' },
+            { id: 3, value: '5500 EUR', price: '511 USDT' },
+            { id: 4, value: '1500 EUR', price: '90 USDT' },
+        ];
+
+        const grid = document.getElementById('grid');
+        grid.innerHTML = cards.map(c => `
+            <div class="window">
+                <div class="window-bar">
+                    <span>بطاقة دعوة ${c.id}</span>
+                    <div class="dots"><span></span><span></span><span></span></div>
+                </div>
+                <div class="window-body">
+                    <div class="label">قيمة البطاقة</div>
+                    <div class="value">${c.value}</div>
+                    <div class="label">السعر</div>
+                    <div class="price">${c.price}</div>
+                    <button class="pay-btn" data-id="${c.id}">ادفع الآن</button>
+                </div>
+            </div>
+        `).join('');
+
+        const btn = document.getElementById('productsBtn');
+        const section = document.getElementById('invites');
+        btn.addEventListener('click', () => {
+            section.classList.toggle('open');
+            btn.classList.toggle('active');
+        });
+
+        const modal = document.getElementById('modal');
+        grid.addEventListener('click', e => {
+            const pay = e.target.closest('.pay-btn');
+            if (!pay) return;
+            const c = cards.find(x => x.id == pay.dataset.id);
+            document.getElementById('modalCard').textContent = `بطاقة دعوة ${c.id} — ${c.value}`;
+            document.getElementById('modalPrice').textContent = `المبلغ: ${c.price}`;
+            modal.classList.add('open');
+        });
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    </script>
+</body>
+</html>
