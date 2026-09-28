@@ -321,6 +321,15 @@
         .head-text { text-align: left; }
         .head-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
         .head-sub strong { color: var(--text); }
+        .gta-badge {
+            display: inline-block;
+            padding: 0 10px;
+            border-radius: 8px;
+            background: #111;
+            color: #ffc400;
+            box-shadow: inset 0 0 0 2px #ffc400;
+            letter-spacing: 1px;
+        }
         .tt-badge {
             width: 44px; height: 44px; border-radius: 12px; background: #0b0b10;
             display: flex; align-items: center; justify-content: center; flex: none;
@@ -850,7 +859,7 @@
             <div class="section-head">
                 <div class="gift-badge" id="giftHeadLogo"></div>
                 <div class="head-text">
-                    <h2>Cartes cadeaux GTA</h2>
+                    <h2>Cartes cadeaux <span class="gta-badge">GTA</span></h2>
                     <p class="head-sub">Codes pour le serveur <strong>Bina</strong></p>
                 </div>
             </div>
