@@ -124,6 +124,36 @@
         }
         .hero-title .doctor { color: var(--blue); animation-delay: .6s; }
         .hero-title .house { color: var(--yellow); animation-delay: .95s; }
+
+        /* Titre 3D + neige jaune */
+        .snow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .hero > :not(.snow) { position: relative; z-index: 1; }
+        .hero > .scroll-hint { position: absolute; }
+        .title3d { perspective: 700px; animation: float3d 6s ease-in-out 1.6s infinite; }
+        .title3d .hero-title {
+            transform: rotateX(var(--trx, 16deg)) rotateY(var(--try, 0deg));
+            transform-style: preserve-3d;
+            transition: transform .5s cubic-bezier(.2, .8, .2, 1);
+        }
+        .hero-title .doctor {
+            text-shadow:
+                0 1px 0 #1a52e6, 0 2px 0 #1749cc, 0 3px 0 #1541b5, 0 4px 0 #13399f,
+                0 5px 0 #113189, 0 6px 0 #0f2a75, 0 7px 1px rgba(0, 0, 0, .25),
+                0 12px 24px rgba(16, 24, 64, .35);
+        }
+        .hero-title .house {
+            text-shadow:
+                0 1px 0 #f0b800, 0 2px 0 #e0aa00, 0 3px 0 #cf9c00, 0 4px 0 #bd8e00,
+                0 5px 0 #aa7f00, 0 6px 0 #967000, 0 7px 1px rgba(0, 0, 0, .25),
+                0 12px 24px rgba(120, 90, 0, .35);
+        }
+        html.dark .hero-title .doctor { text-shadow: 0 1px 0 #3a6af0, 0 2px 0 #3260dd, 0 3px 0 #2a55c8, 0 4px 0 #234bb3, 0 5px 0 #1c409d, 0 6px 0 #163688, 0 7px 1px rgba(0,0,0,.5), 0 12px 28px rgba(77, 125, 255, .45); }
+        html.dark .hero-title .house { text-shadow: 0 1px 0 #f0b800, 0 2px 0 #e0aa00, 0 3px 0 #cf9c00, 0 4px 0 #bd8e00, 0 5px 0 #aa7f00, 0 6px 0 #967000, 0 7px 1px rgba(0,0,0,.5), 0 12px 28px rgba(255, 196, 0, .35); }
+        @keyframes float3d { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @media (prefers-reduced-motion: reduce) {
+            .title3d { animation: none; }
+            .snow { display: none; }
+        }
         .hero-line {
             width: 0; height: 6px; border-radius: 3px;
             background: linear-gradient(90deg, var(--blue), var(--yellow));
@@ -834,8 +864,11 @@
     </header>
 
     <section class="hero">
+        <canvas class="snow" id="snow" aria-hidden="true"></canvas>
         <p class="hero-kicker">Bienvenue sur</p>
-        <h1 class="hero-title"><span class="doctor">Doctor</span> <span class="house">Script</span></h1>
+        <div class="title3d">
+            <h1 class="hero-title"><span class="doctor">Doctor</span> <span class="house">Script</span></h1>
+        </div>
         <div class="hero-line"></div>
         <p class="hero-sub">Vos cartes d'invitation, payables en crypto en quelques minutes.</p>
         <a class="scroll-hint" href="#invites"><span class="mouse"></span>Découvrir les produits</a>
@@ -1595,6 +1628,77 @@
                 v.addEventListener('animationend', () => v.classList.remove('spin'));
             });
         }
+
+        // Titre 3D qui suit le doigt / la souris
+        const heroEl = document.querySelector('.hero');
+        const heroTitle = document.querySelector('.title3d .hero-title');
+        heroEl.addEventListener('pointermove', e => {
+            const r = heroEl.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - .5;
+            const y = (e.clientY - r.top) / r.height - .5;
+            heroTitle.style.setProperty('--try', (x * 30).toFixed(1) + 'deg');
+            heroTitle.style.setProperty('--trx', (16 - y * 22).toFixed(1) + 'deg');
+        });
+        heroEl.addEventListener('pointerleave', () => {
+            heroTitle.style.setProperty('--try', '0deg');
+            heroTitle.style.setProperty('--trx', '16deg');
+        });
+
+        // Neige jaune en 3D (profondeur : taille, vitesse et flou)
+        (function snow() {
+            if (reduceMotion) return;
+            const cv = document.getElementById('snow');
+            const ctx = cv.getContext('2d');
+            let w, h, dpr, flakes = [];
+            function resize() {
+                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                w = heroEl.clientWidth; h = heroEl.clientHeight;
+                cv.width = w * dpr; cv.height = h * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const count = Math.round(Math.min(140, w * h / 6000));
+                flakes = Array.from({ length: count }, () => make(true));
+            }
+            function make(anywhere) {
+                const z = Math.random();              // 0 = loin, 1 = proche
+                return {
+                    x: Math.random() * w,
+                    y: anywhere ? Math.random() * h : -10,
+                    z,
+                    r: 1 + z * 4.5,
+                    vy: .3 + z * 1.6,
+                    sway: Math.random() * Math.PI * 2,
+                    swaySpeed: .005 + Math.random() * .015,
+                    alpha: .35 + z * .6,
+                };
+            }
+            let windX = 0;
+            heroEl.addEventListener('pointermove', e => {
+                const r = heroEl.getBoundingClientRect();
+                windX = ((e.clientX - r.left) / r.width - .5) * 1.2;
+            });
+            function frame() {
+                ctx.clearRect(0, 0, w, h);
+                for (const f of flakes) {
+                    f.sway += f.swaySpeed;
+                    f.y += f.vy;
+                    f.x += Math.sin(f.sway) * (.3 + f.z * .6) + windX * f.z;
+                    if (f.y > h + 10) Object.assign(f, make(false));
+                    if (f.x < -10) f.x = w + 10; else if (f.x > w + 10) f.x = -10;
+                    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 2);
+                    g.addColorStop(0, `rgba(255, 214, 51, ${f.alpha})`);
+                    g.addColorStop(.45, `rgba(255, 196, 0, ${f.alpha * .8})`);
+                    g.addColorStop(1, 'rgba(255, 196, 0, 0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.r * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                requestAnimationFrame(frame);
+            }
+            resize();
+            window.addEventListener('resize', resize);
+            frame();
+        })();
     </script>
 </body>
 </html>
