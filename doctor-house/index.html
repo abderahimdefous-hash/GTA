@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="fr" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,8 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { color-scheme: light; }
+
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
             background: #ffffff;
@@ -24,7 +26,7 @@
             min-height: 100vh;
         }
 
-        /* الشريط العلوي: اسم الموقع في الجانب */
+        /* Barre du haut : nom du site sur le côté */
         header {
             display: flex;
             align-items: center;
@@ -50,7 +52,7 @@
             text-align: center;
         }
 
-        /* زر المنتجات في الوسط */
+        /* Bouton Produits au centre */
         .products-btn {
             font-size: 22px;
             font-weight: 700;
@@ -68,7 +70,7 @@
             color: #fff;
         }
 
-        /* قسم بطاقات الدعوة */
+        /* Section cartes d'invitation */
         .section {
             display: none;
             margin-top: 50px;
@@ -88,7 +90,7 @@
             gap: 22px;
         }
 
-        /* النافذة */
+        /* Fenêtre */
         .window {
             border: 1px solid var(--border);
             border-radius: 16px;
@@ -156,7 +158,7 @@
         }
         .pay-btn:hover { background: var(--yellow-dark); }
 
-        /* نافذة الدفع */
+        /* Fenêtre de paiement */
         .modal-bg {
             position: fixed;
             inset: 0;
@@ -207,20 +209,20 @@
     </header>
 
     <main>
-        <button class="products-btn" id="productsBtn">المنتجات</button>
+        <button class="products-btn" id="productsBtn">Produits</button>
 
         <section class="section" id="invites">
-            <h2>بطاقات الدعوة</h2>
+            <h2>Cartes d'invitation</h2>
             <div class="grid" id="grid"></div>
         </section>
     </main>
 
     <div class="modal-bg" id="modal">
         <div class="modal">
-            <h3>الدفع</h3>
+            <h3>Paiement</h3>
             <p id="modalCard"></p>
             <p id="modalPrice"></p>
-            <button class="close" id="closeModal">إغلاق</button>
+            <button class="close" id="closeModal">Fermer</button>
         </div>
     </div>
 
@@ -236,15 +238,15 @@
         grid.innerHTML = cards.map(c => `
             <div class="window">
                 <div class="window-bar">
-                    <span>بطاقة دعوة ${c.id}</span>
+                    <span>Carte d'invitation ${c.id}</span>
                     <div class="dots"><span></span><span></span><span></span></div>
                 </div>
                 <div class="window-body">
-                    <div class="label">قيمة البطاقة</div>
+                    <div class="label">Valeur de la carte</div>
                     <div class="value">${c.value}</div>
-                    <div class="label">السعر</div>
+                    <div class="label">Prix</div>
                     <div class="price">${c.price}</div>
-                    <button class="pay-btn" data-id="${c.id}">ادفع الآن</button>
+                    <button class="pay-btn" data-id="${c.id}">Payer maintenant</button>
                 </div>
             </div>
         `).join('');
@@ -261,8 +263,8 @@
             const pay = e.target.closest('.pay-btn');
             if (!pay) return;
             const c = cards.find(x => x.id == pay.dataset.id);
-            document.getElementById('modalCard').textContent = `بطاقة دعوة ${c.id} — ${c.value}`;
-            document.getElementById('modalPrice').textContent = `المبلغ: ${c.price}`;
+            document.getElementById('modalCard').textContent = `Carte d'invitation ${c.id} — ${c.value}`;
+            document.getElementById('modalPrice').textContent = `Montant : ${c.price}`;
             modal.classList.add('open');
         });
         document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
