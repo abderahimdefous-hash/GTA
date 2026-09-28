@@ -87,77 +87,101 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 22px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
         }
 
-        /* Fenêtre */
-        .window {
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
+        /* Carte moderne */
+        .card {
             background: #fff;
-            box-shadow: 0 6px 20px rgba(30, 94, 255, .08);
+            border-radius: 24px;
+            padding: 12px 12px 18px;
+            box-shadow: 0 1px 2px rgba(16, 24, 64, .06), 0 10px 30px rgba(30, 94, 255, .10);
             display: flex;
             flex-direction: column;
-            transition: transform .2s ease, box-shadow .2s ease;
+            gap: 16px;
+            text-align: left;
+            transition: transform .25s ease, box-shadow .25s ease;
         }
-        .window:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(30, 94, 255, .15);
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 1px 2px rgba(16, 24, 64, .06), 0 20px 44px rgba(30, 94, 255, .20);
         }
 
-        .window-bar {
-            background: var(--blue);
+        .visual {
+            position: relative;
+            aspect-ratio: 1.586;
+            max-width: 100%;
+            border-radius: 18px;
+            padding: 18px;
+            overflow: hidden;
             color: #fff;
-            padding: 10px 14px;
-            font-weight: 700;
-            font-size: 15px;
+            background:
+                radial-gradient(circle at 110% -10%, rgba(255, 255, 255, .35) 0, rgba(255, 255, 255, 0) 45%),
+                radial-gradient(circle at -20% 120%, rgba(120, 170, 255, .6) 0, rgba(120, 170, 255, 0) 50%),
+                linear-gradient(135deg, #1e5eff 0%, #0f37b0 100%);
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: space-between;
         }
-        .dots { display: flex; gap: 5px; direction: ltr; }
-        .dots span {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: rgba(255,255,255,.55);
+        .visual::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.18) 50%, rgba(255,255,255,0) 60%);
+            transform: translateX(-100%);
+            transition: transform .8s ease;
+            pointer-events: none;
         }
-        .dots span:first-child { background: var(--yellow); }
+        .card:hover .visual::after { transform: translateX(100%); }
 
-        .window-body {
-            padding: 26px 18px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .visual-top { display: flex; justify-content: space-between; align-items: center; }
+        .brand { font-weight: 800; font-size: 14px; letter-spacing: .3px; }
+        .brand b { color: var(--yellow); font-weight: 800; }
+        .tag {
+            font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 5px 10px; border-radius: 999px;
+            background: rgba(255, 255, 255, .16);
+            border: 1px solid rgba(255, 255, 255, .28);
         }
-        .label { color: var(--muted); font-size: 14px; }
-        .value {
-            direction: ltr;
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--blue);
+        .chip {
+            width: 40px; height: 30px; border-radius: 7px;
+            background: linear-gradient(135deg, #ffe07a, #ffc400 55%, #d99e00);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
         }
-        .price {
-            direction: ltr;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
+        .visual-value { display: flex; align-items: baseline; gap: 6px; }
+        .visual-value strong { font-size: 34px; font-weight: 800; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+        .visual-value span { font-size: 15px; font-weight: 700; opacity: .85; }
+        .visual-foot { display: flex; justify-content: space-between; font-size: 12px; opacity: .85; letter-spacing: 1px; }
+
+        .card-info {
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            padding: 0 6px;
+        }
+        .card-info .label { color: var(--muted); font-size: 13px; }
+        .card-info .title { font-weight: 700; font-size: 15px; color: var(--text); }
+        .price { display: flex; align-items: baseline; gap: 5px; font-variant-numeric: tabular-nums; }
+        .price strong { font-size: 24px; font-weight: 800; color: var(--text); }
+        .price span {
+            font-size: 11px; font-weight: 800; color: #0f9d75;
+            background: #e3f7f0; padding: 3px 7px; border-radius: 999px;
         }
 
         .pay-btn {
-            margin-top: auto;
-            padding: 13px;
+            margin: 0 6px;
+            padding: 14px;
             border: none;
-            border-radius: 10px;
+            border-radius: 999px;
             background: var(--yellow);
-            color: #1c2233;
-            font-size: 17px;
+            color: var(--text);
+            font-size: 16px;
             font-weight: 800;
             cursor: pointer;
-            transition: background .2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background .2s ease, gap .2s ease;
         }
-        .pay-btn:hover { background: var(--yellow-dark); }
+        .pay-btn:hover { background: var(--yellow-dark); gap: 14px; }
+        .pay-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 
         /* Fenêtre de paiement */
         .modal-bg {
@@ -354,21 +378,30 @@
         ];
 
         const grid = document.getElementById('grid');
-        grid.innerHTML = cards.map(c => `
-            <div class="window">
-                <div class="window-bar">
-                    <span>Carte d'invitation ${c.id}</span>
-                    <div class="dots"><span></span><span></span><span></span></div>
+        grid.innerHTML = cards.map(c => {
+            const [amount, cur] = c.value.split(' ');
+            const [price, pcur] = c.price.split(' ');
+            return `
+            <article class="card">
+                <div class="visual">
+                    <div class="visual-top">
+                        <div class="brand">Doctor <b>House</b></div>
+                        <div class="tag">Invitation</div>
+                    </div>
+                    <div class="chip"></div>
+                    <div class="visual-value"><strong>${amount}</strong><span>${cur}</span></div>
+                    <div class="visual-foot"><span>CARTE N° 0${c.id}</span><span>VIP</span></div>
                 </div>
-                <div class="window-body">
-                    <div class="label">Valeur de la carte</div>
-                    <div class="value">${c.value}</div>
-                    <div class="label">Prix</div>
-                    <div class="price">${c.price}</div>
-                    <button class="pay-btn" data-id="${c.id}">Payer maintenant</button>
+                <div class="card-info">
+                    <div>
+                        <div class="label">Carte d'invitation ${c.id}</div>
+                        <div class="title">Valeur ${c.value}</div>
+                    </div>
+                    <div class="price"><strong>${price}</strong><span>${pcur}</span></div>
                 </div>
-            </div>
-        `).join('');
+                <button class="pay-btn" data-id="${c.id}">Payer maintenant <span aria-hidden="true">→</span></button>
+            </article>`;
+        }).join('');
 
         const btn = document.getElementById('productsBtn');
         const section = document.getElementById('invites');
