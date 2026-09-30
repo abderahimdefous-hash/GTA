@@ -65,6 +65,10 @@
         [hidden] { display: none !important; }
 
         html { color-scheme: light; scroll-behavior: smooth; }
+        /* Empêche la page de glisser sur les côtés (animations qui dépassent l'écran) */
+        html, body { overflow-x: hidden; }
+        @supports (overflow: clip) { html, body { overflow-x: clip; } }
+        main { overflow-x: clip; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
