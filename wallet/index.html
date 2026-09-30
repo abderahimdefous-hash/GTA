@@ -94,6 +94,84 @@ nav a.on{color:var(--text);font-weight:600}
 .sheet .ok{background:var(--acc)}.sheet .no{background:#f0f0f2}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(30,35,41,.92);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;z-index:60;pointer-events:none}
 .toast.show{opacity:1}
+
+/* shared top tabs */
+.ttabs{display:flex;align-items:center;gap:18px;padding:20px 16px 14px;font-size:20px;font-weight:600;color:#8b929c;background:#fff;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden}
+.ttabs .sc{display:flex;gap:18px;overflow-x:auto;flex:1;scrollbar-width:none}
+.ttabs .sc::-webkit-scrollbar{display:none}
+.ttabs span{cursor:pointer}.ttabs .on{color:var(--text)}
+.white{background:#fff;min-height:100%}
+/* markets */
+.msearch{display:flex;gap:12px;align-items:center;padding:14px 16px 0;background:#fff}
+.msearch .search{flex:1;margin:0;background:#f5f5f5}
+.mtabs{display:flex;gap:20px;padding:18px 16px 0;font-size:18px;color:#8b929c;border-bottom:1px solid var(--line);white-space:nowrap;overflow-x:auto;scrollbar-width:none;background:#fff}
+.mtabs span{padding-bottom:12px;position:relative;cursor:pointer}
+.mtabs .on{color:var(--text)}
+.mtabs .on:after{content:"";position:absolute;left:50%;bottom:0;width:18px;height:3px;background:var(--acc2);transform:translateX(-50%);border-radius:2px}
+.msub{display:flex;gap:20px;padding:16px;font-size:16px;color:#8b929c;align-items:center}
+.msub .on{color:var(--text)}.msub span{cursor:pointer}
+.mhead{display:grid;grid-template-columns:1fr auto 96px;gap:12px;padding:0 16px 8px;font-size:13px;color:#8b929c}
+.mhead div:nth-child(2){text-align:right}.mhead div:last-child{text-align:right}
+.mrow{display:grid;grid-template-columns:auto 1fr auto 96px;gap:12px;align-items:center;padding:12px 16px}
+.mrow .nm b{display:block;font-size:17px}.mrow .nm small{color:var(--muted);font-size:13px}
+.mrow .pr{text-align:right;font-variant-numeric:tabular-nums}.mrow .pr b{display:block;font-size:16px}.mrow .pr small{color:var(--muted);font-size:13px}
+.chip{border-radius:6px;padding:9px 0;text-align:center;color:#fff;font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+.chip.g{background:var(--green)}.chip.r{background:var(--red)}.chip.z{background:#848e9c}
+/* convert */
+.conv{padding:18px 16px}
+.inst{display:flex;justify-content:space-between;align-items:center;font-size:17px;margin-bottom:22px}
+.box{background:#fafafa;border-radius:18px;padding:18px 16px;position:relative}
+.box+.box{margin-top:8px}
+.box .t{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:15px}
+.box .t .av{color:var(--text);font-size:14px;border-bottom:1px dashed #b7bdc6;font-variant-numeric:tabular-nums}
+.box .m{display:flex;align-items:center;gap:12px;margin-top:18px}
+.box .m b{font-size:22px;flex:1;display:flex;align-items:center;gap:8px}
+.box input{width:55%;border:0;background:none;text-align:right;font-size:30px;font-weight:600;color:var(--text);outline:none;font-family:inherit}
+.box input::placeholder{color:#c4c8ce}
+.box .max{text-align:right;color:var(--acc2);font-size:15px;margin-top:10px;cursor:pointer}
+.swap{position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:#fff;border:0;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.rate{color:var(--muted);font-size:13px;margin-top:14px;text-align:center}
+.promo{margin:40px 0 12px;background:#fffaeb;border-radius:14px;padding:14px;display:flex;gap:10px;align-items:center;font-size:14px}
+.promo span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.big-btn{width:100%;height:52px;border:0;border-radius:12px;background:var(--acc);font-family:inherit;font-weight:600;font-size:17px;color:var(--text)}
+.big-btn:disabled{background:#fcf3d1;color:#c9bf9c}
+/* futures */
+.fut{padding:14px 16px 20px}
+.pair{display:flex;align-items:center;gap:8px}
+.pair b{font-size:24px}
+.tag{background:#f5f5f5;border-radius:4px;padding:2px 8px;font-size:13px}
+.pairsub{color:var(--muted);font-size:15px;margin-top:4px}
+.fgrid{display:grid;grid-template-columns:1fr 38%;gap:14px;margin-top:16px}
+.fgrid>div{min-width:0}
+.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pill{background:#f5f5f5;border:0;border-radius:6px;height:34px;font-family:inherit;font-size:15px;color:var(--text)}
+.field{background:#f5f5f5;border-radius:8px;height:40px;display:flex;align-items:center;padding:0 12px;margin-top:8px;font-size:16px;justify-content:space-between}
+.field input{border:0;background:none;outline:none;font-size:16px;width:60%;font-family:inherit}
+.slider{width:100%;margin:16px 0 6px;accent-color:#1e2329}
+.kv{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-top:6px}
+.kv b{color:var(--text);font-weight:400;font-variant-numeric:tabular-nums}
+.chk{display:flex;align-items:center;gap:8px;font-size:15px;margin-top:10px}
+.chk input{width:18px;height:18px;accent-color:#1e2329}
+.fbtn{width:100%;height:42px;border:0;border-radius:8px;color:#fff;font-family:inherit;font-weight:600;font-size:16px;margin-top:8px}
+.fbtn.b{background:var(--green)}.fbtn.s{background:var(--red)}
+.fund{text-align:right;font-size:12px;color:var(--muted)}.fund b{display:block;color:var(--text);font-size:13px;font-weight:400}
+.ob{font-size:13px;font-variant-numeric:tabular-nums;margin-top:8px}
+.ob .h{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:4px}
+.ob .l{display:flex;justify-content:space-between;position:relative;padding:3px 0}
+.ob .l i{position:absolute;right:0;top:0;bottom:0;z-index:0}
+.ob .l span{position:relative;z-index:1}
+.ob .ask span:first-child{color:var(--red)}.ob .ask i{background:rgba(246,70,93,.1)}
+.ob .bid span:first-child{color:var(--green)}.ob .bid i{background:rgba(46,189,133,.1)}
+.ob .mid{text-align:center;font-size:20px;font-weight:700;padding:6px 0 0}
+.ob .mark{text-align:center;color:var(--muted);font-size:12px;padding-bottom:6px}
+.ratio{display:flex;align-items:center;gap:4px;font-size:12px;margin-top:6px}
+.ratio i{height:4px;border-radius:2px}
+.disc{margin-top:16px;background:#f5f5f5;border-radius:12px;padding:12px;font-size:13px;color:var(--muted)}
+.ptabs{display:flex;gap:20px;margin-top:18px;border-bottom:1px solid var(--line);font-size:16px;color:#8b929c}
+.ptabs span{padding-bottom:10px}.ptabs .on{color:var(--text);border-bottom:3px solid var(--acc2)}
+.empty{text-align:center;color:var(--muted);padding:30px 0;font-size:14px}
+.posrow{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.posrow b{font-size:15px}
 </style>
 </head>
 <body>
@@ -166,16 +244,85 @@ nav a.on{color:var(--text);font-weight:600}
         <div class="tick"><b>USDT</b><small>TetherUS</small></div>
         <div class="amt editbal" data-bal-long></div>
       </div>
-      <div class="btns"><button>Earn</button><button>Trader</button></div>
+      <div id="extraAssets"></div>
+      <div class="btns"><button>Earn</button><button data-goto="trade">Trader</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARCHÉS -->
+<section class="screen" id="markets">
+  <div class="ptr"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#f0b90b" stroke-width="4" stroke-dasharray="70 30" stroke-linecap="round"/></svg></div>
+  <div class="content white">
+    <div class="msearch"><div class="search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="mq" placeholder="Rechercher des cryptos et des tendances" style="flex:1;border:0;background:none;outline:none;font-size:16px;font-family:inherit;min-width:0"></div><span style="font-size:22px;font-weight:700">•••</span></div>
+    <div class="mtabs" id="mtabs"><span class="on" data-t="fav">Favoris</span><span data-t="crypto">Crypto</span><span data-t="crypto">TradFi</span><span data-t="crypto">Alpha</span><span data-t="crypto">Prévision</span><span data-t="crypto">Square</span></div>
+    <div class="msub" id="msub"><span class="on" data-s="hold">Avoirs</span><span data-s="spot">Spot</span><svg style="margin-left:auto" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b929c" stroke-width="1.6"><path d="M4 20h16M6 16l10-10 3 3-10 10H6z"/></svg></div>
+    <div class="mhead"><div>Nom ⇅ / Vol. ⇅</div><div>Dernier prix ⇅</div><div>var % 24 h ⇅</div></div>
+    <div id="mlist"></div>
+  </div>
+</section>
+
+<!-- TRADER / CONVERTIR -->
+<section class="screen" id="trade">
+  <div class="content white">
+    <div class="ttabs"><div class="sc"><span class="on">Convertir</span><span>Spot</span><span>Actions</span><span>Prévision</span><span>P2P</span></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+    <div class="conv">
+      <div class="inst"><span>Instantané ▾</span><span class="demo">DÉMO</span></div>
+      <div class="box">
+        <div class="t"><span>De</span><span class="av" id="cAvail"></span></div>
+        <div class="m"><b id="cFrom"></b><input id="cIn" inputmode="decimal" placeholder="> 0,01"></div>
+        <div class="max" id="cMax">Max</div>
+        <button class="swap" id="cSwap" aria-label="Inverser"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4v16M4 16l4 4M16 20V4M20 8l-4-4"/></svg></button>
+      </div>
+      <div class="box">
+        <div class="t"><span>Vers</span><span class="av" id="cAvail2" style="border:0;color:var(--muted)"></span></div>
+        <div class="m"><b id="cTo"></b><input id="cOut" readonly placeholder="> 0,01"></div>
+      </div>
+      <div class="rate" id="cRate"></div>
+      <div class="promo">🎁<span>Automatisez vos transactions et partagez des récompenses</span>›</div>
+      <button class="big-btn" id="cGo" disabled>Aperçu de l’ordre</button>
+    </div>
+  </div>
+</section>
+
+<!-- FUTURES -->
+<section class="screen" id="futures">
+  <div class="content white">
+    <div class="ttabs"><div class="sc"><span class="on">USDⓈ-M</span><span>COIN-M</span><span>Options</span><span>Hausse/Baisse</span></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+    <div class="fut">
+      <div class="row"><div><div class="pair"><b>XAUUSDT</b><span class="tag">Perp</span>▾</div><div class="pairsub">Marché ouv. <span class="up" id="fChg">+1,11 %</span></div></div><span class="demo">DÉMO</span></div>
+      <div class="fgrid">
+        <div>
+          <div class="pills"><button class="pill" id="fMode">Croisée</button><button class="pill" id="fLev">2x</button><button class="pill">V</button></div>
+          <div class="field" style="height:44px">Market <span style="color:var(--muted)">ⓘ ▾</span></div>
+          <div class="field" style="height:52px"><input id="fAmt" inputmode="decimal" placeholder="Montant"><b>USDT ▾</b></div>
+          <input type="range" class="slider" id="fSl" min="0" max="100" step="25" value="0">
+          <div class="kv">Dispo <b id="fDispo"></b></div>
+          <label class="chk"><input type="checkbox">Tolérance de slippage</label>
+          <label class="chk"><input type="checkbox" id="fTp">TP/SL</label>
+          <label class="chk"><input type="checkbox">Reduce Only</label>
+          <div class="kv">Max <b data-fmax></b></div><div class="kv">Coût <b data-fcost></b></div>
+          <button class="fbtn b" data-side="long">Acheter/Long</button>
+          <div class="kv">Max <b data-fmax></b></div><div class="kv">Coût <b data-fcost></b></div>
+          <button class="fbtn s" data-side="short">Vendre/Short</button>
+        </div>
+        <div>
+          <div class="fund">Financement (4 h)/Décompte<b id="fFund">0,00000 % / 01:37:22</b></div>
+          <div class="ob" id="ob"></div>
+        </div>
+      </div>
+      <div class="disc">Les TradFi Perps ne sont pas associés, sponsorisés ou approuvés par l’émetteur de l’actif sous-jacent.</div>
+      <div class="ptabs"><span class="on" id="fPosT">Positions (0)</span><span>Ordres ouverts (0)</span><span>Bots</span></div>
+      <div id="fPos"><div class="empty">Aucune position</div></div>
     </div>
   </div>
 </section>
 
 <nav>
   <a href="#" data-go="home" class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l3 3-3 3-3-3zM6 9l3 3-3 3-3-3zM18 9l3 3-3 3-3-3zM12 15l3 3-3 3-3-3z"/></svg>Accueil</a>
-  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20h18M4 15l5-5 4 3 7-7M15 6h5v5"/></svg>Marchés</a>
-  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Trader</a>
-  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Futures</a>
+  <a href="#" data-go="markets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20h18M4 15l5-5 4 3 7-7M15 6h5v5"/></svg>Marchés</a>
+  <a href="#" data-go="trade"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Trader</a>
+  <a href="#" data-go="futures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Futures</a>
   <a href="#" data-go="assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M7 6V4h10v2"/><circle cx="16" cy="15" r="1.6" fill="currentColor"/></svg>Actifs</a>
 </nav>
 
@@ -185,6 +332,7 @@ nav a.on{color:var(--text);font-weight:600}
   <div class="hint">Mode démo — la valeur est stockée uniquement sur cet appareil.</div>
   <div class="r"><button class="no" id="cancel">Annuler</button><button class="ok" id="save">Enregistrer</button></div>
 </div></div>
+<div class="modal" id="cmodal"><div class="sheet"><h3></h3><p style="font-size:16px;margin-bottom:18px;font-variant-numeric:tabular-nums"></p><div class="r"><button class="no">Annuler</button><button class="ok">Confirmer</button></div></div></div>
 <div class="toast" id="toast"></div>
 </div>
 
@@ -210,9 +358,13 @@ function spark(seed, up) {
 }
 
 function render() {
-  document.querySelectorAll('[data-bal-short]').forEach(e => e.textContent = fr(balance, 2));
+  if (typeof renderMarkets === 'function') { renderMarkets(); renderConvert(); renderFutures(); }
+  const total = balance + (typeof usdc === 'number' ? usdc + futBal + positions.reduce((s, p) => s + p.size / p.lev, 0) : 0);
+  document.querySelectorAll('[data-bal-short]').forEach(e => e.textContent = fr(total, 2));
   document.querySelectorAll('[data-bal-long]').forEach(e => e.textContent = fr(balance, 8));
-  document.querySelectorAll('[data-eur]').forEach(e => e.textContent = '≈ €' + fr(balance * EUR_RATE, 2));
+  document.querySelectorAll('[data-eur]').forEach(e => e.textContent = '≈ €' + fr(total * EUR_RATE, 2));
+  const ex = document.getElementById('extraAssets');
+  if (ex && typeof usdc === 'number') ex.innerHTML = (usdc > 0 ? `<div class="asset">${tIcon('USDC', 40)}<div class="tick"><b>USDC</b><small>USD Coin</small></div><div class="amt">${fr(usdc, 8)}</div></div>` : '') + (futBal > 0 ? `<div class="asset">${tIcon('USDT', 40)}<div class="tick"><b>USDT</b><small>Compte Futures</small></div><div class="amt">${fr(futBal, 8)}</div></div>` : '');
   document.getElementById('coins').innerHTML = coins.map((k, i) => {
     const up = k.c >= 0;
     return `<div class="coin"><div class="n"><div class="cicon" style="background:${k.col}">${k.l}</div>${k.s}</div>
@@ -227,8 +379,133 @@ function refreshData() {
   render();
 }
 
+// ---------- extra state ----------
+let usdc = 0, futBal = 0, positions = [];
+try { usdc = +(localStorage.getItem('nova_usdc') || 0) || 0; futBal = +(localStorage.getItem('nova_fut') || 0) || 0; } catch (e) {}
+const persist = () => { try { localStorage.setItem('nova_balance', String(balance)); localStorage.setItem('nova_usdc', String(usdc)); localStorage.setItem('nova_fut', String(futBal)); } catch (e) {} };
+const tIcon = (s, sz = 40) => s === 'USDT'
+  ? `<span class="cicon" style="background:#26a17b;width:${sz}px;height:${sz}px;font-size:${sz*.45}px">₮</span>`
+  : `<span class="cicon" style="background:#2775ca;width:${sz}px;height:${sz}px;font-size:${sz*.45}px">$</span>`;
+
+// ---------- Marchés ----------
+let mTab = 'fav', mSub = 'hold';
+function renderMarkets() {
+  const q = (document.getElementById('mq').value || '').trim().toUpperCase();
+  let rows;
+  if (mTab === 'fav' && mSub === 'hold') {
+    rows = [{s:'USDT', n:'TetherUS', p:0.99934, c:-0.00, d:5, icon:tIcon('USDT', 40)}];
+    if (usdc > 0) rows.push({s:'USDC', n:'USD Coin', p:1.0001, c:0.01, d:4, icon:tIcon('USDC', 40)});
+  } else {
+    rows = coins.map(k => ({s:k.s, n:k.s + '/USDT', p:k.p, c:k.c, d:k.d, icon:`<span class="cicon" style="background:${k.col};width:40px;height:40px;font-size:17px">${k.l}</span>`}));
+    rows.push({s:'XAU', n:'XAUUSDT Perp', p:fPrice, c:1.11, d:2, icon:`<span class="cicon" style="background:#c9a227;width:40px;height:40px;font-size:13px">Au</span>`});
+  }
+  if (q) rows = rows.filter(r => r.s.includes(q) || r.n.toUpperCase().includes(q));
+  document.getElementById('mlist').innerHTML = rows.length ? rows.map(r => {
+    const cls = Math.abs(r.c) < 0.005 ? 'z' : r.c > 0 ? 'g' : 'r';
+    return `<div class="mrow">${r.icon}<div class="nm"><b>${r.s}</b><small>${r.n}</small></div><div class="pr"><b>${fr(r.p, r.d)}</b><small>€${fr(r.p * EUR_RATE, r.d > 2 ? 4 : 2)}</small></div><div class="chip ${cls}">${r.c > 0.004 ? '+' : r.c < -0.004 ? '-' : '-'}${fr(Math.abs(r.c), 2)} %</div></div>`;
+  }).join('') : '<div class="empty">Aucun résultat</div>';
+}
+document.getElementById('mq').addEventListener('input', renderMarkets);
+document.querySelectorAll('#mtabs span').forEach(s => s.onclick = () => { document.querySelectorAll('#mtabs span').forEach(x => x.classList.toggle('on', x === s)); mTab = s.dataset.t; renderMarkets(); });
+document.querySelectorAll('#msub span').forEach(s => s.onclick = () => { document.querySelectorAll('#msub span').forEach(x => x.classList.toggle('on', x === s)); mSub = s.dataset.s; renderMarkets(); });
+
+// ---------- Convertir ----------
+let cFrom = 'USDT', cTo = 'USDC';
+const RATE = {USDT_USDC: 0.99934, USDC_USDT: 1 / 0.99934};
+const held = s => s === 'USDT' ? balance : usdc;
+const parseNum = v => parseFloat(String(v).replace(/\s/g, '').replace(',', '.'));
+function renderConvert() {
+  document.getElementById('cFrom').innerHTML = tIcon(cFrom) + cFrom + ' ▾';
+  document.getElementById('cTo').innerHTML = tIcon(cTo) + cTo + ' ▾';
+  document.getElementById('cAvail').textContent = fr(held(cFrom), 8) + ' ' + cFrom;
+  document.getElementById('cAvail2').textContent = 'Solde : ' + fr(held(cTo), 2) + ' ' + cTo;
+  const r = RATE[cFrom + '_' + cTo];
+  document.getElementById('cRate').textContent = `1 ${cFrom} ≈ ${fr(r, 5)} ${cTo}`;
+  const v = parseNum(document.getElementById('cIn').value);
+  const ok = v >= 0.01 && v <= held(cFrom) + 1e-9;
+  document.getElementById('cOut').value = v > 0 ? fr(v * r, 6) : '';
+  const btn = document.getElementById('cGo');
+  btn.disabled = !ok;
+  btn.textContent = v > held(cFrom) ? 'Solde insuffisant' : 'Aperçu de l’ordre';
+}
+document.getElementById('cIn').addEventListener('input', renderConvert);
+document.getElementById('cMax').onclick = () => { document.getElementById('cIn').value = String(Math.floor(held(cFrom) * 1e8) / 1e8).replace('.', ','); renderConvert(); };
+document.getElementById('cSwap').onclick = () => { [cFrom, cTo] = [cTo, cFrom]; document.getElementById('cIn').value = ''; renderConvert(); };
+document.getElementById('cGo').onclick = () => {
+  const v = parseNum(document.getElementById('cIn').value), out = v * RATE[cFrom + '_' + cTo];
+  confirmSheet('Confirmer la conversion', `${fr(v, 8)} ${cFrom} → ${fr(out, 6)} ${cTo}`, () => {
+    if (cFrom === 'USDT') { balance -= v; usdc += out; } else { usdc -= v; balance += out; }
+    persist(); document.getElementById('cIn').value = ''; render(); toast('Conversion effectuée');
+  });
+};
+
+// ---------- Futures ----------
+let fPrice = 4182.55, fLev = 2, fCross = true;
+function renderFutures() {
+  document.getElementById('fDispo').textContent = fr(futBal, 2) + ' USDT';
+  const max = futBal * fLev;
+  const a = parseNum(document.getElementById('fAmt').value) || 0;
+  document.querySelectorAll('[data-fmax]').forEach(e => e.textContent = fr(max, 2) + ' USDT');
+  document.querySelectorAll('[data-fcost]').forEach(e => e.textContent = fr(a / fLev, 2) + ' USDT');
+  document.getElementById('fLev').textContent = fLev + 'x';
+  document.getElementById('fMode').textContent = fCross ? 'Croisée' : 'Isolée';
+  const pnlOf = p => (p.side === 'long' ? 1 : -1) * (fPrice - p.entry) / p.entry * p.size;
+  document.getElementById('fPosT').textContent = `Positions (${positions.length})`;
+  document.getElementById('fPos').innerHTML = positions.length ? positions.map((p, i) => {
+    const pnl = pnlOf(p);
+    return `<div class="posrow"><b class="${p.side === 'long' ? 'up' : 'dn'}">XAUUSDT ${p.side === 'long' ? 'Long' : 'Short'} ${p.lev}x</b><span style="text-align:right" class="${pnl >= 0 ? 'up' : 'dn'}">${pnl >= 0 ? '+' : ''}${fr(pnl, 2)} USDT</span><span style="color:var(--muted)">Taille ${fr(p.size, 2)} · Entrée ${fr(p.entry, 2)}</span><span style="text-align:right"><button class="pill" style="height:28px;padding:0 12px" data-close="${i}">Fermer</button></span></div>`;
+  }).join('') : '<div class="empty">Aucune position</div>';
+  document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => {
+    const p = positions[+b.dataset.close]; futBal += p.size / p.lev + pnlOf(p);
+    positions.splice(+b.dataset.close, 1); persist(); renderFutures(); toast('Position fermée');
+  });
+  // order book
+  let html = '<div class="h"><span>Prix<br>(USDT)</span><span style="text-align:right">Montant<br>(USDT)</span></div>';
+  const amt = () => { const v = Math.random() * 300; return v > 1 ? fr(v, 2) + 'K' : fr(v * 1000, 2); };
+  for (let i = 6; i >= 1; i--) html += `<div class="l ask"><i style="width:${Math.random() * 60 + 5}%"></i><span>${fr(fPrice + i * 0.01, 2)}</span><span>${amt()}</span></div>`;
+  html += `<div class="mid up">${fr(fPrice, 2)}</div><div class="mark">${fr(fPrice - 0.01, 2)}</div>`;
+  for (let i = 1; i <= 6; i++) html += `<div class="l bid"><i style="width:${Math.random() * 80 + 10}%"></i><span>${fr(fPrice - i * 0.01, 2)}</span><span>${amt()}</span></div>`;
+  const b = 50 + Math.random() * 20;
+  html += `<div class="ratio"><span class="up">${fr(b, 2)} %</span><i style="flex:${b};background:var(--green)"></i><i style="flex:${100 - b};background:var(--red)"></i><span class="dn">${fr(100 - b, 2)} %</span></div>`;
+  document.getElementById('ob').innerHTML = html;
+}
+document.getElementById('fAmt').addEventListener('input', renderFutures);
+document.getElementById('fSl').addEventListener('input', e => { const v = futBal * fLev * e.target.value / 100; document.getElementById('fAmt').value = v ? fr(v, 2).replace(/\s/g, '') : ''; renderFutures(); });
+document.getElementById('fLev').onclick = () => { const L = [1, 2, 5, 10, 20, 50, 100]; fLev = L[(L.indexOf(fLev) + 1) % L.length]; renderFutures(); };
+document.getElementById('fMode').onclick = () => { fCross = !fCross; renderFutures(); };
+document.querySelectorAll('[data-side]').forEach(b => b.onclick = () => {
+  const a = parseNum(document.getElementById('fAmt').value) || 0;
+  if (futBal <= 0) {
+    confirmSheet('Solde Futures vide', `Transférer ${fr(balance, 2)} USDT du Spot vers le compte Futures ?`, () => { futBal += balance; balance = 0; persist(); render(); toast('Transfert effectué'); });
+    return;
+  }
+  if (a <= 0) return toast('Saisissez un montant');
+  if (a / fLev > futBal + 1e-9) return toast('Marge insuffisante');
+  futBal -= a / fLev; positions.push({side: b.dataset.side, size: a, entry: fPrice, lev: fLev});
+  document.getElementById('fAmt').value = ''; document.getElementById('fSl').value = 0;
+  persist(); renderFutures(); toast(b.dataset.side === 'long' ? 'Ordre Long exécuté' : 'Ordre Short exécuté');
+});
+let fundSec = 1 * 3600 + 37 * 60 + 22;
+setInterval(() => {
+  fPrice = Math.max(1, fPrice + (Math.random() - .5) * 0.2);
+  fundSec = fundSec > 0 ? fundSec - 1 : 4 * 3600;
+  const hh = String(Math.floor(fundSec / 3600)).padStart(2, '0'), mm = String(Math.floor(fundSec % 3600 / 60)).padStart(2, '0'), ss = String(fundSec % 60).padStart(2, '0');
+  document.getElementById('fFund').textContent = `0,00000 % / ${hh}:${mm}:${ss}`;
+  if (document.getElementById('futures').classList.contains('active')) renderFutures();
+}, 1000);
+
+// ---------- confirmation sheet ----------
+function confirmSheet(title, text, onOk) {
+  const m = document.getElementById('cmodal');
+  m.querySelector('h3').textContent = title; m.querySelector('p').textContent = text;
+  m.classList.add('show');
+  m.querySelector('.ok').onclick = () => { m.classList.remove('show'); onOk(); };
+  m.querySelector('.no').onclick = () => m.classList.remove('show');
+}
+
 // Pull to refresh
 document.querySelectorAll('.screen').forEach(sc => {
+  if (!sc.querySelector('.ptr')) return;
   const content = sc.querySelector('.content'), ptr = sc.querySelector('.ptr'), icon = ptr.querySelector('svg');
   let startY = 0, dist = 0, pulling = false, busy = false;
   const MAX = 110, TRIGGER = 70;
@@ -275,7 +552,7 @@ function save() {
   const v = parseFloat(input.value.replace(/\s/g, '').replace(',', '.'));
   if (isNaN(v) || v < 0) { toast('Montant invalide'); return; }
   balance = v;
-  try { localStorage.setItem('nova_balance', String(v)); } catch (e) {}
+  persist();
   modal.classList.remove('show'); render(); toast('Solde mis à jour');
 }
 document.getElementById('save').onclick = save;
@@ -291,6 +568,7 @@ document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', e =>
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === go));
 }));
 
+document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => document.querySelector(`nav a[data-go=${b.dataset.goto}]`).click());
 render();
 </script>
 </body>
