@@ -439,6 +439,50 @@
         .carte .pay-btn:hover { background: linear-gradient(135deg, #ffe07a, #ffc400 55%, #e6a400); }
         @media (prefers-reduced-motion: reduce) { .card.carte { animation: none; } }
 
+        /* Section TikTok : design moderne */
+        .card.tiktok {
+            border: 2px solid transparent;
+            background:
+                linear-gradient(var(--surface), var(--surface)) padding-box,
+                conic-gradient(from var(--ang), rgba(37, 244, 238, .15), #25f4ee, #0b0b10, #fe2c55, rgba(254, 44, 85, .15), rgba(37, 244, 238, .15)) border-box;
+            animation: spinBorder 6s linear infinite;
+        }
+        .card.tiktok .visual.tt {
+            padding: 20px;
+            background:
+                radial-gradient(circle at 108% -8%, rgba(254, 44, 85, .6) 0, rgba(254, 44, 85, 0) 45%),
+                radial-gradient(circle at -8% 108%, rgba(37, 244, 238, .5) 0, rgba(37, 244, 238, 0) 48%),
+                linear-gradient(160deg, #15151c 0%, #050507 100%);
+        }
+        .tt-tier {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+            padding: 5px 11px; border-radius: 999px; color: #fff;
+            background: linear-gradient(#0b0b10, #0b0b10) padding-box, linear-gradient(90deg, #25f4ee, #fe2c55) border-box;
+            border: 1.5px solid transparent;
+        }
+        .tt-amount { display: flex; align-items: center; gap: 12px; }
+        .tt-coin { width: 44px; height: 44px; flex: none; filter: drop-shadow(0 4px 8px rgba(255, 196, 0, .35)); animation: coinSpin 4s ease-in-out infinite; }
+        @keyframes coinSpin { 0%, 70%, 100% { transform: rotateY(0); } 85% { transform: rotateY(180deg); } }
+        .card.tiktok .visual .tt-num {
+            font-size: 46px;
+            text-shadow: -2px -1px 0 rgba(37, 244, 238, .85), 2px 1px 0 rgba(254, 44, 85, .85);
+        }
+        .card.tiktok .visual-value span { color: #ffd54d; opacity: 1; }
+        .tt-meter { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+        .tt-meter i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #25f4ee, #fe2c55); }
+        .card.tiktok .pay-btn {
+            background: #0b0b10; color: #fff;
+            box-shadow: -3px -3px 0 #25f4ee, 3px 3px 0 #fe2c55;
+            transition: box-shadow .2s ease, transform .2s ease, gap .2s ease;
+        }
+        .card.tiktok .pay-btn:hover { background: #0b0b10; box-shadow: -4px -4px 0 #25f4ee, 4px 4px 0 #fe2c55; transform: translateY(-1px); }
+        html.dark .card.tiktok .pay-btn { background: #000; }
+        .card.tiktok .price strong {
+            background: linear-gradient(90deg, #0fb9b4, #fe2c55);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        @media (prefers-reduced-motion: reduce) { .card.tiktok, .tt-coin { animation: none; } }
+
         /* Comptes TikTok */
         .section + .section { margin-top: 70px; }
         .section-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; }
@@ -1154,6 +1198,8 @@
             label: `Compte TikTok ${t.followers}`,
             value: `${t.followers} Coins`,
             price: `${t.usd} USDT`,
+            tierName: ['Starter', 'Boost', 'Pro', 'Star', 'Legend'][i],
+            pct: Math.round(parseInt(t.followers, 10) / 80 * 100),
         }));
         // Cartes cadeaux GTA (montant en dollars du jeu, payé en USDT)
         const gifts = [
@@ -1211,20 +1257,30 @@
         const TT_PATH = 'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z';
         const ttLogo = `<svg class="tt-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="${TT_PATH}" fill="#25f4ee" transform="translate(-1.2 -1)"/><path d="${TT_PATH}" fill="#fe2c55" transform="translate(1.2 1)"/><path d="${TT_PATH}" fill="#fff"/></svg>`;
         document.getElementById('ttHeadLogo').innerHTML = ttLogo;
+        const coinSvg = `<svg class="tt-coin" viewBox="0 0 40 40" aria-hidden="true">
+            <defs><linearGradient id="coinG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset=".5" stop-color="#ffc400"/><stop offset="1" stop-color="#d48a00"/></linearGradient></defs>
+            <circle cx="20" cy="20" r="18" fill="url(#coinG)"/>
+            <circle cx="20" cy="20" r="13.5" fill="none" stroke="#b37400" stroke-width="1.6" opacity=".6"/>
+            <path d="M24.5 15.2a6.5 6.5 0 1 0 0 9.6" fill="none" stroke="#8a5a00" stroke-width="3" stroke-linecap="round"/>
+        </svg>`;
         document.getElementById('tiktokGrid').innerHTML = tiktok.map(t => `
-            <article class="card">
+            <article class="card tiktok">
                 <div class="visual tt">
+                    <span class="pattern" aria-hidden="true"></span>
                     <div class="visual-top">
                         <div class="brand">${ttLogo}TikTok</div>
-                        <div class="tag">Compte</div>
+                        <div class="tt-tier">${t.tierName}</div>
                     </div>
-                    <div></div>
-                    <div class="visual-value"><strong>${t.followers}</strong><span>Coins</span></div>
+                    <div class="tt-amount">
+                        ${coinSvg}
+                        <div class="visual-value"><strong class="tt-num">${t.followers}</strong><span>Coins</span></div>
+                    </div>
+                    <div class="tt-meter" aria-hidden="true"><i style="width:${t.pct}%"></i></div>
                     <div class="visual-foot"><span>COMPTE N° 0${t.n}</span><span>TIKTOK</span></div>
                 </div>
                 <div class="card-info">
                     <div>
-                        <div class="label">Compte TikTok</div>
+                        <div class="label">Compte TikTok · ${t.tierName}</div>
                         <div class="title">${t.followers} Coins</div>
                     </div>
                     <div>
