@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Nova Wallet (Démo)</title>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--text:#1e2329;--muted:#707a8a;--line:#eaecef;--acc:#fcd535;--acc2:#f0b90b;--green:#2ebd85;--red:#f6465d}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#fff;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;overscroll-behavior:none}
+body{display:flex;justify-content:center}
+#app{width:100%;max-width:480px;height:100%;position:relative;overflow:hidden;background:var(--bg)}
+.screen{position:absolute;inset:0 0 72px 0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:none}
+.screen.active{display:block}
+.content{transition:transform .25s ease;will-change:transform;min-height:100%}
+.ptr{position:absolute;left:0;right:0;top:0;height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none}
+.ptr svg{width:34px;height:34px;opacity:0;transition:opacity .15s}
+.ptr.spin svg{animation:spin 1s linear infinite;opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+.top{background:linear-gradient(180deg,#fff6c9 0%,#fffdf3 55%,var(--bg) 100%);padding:14px 16px 8px}
+.hdr{display:flex;align-items:center;gap:8px;height:48px}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#9aa4b1,#3b4452);flex:none}
+.ico{width:26px;height:26px;flex:none;color:var(--text)}
+.seg{flex:1;display:flex;background:#eeeef0;border-radius:12px;padding:4px;margin:0 2px}
+.seg button{flex:1;border:0;background:none;font-family:inherit;font-weight:600;font-size:15px;color:#8b929c;padding:7px 4px;border-radius:9px}
+.seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.demo{font-size:10px;font-weight:700;background:var(--text);color:var(--acc);padding:2px 6px;border-radius:4px;letter-spacing:.5px}
+.search{margin-top:14px;display:flex;align-items:center;gap:10px;background:#f0f0f2;border-radius:14px;height:48px;padding:0 14px;color:#8b929c;font-size:16px}
+.search span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bal{padding:22px 16px 6px}
+.lbl{font-size:16px;display:flex;align-items:center;gap:8px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.big{font-size:44px;font-weight:700;letter-spacing:-1px;margin:8px 0 4px;cursor:pointer;font-variant-numeric:tabular-nums}
+.big:active{opacity:.6}
+.addbtn{background:var(--acc);border:0;border-radius:8px;font-family:inherit;font-weight:600;font-size:16px;line-height:1.15;color:var(--text);padding:6px 18px;width:152px;min-height:40px}
+.sub{color:var(--muted);font-size:15px}
+.pnl{margin-top:8px;font-size:15px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.pnl u{text-decoration:none;border-bottom:1px dashed #b7bdc6}
+.coins{margin:16px;background:var(--card);border-radius:18px;padding:14px 14px 4px;display:grid;grid-template-columns:1fr 1fr;column-gap:18px}
+.coin{padding-bottom:14px}
+.coin .n{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:16px}
+.cicon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+.coin .p{display:flex;align-items:flex-end;justify-content:space-between;margin-top:10px}
+.coin .v{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.coin .c{font-size:13px;margin-top:6px}
+.up{color:var(--green)}.dn{color:var(--red)}
+.coin svg{width:64px;height:34px}
+.tabs{display:flex;align-items:center;gap:20px;padding:22px 16px 0;font-size:19px;color:#8b929c;white-space:nowrap;overflow:hidden}
+.tabs b{color:var(--text);position:relative;padding-bottom:12px}
+.tabs b:after{content:"";position:absolute;left:50%;bottom:0;width:20px;height:3px;background:var(--acc2);transform:translateX(-50%);border-radius:2px}
+.tabs span{padding-bottom:12px}
+.post{display:flex;gap:12px;padding:14px 12px 24px;background:#fff}
+.post .pa{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#444,#99a);flex:none}
+.post .nm{font-weight:600;font-size:16px}.post .nm small{color:var(--muted);font-weight:400}
+.post p{margin-top:6px;font-size:16px;line-height:1.5}
+.post .more{color:var(--acc2)}
+.postcard{margin-top:10px;background:#111;color:#fff;border-radius:14px;padding:16px;max-width:280px}
+.postcard .g{color:var(--green);font-size:26px;font-weight:700;margin-top:10px}
+/* assets */
+.atabs{display:flex;gap:20px;padding:22px 16px 14px;font-size:20px;font-weight:600;color:#8b929c;background:#fff;border-bottom:1px solid var(--line);white-space:nowrap;overflow-x:auto}
+.atabs b{color:var(--text)}
+.abal{padding:20px 16px 6px;background:linear-gradient(180deg,#fff,var(--bg))}
+.abal .big{font-size:42px;display:flex;align-items:baseline;gap:10px}
+.abal .big small{font-size:16px;font-weight:600;letter-spacing:0}
+.acts{display:flex;justify-content:space-around;padding:24px 8px 10px}
+.act{display:flex;flex-direction:column;align-items:center;gap:8px;width:80px;font-size:14px;text-align:center}
+.act i{width:56px;height:56px;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center}
+.act svg{width:24px;height:24px}
+.sold{margin:14px 16px;background:#fff;border-radius:18px;padding:18px 14px}
+.sold .h{display:flex;justify-content:space-between;color:var(--muted);font-size:16px}
+.asset{display:flex;align-items:center;gap:12px;margin-top:22px}
+.asset .tick{flex:1}.asset .tick b{display:block;font-size:16px}.asset .tick small{color:var(--muted);font-size:14px}
+.asset .amt{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer}
+.btns{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.btns button{border:0;background:#f5f5f5;border-radius:6px;padding:8px 22px;font-family:inherit;font-weight:500;font-size:14px;color:var(--text);width:80px}
+/* nav */
+nav{position:absolute;left:0;right:0;bottom:0;height:72px;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);text-decoration:none}
+nav a svg{width:26px;height:26px}
+nav a.on{color:var(--text);font-weight:600}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.show{display:flex}
+.sheet{width:100%;max-width:480px;background:#fff;border-radius:18px 18px 0 0;padding:20px 16px 28px;animation:up .22s ease}
+@keyframes up{from{transform:translateY(100%)}}
+.sheet h3{font-size:18px;margin-bottom:14px}
+.sheet input{width:100%;height:52px;border:1.5px solid var(--line);border-radius:10px;padding:0 14px;font-size:22px;font-weight:600;outline:none}
+.sheet input:focus{border-color:var(--acc2)}
+.sheet .hint{color:var(--muted);font-size:13px;margin:8px 0 16px}
+.sheet .r{display:flex;gap:10px}
+.sheet button{flex:1;height:48px;border:0;border-radius:10px;font-family:inherit;font-weight:600;font-size:16px}
+.sheet .ok{background:var(--acc)}.sheet .no{background:#f0f0f2}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(30,35,41,.92);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;z-index:60;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ACCUEIL -->
+<section class="screen active" id="home">
+  <div class="ptr"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#f0b90b" stroke-width="4" stroke-dasharray="70 30" stroke-linecap="round"/></svg></div>
+  <div class="content">
+    <div class="top">
+      <div class="hdr">
+        <div class="avatar"></div>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>
+        <div class="seg"><button class="on">Exchange</button><button>Portefeuille</button></div>
+        <span class="demo">DÉMO</span>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>
+      </div>
+      <div class="search">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <span id="hint">🔥 DOT Recherche populaire</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M4 12h16"/></svg>
+      </div>
+    </div>
+    <div class="bal">
+      <div class="lbl">Valeur totale est. (USDT) <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 15l7-7 7 7"/></svg></div>
+      <div class="row">
+        <div class="big editbal" data-bal-short></div>
+        <button class="addbtn">Ajouter des fonds</button>
+      </div>
+      <div class="sub" data-eur></div>
+      <div class="pnl"><u>G et P du jour</u> +0 USDT(+0,00 %) <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    </div>
+    <div class="coins" id="coins"></div>
+    <div class="tabs"><b>Découvrir</b><span>Suivis</span><span>Actions</span><span>Campagne</span></div>
+    <div class="post">
+      <div class="pa"></div>
+      <div>
+        <div class="nm">Inga Parquette NLM3 <small>· 17 h</small></div>
+        <p>Avec un petit capital, l'objectif n'est pas de devenir riche vite, mais de *ne pas cramer le compte* tout en apprenant à être régulier. Voici comment faire concrètement :<br>*1. Choisis le bon marché* <span class="more">Afficher plus</span></p>
+        <div class="postcard"><div>Trader conservateur</div><small style="color:#aaa">Les 7 derniers jours</small><div class="g">+3,19%</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIFS -->
+<section class="screen" id="assets">
+  <div class="ptr"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#f0b90b" stroke-width="4" stroke-dasharray="70 30" stroke-linecap="round"/></svg></div>
+  <div class="content">
+    <div class="atabs"><b>Aperçu</b><span>Spot</span><span>Financement</span><span>Earn</span><span>Futures</span></div>
+    <div class="abal">
+      <div class="lbl">Valeur totale estimée <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b929c" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg> <span class="demo" style="margin-left:auto">DÉMO</span></div>
+      <div class="big editbal"><span data-bal-short></span><small>USDT ▾</small></div>
+      <div class="sub" data-eur></div>
+      <div class="row">
+        <div class="pnl"><u>G et P du jour</u> <span class="up">+0 USDT (+0.00%)</span> ›</div>
+        <svg width="110" height="50" viewBox="0 0 110 50"><path d="M2 40c10 2 14 4 20-6s14-10 22-10 12-12 24-14 22-2 40-2" fill="none" stroke="#f0b90b" stroke-width="2.5"/></svg>
+      </div>
+    </div>
+    <div class="acts">
+      <div class="act"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v15M6 13l6 6 6-6"/></svg></i>Ajouter des fonds</div>
+      <div class="act"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V5M6 11l6-6 6 6"/></svg></i>Envoyer</div>
+      <div class="act"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 8H4l4-4M4 16h16l-4 4"/></svg></i>Transférer</div>
+      <div class="act"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6" r="3"/><path d="M6 21v-8l6-4 6 4v8z"/></svg></i>Earn</div>
+    </div>
+    <div class="sold">
+      <div class="h">Solde <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+      <div class="asset">
+        <div class="cicon" style="background:#26a17b;width:40px;height:40px;font-size:18px">₮</div>
+        <div class="tick"><b>USDT</b><small>TetherUS</small></div>
+        <div class="amt editbal" data-bal-long></div>
+      </div>
+      <div class="btns"><button>Earn</button><button>Trader</button></div>
+    </div>
+  </div>
+</section>
+
+<nav>
+  <a href="#" data-go="home" class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l3 3-3 3-3-3zM6 9l3 3-3 3-3-3zM18 9l3 3-3 3-3-3zM12 15l3 3-3 3-3-3z"/></svg>Accueil</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20h18M4 15l5-5 4 3 7-7M15 6h5v5"/></svg>Marchés</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 0114-5M20 12a8 8 0 01-14 5"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Trader</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Futures</a>
+  <a href="#" data-go="assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M7 6V4h10v2"/><circle cx="16" cy="15" r="1.6" fill="currentColor"/></svg>Actifs</a>
+</nav>
+
+<div class="modal" id="modal"><div class="sheet">
+  <h3>Modifier le solde (USDT)</h3>
+  <input id="balInput" type="text" inputmode="decimal" placeholder="0,00">
+  <div class="hint">Mode démo — la valeur est stockée uniquement sur cet appareil.</div>
+  <div class="r"><button class="no" id="cancel">Annuler</button><button class="ok" id="save">Enregistrer</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const EUR_RATE = 0.8825;
+let balance = 6786.05834441;
+try { const s = localStorage.getItem('nova_balance'); if (s !== null && !isNaN(+s)) balance = +s; } catch (e) {}
+
+const coins = [
+  {s:'BNB', p:761.29, c:0.57, col:'#f3ba2f', l:'B', d:2},
+  {s:'BTC', p:83594.01, c:0.65, col:'#f7931a', l:'₿', d:2},
+  {s:'ETH', p:2676.87, c:0.55, col:'#627eea', l:'Ξ', d:2},
+  {s:'XRP', p:1.5029, c:1.80, col:'#23292f', l:'✕', d:4},
+];
+const fr = (n, min, max) => n.toLocaleString('fr-FR', {minimumFractionDigits:min, maximumFractionDigits:max ?? min});
+
+function spark(seed, up) {
+  let pts = [], y = 20, r = seed;
+  for (let i = 0; i <= 16; i++) { r = (r * 9301 + 49297) % 233280; y = Math.max(4, Math.min(30, y + (r / 233280 - .5) * 14)); pts.push([i * 4, y]); }
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1].toFixed(1)).join('');
+  const c = up ? '#2ebd85' : '#f6465d', id = 'g' + seed;
+  return `<svg viewBox="0 0 64 34"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".25"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs><path d="${d}L64 34L0 34Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${c}" stroke-width="1.3"/></svg>`;
+}
+
+function render() {
+  document.querySelectorAll('[data-bal-short]').forEach(e => e.textContent = fr(balance, 2));
+  document.querySelectorAll('[data-bal-long]').forEach(e => e.textContent = fr(balance, 8));
+  document.querySelectorAll('[data-eur]').forEach(e => e.textContent = '≈ €' + fr(balance * EUR_RATE, 2));
+  document.getElementById('coins').innerHTML = coins.map((k, i) => {
+    const up = k.c >= 0;
+    return `<div class="coin"><div class="n"><div class="cicon" style="background:${k.col}">${k.l}</div>${k.s}</div>
+      <div class="p"><div><div class="v">${fr(k.p, k.d)}</div><div class="c ${up ? 'up' : 'dn'}">${up ? '▲' : '▼'} ${fr(Math.abs(k.c), 2)} %</div></div>${spark(k.seed ??= 17 + i * 131, up)}</div></div>`;
+  }).join('');
+}
+
+function refreshData() {
+  coins.forEach(k => { const m = (Math.random() - .45) * .002; k.p *= 1 + m; k.c = +(k.c + m * 100).toFixed(2); k.seed = Math.floor(Math.random() * 99999); });
+  const hints = ['🔥 DOT Recherche populaire', 'Résultats Conagra Brands approchent', '🔥 SOL Recherche populaire', 'Nouveautés du marché'];
+  document.getElementById('hint').textContent = hints[Math.floor(Math.random() * hints.length)];
+  render();
+}
+
+// Pull to refresh
+document.querySelectorAll('.screen').forEach(sc => {
+  const content = sc.querySelector('.content'), ptr = sc.querySelector('.ptr'), icon = ptr.querySelector('svg');
+  let startY = 0, dist = 0, pulling = false, busy = false;
+  const MAX = 110, TRIGGER = 70;
+  sc.addEventListener('touchstart', e => { if (sc.scrollTop <= 0 && !busy) { startY = e.touches[0].clientY; pulling = true; dist = 0; content.style.transition = 'none'; } }, {passive:true});
+  sc.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { dist = 0; content.style.transform = ''; ptr.style.height = '0'; return; }
+    e.preventDefault();
+    dist = Math.min(MAX, dy * 0.5);
+    content.style.transform = `translateY(${dist}px)`;
+    ptr.style.height = dist + 'px';
+    icon.style.opacity = Math.min(1, dist / TRIGGER);
+    icon.style.transform = `rotate(${dist * 4}deg)`;
+  }, {passive:false});
+  sc.addEventListener('touchend', () => {
+    if (!pulling) return;
+    pulling = false;
+    content.style.transition = '';
+    if (dist >= TRIGGER) {
+      busy = true;
+      content.style.transform = 'translateY(64px)'; ptr.style.height = '64px';
+      icon.style.transform = ''; ptr.classList.add('spin');
+      setTimeout(() => {
+        refreshData();
+        ptr.classList.remove('spin'); icon.style.opacity = 0;
+        content.style.transform = ''; ptr.style.height = '0';
+        busy = false;
+      }, 1100);
+    } else { content.style.transform = ''; ptr.style.height = '0'; icon.style.opacity = 0; }
+  });
+});
+
+// Edit balance
+const modal = document.getElementById('modal'), input = document.getElementById('balInput');
+document.querySelectorAll('.editbal').forEach(el => el.addEventListener('click', () => {
+  input.value = String(balance).replace('.', ',');
+  modal.classList.add('show');
+  setTimeout(() => { input.focus(); input.select(); }, 50);
+}));
+document.getElementById('cancel').onclick = () => modal.classList.remove('show');
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
+function save() {
+  const v = parseFloat(input.value.replace(/\s/g, '').replace(',', '.'));
+  if (isNaN(v) || v < 0) { toast('Montant invalide'); return; }
+  balance = v;
+  try { localStorage.setItem('nova_balance', String(v)); } catch (e) {}
+  modal.classList.remove('show'); render(); toast('Solde mis à jour');
+}
+document.getElementById('save').onclick = save;
+input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+
+function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 1500); }
+
+// Navigation
+document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();
+  const go = a.dataset.go; if (!go) return;
+  document.querySelectorAll('nav a').forEach(x => x.classList.toggle('on', x === a));
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === go));
+}));
+
+render();
+</script>
+</body>
+</html>
