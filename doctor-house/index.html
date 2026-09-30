@@ -483,6 +483,51 @@
         }
         @media (prefers-reduced-motion: reduce) { .card.tiktok, .tt-coin { animation: none; } }
 
+        /* Section Gift : design moderne */
+        .card.giftc {
+            border: 2px solid transparent;
+            background:
+                linear-gradient(var(--surface), var(--surface)) padding-box,
+                conic-gradient(from var(--ang), rgba(255, 196, 0, .15), #ffc400, #111, #ffe07a, #111, rgba(255, 196, 0, .15)) border-box;
+            animation: spinBorder 6s linear infinite;
+        }
+        .card.giftc .visual.gift { padding: 20px; }
+        .gift-bow {
+            position: absolute !important; z-index: 1 !important;
+            top: -6px; right: calc(12% - 25px);
+            width: 64px; height: 44px;
+            transform: none !important;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .45));
+        }
+        .card.giftc .visual-top { padding-right: 60px; }
+        .g-tier {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+            padding: 5px 11px; border-radius: 999px; color: #1c2233;
+        }
+        .g-bronze .g-tier { background: linear-gradient(135deg, #f3c6a0, #c07a43); }
+        .g-silver .g-tier { background: linear-gradient(135deg, #ffffff, #b9c2cf); }
+        .g-gold .g-tier { background: linear-gradient(135deg, #fff0a8, #ffc400); }
+        .g-diamond .g-tier { background: linear-gradient(135deg, #e8fbff, #8fdcff 50%, #ffd8f6); }
+        .card.giftc .visual-value strong { font-size: 40px; text-shadow: 0 2px 10px rgba(255, 196, 0, .25); }
+        .g-code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 13px; letter-spacing: 2px; color: rgba(255, 255, 255, .75);
+            align-self: flex-start;
+            padding: 6px 10px; border-radius: 8px;
+            background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .08) 0 6px, rgba(255, 255, 255, .03) 6px 12px);
+            border: 1px dashed rgba(255, 196, 0, .5);
+        }
+        .card.giftc .price strong { color: var(--text); }
+        .card.giftc .price span { background: #111; color: #ffc400; }
+        .card.giftc .pay-btn {
+            background: linear-gradient(135deg, #ffe07a, #ffc400 55%, #f0ae00);
+            color: #111;
+            box-shadow: 0 0 0 2px #111, 0 10px 22px rgba(255, 196, 0, .35);
+        }
+        .card.giftc .pay-btn:hover { background: linear-gradient(135deg, #fff0a8, #ffc400 55%, #e6a400); }
+        html.dark .card.giftc .pay-btn { box-shadow: 0 0 0 2px #ffc400, 0 10px 22px rgba(255, 196, 0, .25); }
+        @media (prefers-reduced-motion: reduce) { .card.giftc { animation: none; } }
+
         /* Comptes TikTok */
         .section + .section { margin-top: 70px; }
         .section-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; }
@@ -1216,6 +1261,8 @@
                 label: `Gift ${i + 1}`,
                 value: `${amount} $ Code`,
                 price: `${g.usdt} USDT`,
+                tier: ['bronze', 'silver', 'gold', 'diamond'][i],
+                tierName: ['Bronze', 'Silver', 'Gold', 'Diamond'][i],
             };
         });
         const giftLogo = `<svg class="gift-logo" viewBox="0 0 24 24" aria-hidden="true">
@@ -1232,21 +1279,29 @@
             <path d="M12 7c-1.2-2.8-3.9-4.3-5.4-3.1-1.3 1 -.4 3.1 2.1 3.1H12zM12 7c1.2-2.8 3.9-4.3 5.4-3.1 1.3 1 .4 3.1-2.1 3.1H12z" fill="#111"/>
         </svg>`;
         document.getElementById('giftHeadLogo').innerHTML = giftLogo;
+        const bowSvg = `<svg class="gift-bow" viewBox="0 0 64 44" aria-hidden="true">
+            <defs><linearGradient id="bowG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset=".5" stop-color="#ffc400"/><stop offset="1" stop-color="#c98f00"/></linearGradient></defs>
+            <path d="M32 22C24 6 6 2 4 12s14 12 28 10zM32 22C40 6 58 2 60 12s-14 12-28 10z" fill="url(#bowG)"/>
+            <path d="M32 22l-10 20M32 22l10 20" stroke="url(#bowG)" stroke-width="7" stroke-linecap="round"/>
+            <circle cx="32" cy="22" r="6" fill="#e6b000"/>
+        </svg>`;
         document.getElementById('giftGrid').innerHTML = gifts.map(g => `
-            <article class="card">
-                <div class="visual gift">
+            <article class="card giftc">
+                <div class="visual gift g-${g.tier}">
+                    <span class="pattern" aria-hidden="true"></span>
                     <span class="gift-ribbon" aria-hidden="true"></span>
+                    ${bowSvg}
                     <div class="visual-top">
                         <div class="brand"><span class="bina-logo">${binaLogo}</span>Bina</div>
-                        <div class="tag">Carte cadeau</div>
+                        <div class="g-tier">${g.tierName}</div>
                     </div>
-                    <div></div>
                     <div class="visual-value"><strong>${g.amount} $</strong><span>Code</span></div>
-                    <div class="visual-foot"><span>CADEAU N° 0${g.n}</span><span>DOCTOR SCRIPT</span></div>
+                    <div class="g-code" aria-hidden="true">●●●● – ●●●● – ●●●●</div>
+                    <div class="visual-foot"><span>GIFT N° 0${g.n}</span><span>DOCTOR SCRIPT</span></div>
                 </div>
                 <div class="card-info">
                     <div>
-                        <div class="label">Gift ${g.n}</div>
+                        <div class="label">Gift ${g.n} · ${g.tierName}</div>
                         <div class="title">${g.amount} $ Code</div>
                     </div>
                     <div class="price"><strong>${g.usdt}</strong><span>USDT</span></div>
