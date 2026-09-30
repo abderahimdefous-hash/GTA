@@ -222,6 +222,70 @@
             .scroll-hint .mouse::after { animation: none; }
         }
 
+        /* Glisser vers les produits */
+        .hero { touch-action: pan-y; }
+        .swipe-pill {
+            position: relative; display: flex; align-items: center;
+            width: 250px; height: 56px; padding: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .55);
+            border: 1px solid rgba(30, 94, 255, .25);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(30, 94, 255, .18);
+            overflow: hidden;
+            text-transform: none; letter-spacing: .2px;
+        }
+        html.dark .swipe-pill { background: rgba(17, 24, 49, .6); border-color: rgba(122, 162, 255, .3); }
+        .swipe-knob {
+            position: relative; z-index: 1;
+            width: 44px; height: 44px; border-radius: 50%; flex: none;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #1e5eff, #ffc400);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(30, 94, 255, .4);
+            animation: knobSlide 2.2s cubic-bezier(.6, 0, .3, 1) 2.6s infinite;
+        }
+        .swipe-knob svg { width: 20px; height: 20px; }
+        .swipe-text { flex: 1; text-align: center; font-size: 14px; font-weight: 800; color: var(--text); }
+        .swipe-chev {
+            margin-right: 12px; font-size: 20px; font-weight: 900; letter-spacing: -2px;
+            background: linear-gradient(90deg, rgba(30, 94, 255, .2), #1e5eff, #ffc400);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: chevPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes knobSlide {
+            0%, 15% { transform: translateX(0); }
+            45%, 60% { transform: translateX(150px); }
+            90%, 100% { transform: translateX(0); }
+        }
+        @media (max-width: 600px) { .hero > .scroll-hint { bottom: 92px; } }
+        @keyframes chevPulse { 0%, 100% { opacity: .4; transform: translateX(0); } 50% { opacity: 1; transform: translateX(4px); } }
+
+        /* Transition vers les produits */
+        .hero.leave > :not(.snow) {
+            transition: transform .6s cubic-bezier(.7, 0, .3, 1), opacity .5s ease, filter .5s ease;
+            transform: translateX(-60vw) rotateY(12deg) !important;
+            opacity: 0 !important;
+            filter: blur(6px);
+        }
+        .hero.leave > .scroll-hint { transform: translateX(-60vw) !important; }
+        .card.reveal {
+            opacity: 0;
+            transform: translateX(80px) rotateY(-14deg) scale(.96);
+        }
+        .card.reveal.in {
+            opacity: 1;
+            transform: none;
+            transition: opacity .6s ease var(--d, 0s), transform .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0s);
+        }
+        .section-head.reveal, .section > h2.reveal { opacity: 0; transform: translateX(60px); }
+        .section-head.reveal.in, .section > h2.reveal.in { opacity: 1; transform: none; transition: opacity .6s ease, transform .7s cubic-bezier(.2, .8, .2, 1); }
+        .grid { perspective: 1200px; }
+        @media (prefers-reduced-motion: reduce) {
+            .card.reveal, .section-head.reveal, .section > h2.reveal { opacity: 1; transform: none; }
+            .swipe-knob, .swipe-chev { animation: none; }
+        }
+
         /* Section cartes d'invitation */
         .section { scroll-margin-top: 20px; }
 
@@ -1292,7 +1356,13 @@
         </div>
         <div class="hero-line"></div>
         <p class="hero-sub">Vos cartes d'invitation, payables en crypto en quelques minutes.</p>
-        <a class="scroll-hint" href="#invites"><span class="mouse"></span>Découvrir les produits</a>
+        <a class="scroll-hint" href="#invites" aria-label="Voir les produits">
+            <span class="swipe-pill">
+                <span class="swipe-knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                <span class="swipe-text">Glissez pour découvrir</span>
+                <span class="swipe-chev" aria-hidden="true">›››</span>
+            </span>
+        </a>
     </section>
 
     <canvas class="page-snow" id="pageSnow" aria-hidden="true"></canvas>
@@ -1628,10 +1698,55 @@
             </article>`;
         }).join('');
 
-        document.querySelector('.scroll-hint').addEventListener('click', e => {
-            e.preventDefault();
-            document.getElementById('invites').scrollIntoView({ behavior: 'smooth' });
+        // Apparition des produits : glissent depuis la droite
+        const revealEls = document.querySelectorAll('main .card, main .section-head, main .section > h2');
+        const revealIO = 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? new IntersectionObserver(entries => entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                const el = e.target;
+                el.classList.add('in');
+                revealIO.unobserve(el);
+                // Une fois arrivé, on rend la main aux effets de survol / 3D
+                setTimeout(() => el.classList.remove('reveal', 'in'), 1300);
+            }), { threshold: .12 })
+            : null;
+        function armReveal(els) {
+            if (!revealIO) return;
+            els.forEach(el => {
+                const siblings = [...el.parentElement.children];
+                el.style.setProperty('--d', el.classList.contains('card') ? (siblings.indexOf(el) % 3) * .12 + 's' : '0s');
+                el.classList.add('reveal');
+                el.classList.remove('in');
+                revealIO.observe(el);
+            });
+        }
+        armReveal(revealEls);
+
+        // Glisser l'écran d'accueil (ou toucher le bouton) pour voir les produits
+        const heroBox = document.querySelector('.hero');
+        let leaving = false;
+        function goProducts() {
+            if (leaving) return;
+            leaving = true;
+            heroBox.classList.add('leave');
+            setTimeout(() => {
+                armReveal(document.querySelectorAll('#invites .card, #invites > h2'));
+                const target = document.getElementById('invites');
+                const top = target.getBoundingClientRect().top + scrollY - document.querySelector('header').offsetHeight - 10;
+                scrollTo({ top, behavior: 'instant' });
+                setTimeout(() => { heroBox.classList.remove('leave'); leaving = false; }, 400);
+            }, 480);
+        }
+        document.querySelector('.scroll-hint').addEventListener('click', e => { e.preventDefault(); goProducts(); });
+        let sx = null, sy = 0;
+        heroBox.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; });
+        heroBox.addEventListener('pointerup', e => {
+            if (sx === null) return;
+            const dx = e.clientX - sx, dy = e.clientY - sy;
+            sx = null;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3) goProducts();
         });
+        heroBox.addEventListener('pointercancel', () => { sx = null; });
 
         // Compte (stocké uniquement dans ce navigateur ; le mot de passe n'est jamais enregistré)
         const KEY = 'dh_user';
