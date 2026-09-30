@@ -8,6 +8,7 @@
 <title>Nova Wallet (Démo)</title>
 <style>
 :root{--bg:#f5f5f5;--card:#fff;--text:#1e2329;--muted:#707a8a;--line:#eaecef;--acc:#fcd535;--acc2:#f0b90b;--green:#2ebd85;--red:#f6465d}
+[hidden]{display:none!important}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#fff;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;overscroll-behavior:none}
 body{display:flex;justify-content:center}
@@ -181,6 +182,63 @@ nav a.on .acf{fill:#f0b90b}
 .empty{text-align:center;color:var(--muted);padding:30px 0;font-size:14px}
 .posrow{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .posrow b{font-size:15px}
+
+/* pages (slide in) */
+.page{position:absolute;inset:0;background:#fff;z-index:30;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+.page.show{transform:none}
+.phdr{display:flex;align-items:center;justify-content:center;gap:8px;height:56px;position:sticky;top:0;background:#fff;font-weight:600;font-size:17px;z-index:2;flex:none}
+.phdr .back{position:absolute;left:12px;border:0;background:none;padding:6px;display:flex}
+.cf{padding:16px;flex:1;display:flex;flex-direction:column}
+.cf .pair2{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:10px}
+.cf h2{text-align:center;font-size:26px;line-height:1.3;margin-top:18px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;text-wrap:balance}
+.cf .rt{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
+.cf .li{display:flex;justify-content:space-between;gap:20px;font-size:14px;margin-top:22px}
+.cf .li span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.cf .terms{margin-top:auto;font-size:12px;color:var(--muted);padding-top:30px}
+.cf .terms a{color:var(--acc2);text-decoration:none;display:block;margin-top:4px}
+.cf .big-btn{margin-top:12px}
+.cf .big-btn.wait{background:#fdf9d9;color:#b9ad7c;letter-spacing:4px}
+.spinner{position:absolute;left:50%;top:45%;width:56px;height:56px;margin:-28px;background:rgba(40,40,40,.82);border-radius:14px;transform:rotate(45deg);display:none;z-index:5}
+.spinner.show{display:block;animation:sp 1s ease-in-out infinite}
+@keyframes sp{50%{transform:rotate(135deg) scale(.85)}100%{transform:rotate(225deg)}}
+.ok-state{text-align:center;padding:60px 16px 0}
+.ok-state .ck{width:72px;height:72px;border-radius:50%;background:var(--green);margin:0 auto;display:flex;align-items:center;justify-content:center}
+.ok-state h2{margin-top:20px}
+/* assets chart */
+.achart{position:relative;margin-top:10px}
+.achart svg{width:100%;height:170px;display:block}
+.achart .mx,.achart .mn{position:absolute;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.periods{display:flex;justify-content:space-around;font-size:13px;color:var(--muted);margin-top:6px}
+.periods span{padding:4px 8px;cursor:pointer}.periods .on{color:var(--text);font-weight:600}
+.collapse{display:flex;justify-content:center;margin-top:6px;cursor:pointer;color:var(--muted)}
+.btns.plain button{background:none;width:auto;padding:8px 10px}
+.asset.click{cursor:pointer}
+/* asset detail */
+.ad{padding:8px 16px 100px}
+.ad .lb{color:var(--muted);font-size:14px}
+.ad .v{font-size:30px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ad .v small{font-size:13px;color:var(--muted);font-weight:400}
+.ad h4{font-size:17px;margin:28px 0 14px;display:flex;justify-content:space-between}
+.alloc{display:flex;align-items:center;gap:12px}
+.alloc .ring{width:34px;height:34px;border-radius:50%;border:3px solid #2e6be6;font-size:8px;display:flex;align-items:center;justify-content:center}
+.alloc .r{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums}.alloc .r small{display:block;color:var(--muted);font-size:12px}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-variant-numeric:tabular-nums}
+.tri b{font-size:17px;display:block;margin-top:14px}.tri small{color:var(--muted)}.tri .pp{color:var(--acc2);font-size:10px;display:block;height:12px}
+.reco{display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:14px}
+.reco a{color:var(--acc2);display:block;margin-top:12px;text-decoration:none}
+.hist{display:flex;justify-content:space-between;padding:12px 0;font-size:15px}
+.hist small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.adbar{position:sticky;bottom:0;background:#fff;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));margin-top:auto}
+.adbar button{height:44px;border:0;border-radius:8px;background:#f5f5f5;font-family:inherit;font-size:14px;font-weight:500;color:var(--text)}
+.adbar button:first-child{background:var(--acc)}
+/* skeleton */
+.skel{padding:16px}
+.skel i{display:block;height:14px;border-radius:7px;margin:12px 0;background:linear-gradient(90deg,#f1f2f4 25%,#e6e8eb 50%,#f1f2f4 75%);background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.dots{display:flex;justify-content:center;gap:4px;padding:10px 0}
+.dots b{width:4px;height:4px;border-radius:50%;background:var(--acc2);animation:db 0.9s infinite}
+.dots b:nth-child(2){animation-delay:.15s}.dots b:nth-child(3){animation-delay:.3s}.dots b:nth-child(4){animation-delay:.45s}
+@keyframes db{50%{opacity:.2}}
 </style>
 </head>
 <body>
@@ -235,10 +293,12 @@ nav a.on .acf{fill:#f0b90b}
       <div class="lbl">Valeur totale estimée <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b929c" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg> <span class="demo" style="margin-left:auto">DÉMO</span></div>
       <div class="big editbal"><span data-bal-short></span><small>USDT ▾</small></div>
       <div class="sub" data-eur></div>
-      <div class="row">
-        <div class="pnl"><u>G et P du jour</u> <span class="up">+0 USDT (+0.00%)</span> ›</div>
-        <svg width="110" height="50" viewBox="0 0 110 50"><path d="M2 40c10 2 14 4 20-6s14-10 22-10 12-12 24-14 22-2 40-2" fill="none" stroke="#f0b90b" stroke-width="2.5"/></svg>
+      <div class="pnl"><u>G et P du jour</u> <span class="up">+0 USDT (+0.00%)</span> ›</div>
+      <div id="chartWrap">
+        <div class="achart"><span class="mx" id="chMax"></span><svg id="chSvg" viewBox="0 0 360 170" preserveAspectRatio="none"></svg><span class="mn" id="chMin"></span></div>
+        <div class="periods" id="periods"><span data-p="1">1 j</span><span data-p="7" class="on">7 j</span><span data-p="30">30 j</span><span data-p="180">180 j</span><span data-p="360">360 j</span></div>
       </div>
+      <div class="collapse" id="collapse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path id="colIco" d="M6 15l6-6 6 6"/></svg></div>
     </div>
     <div class="acts">
       <div class="act"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v15M6 13l6 6 6-6"/></svg></i>Ajouter des fonds</div>
@@ -248,13 +308,13 @@ nav a.on .acf{fill:#f0b90b}
     </div>
     <div class="sold">
       <div class="h">Solde <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
-      <div class="asset">
+      <div class="asset click" id="usdtRow">
         <div class="cicon" style="background:#26a17b;width:40px;height:40px;font-size:18px">₮</div>
         <div class="tick"><b>USDT</b><small>TetherUS</small></div>
-        <div class="amt editbal" data-bal-long></div>
+        <div class="amt" data-bal-long></div>
       </div>
       <div id="extraAssets"></div>
-      <div class="btns"><button>Earn</button><button data-goto="trade">Trader</button></div>
+      <div class="btns plain"><button>Earn</button><button data-goto="trade">Trader</button></div>
     </div>
   </div>
 </section>
@@ -278,7 +338,7 @@ nav a.on .acf{fill:#f0b90b}
     <div class="conv">
       <div class="inst"><span>Instantané ▾</span><span class="demo">DÉMO</span></div>
       <div class="box">
-        <div class="t"><span>De</span><span class="av" id="cAvail"></span></div>
+        <div class="t"><span>De</span><span style="display:flex;align-items:center;gap:6px"><span class="tag" style="font-size:11px;padding:1px 6px">3</span><span class="av" id="cAvail"></span></span></div>
         <div class="m"><b id="cFrom"></b><input id="cIn" inputmode="decimal" placeholder="> 0,01"></div>
         <div class="max" id="cMax">Max</div>
         <button class="swap" id="cSwap" aria-label="Inverser"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4v16M4 16l4 4M16 20V4M20 8l-4-4"/></svg></button>
@@ -327,6 +387,44 @@ nav a.on .acf{fill:#f0b90b}
   </div>
 </section>
 
+<!-- PAGE: confirmer l'ordre -->
+<div class="page" id="pConfirm">
+  <div class="phdr"><button class="back" data-back aria-label="Retour"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12H5M11 6l-6 6 6 6"/></svg></button>Confirmer l’ordre</div>
+  <div class="cf" id="cfBody">
+    <div class="pair2" id="cfIcons"></div>
+    <h2 id="cfTitle"></h2>
+    <div class="rt" id="cfRate"></div>
+    <div class="li"><span>Vers</span><span id="cfTo"></span></div>
+    <div class="li"><span>Frais</span><span id="cfFee"></span></div>
+    <div class="li"><span>Payer à partir du</span><span>Spot + Financement +<br>Compte Earn flexible</span></div>
+    <div class="terms">J’ai lu et accepté les<a href="#" onclick="return false">Conditions d’utilisation des services de conversion de cryptos</a></div>
+    <button class="big-btn" id="cfBtn"></button>
+  </div>
+  <div class="cf" id="cfDone" hidden>
+    <div class="ok-state"><div class="ck"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12l5 5 9-10"/></svg></div><h2>Conversion réussie</h2><p class="rt" id="cfDoneTxt"></p></div>
+    <button class="big-btn" id="cfFinish" style="margin-top:auto">Terminé</button>
+  </div>
+  <div class="spinner" id="cfSpin"></div>
+</div>
+
+<!-- PAGE: détail USDT -->
+<div class="page" id="pAsset">
+  <div class="phdr"><button class="back" data-back aria-label="Retour"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12H5M11 6l-6 6 6 6"/></svg></button><span class="cicon" style="background:#26a17b;width:24px;height:24px;font-size:12px">₮</span>USDT</div>
+  <div class="ad">
+    <div class="lb">Valeur totale est. <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b929c" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></div>
+    <div class="v editbal"><span data-bal-long></span><small data-eur-bal></small></div>
+    <h4>Allocation</h4>
+    <div class="alloc"><div class="ring">100 %</div>Spot<div class="r"><b data-bal-long></b><small data-eur-bal></small></div></div>
+    <h4>Spot <span style="color:var(--muted)">›</span></h4>
+    <div class="tri" id="adTri"></div>
+    <h4>Recommandé</h4>
+    <div class="reco"><div>Gagnez un APR max. de 6,72 % sur vos USDT<a href="#" onclick="return false">Gagner maintenant</a></div><div>Convertissez des USDT en une autre crypto<a href="#" data-goto="trade" onclick="return false">Convertir</a></div></div>
+    <h4>Historique</h4>
+    <div id="adHist"></div>
+  </div>
+  <div class="adbar"><button>Ajouter des USDT</button><button>Envoyer</button><button data-goto="trade">Transfert</button></div>
+</div>
+
 <nav>
   <a href="#" data-go="home" class="on"><svg viewBox="0 0 30 30"><path d="M15 3.5c1 7.2 3.8 10 11 11-7.2 1-10 3.8-11 11-1-7.2-3.8-10-11-11 7.2-1 10-3.8 11-11z" fill="currentColor"/></svg>Accueil</a>
   <a href="#" data-go="markets"><svg viewBox="0 0 30 30"><path class="ac" d="M5 25h20" stroke-width="2.2" stroke-linecap="round"/><path class="ac" d="M5 18.5l6-6 4.5 4 8-8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path class="acf" d="M19 7h6v6z"/></svg>Marchés</a>
@@ -367,7 +465,7 @@ function spark(seed, up) {
 }
 
 function render() {
-  if (typeof renderMarkets === 'function') { renderMarkets(); renderConvert(); renderFutures(); }
+  if (typeof renderMarkets === 'function') { renderMarkets(); renderConvert(); renderFutures(); renderChart(); renderAssetPage(); }
   const total = balance + (typeof usdc === 'number' ? usdc + futBal + positions.reduce((s, p) => s + p.size / p.lev, 0) : 0);
   document.querySelectorAll('[data-bal-short]').forEach(e => e.textContent = fr(total, 2));
   document.querySelectorAll('[data-bal-long]').forEach(e => e.textContent = fr(balance, 8));
@@ -382,6 +480,8 @@ function render() {
 }
 
 function refreshData() {
+  const post = document.querySelector('#home .post');
+  if (post && !post.hidden) { post.hidden = true; const sk = document.createElement('div'); sk.className = 'skel'; sk.innerHTML = '<div class="dots"><b></b><b></b><b></b><b></b></div><i style="width:40%"></i><i></i><i></i><i style="width:80%"></i>'; post.before(sk); setTimeout(() => { sk.remove(); post.hidden = false; }, 1200); }
   coins.forEach(k => { const m = (Math.random() - .45) * .002; k.p *= 1 + m; k.c = +(k.c + m * 100).toFixed(2); k.seed = Math.floor(Math.random() * 99999); });
   const hints = ['🔥 DOT Recherche populaire', 'Résultats Conagra Brands approchent', '🔥 SOL Recherche populaire', 'Nouveautés du marché'];
   document.getElementById('hint').textContent = hints[Math.floor(Math.random() * hints.length)];
@@ -420,7 +520,7 @@ document.querySelectorAll('#msub span').forEach(s => s.onclick = () => { documen
 
 // ---------- Convertir ----------
 let cFrom = 'USDT', cTo = 'USDC';
-const RATE = {USDT_USDC: 0.99934, USDC_USDT: 1 / 0.99934};
+const RATE = {USDT_USDC: 1 / 1.00082, USDC_USDT: 1.00082};
 const held = s => s === 'USDT' ? balance : usdc;
 const parseNum = v => parseFloat(String(v).replace(/\s/g, '').replace(',', '.'));
 function renderConvert() {
@@ -440,13 +540,96 @@ function renderConvert() {
 document.getElementById('cIn').addEventListener('input', renderConvert);
 document.getElementById('cMax').onclick = () => { document.getElementById('cIn').value = String(Math.floor(held(cFrom) * 1e8) / 1e8).replace('.', ','); renderConvert(); };
 document.getElementById('cSwap').onclick = () => { [cFrom, cTo] = [cTo, cFrom]; document.getElementById('cIn').value = ''; renderConvert(); };
+// ---------- pages ----------
+const openPage = id => document.getElementById(id).classList.add('show');
+const closePage = id => document.getElementById(id).classList.remove('show');
+document.querySelectorAll('[data-back]').forEach(b => b.onclick = () => { const pg = b.closest('.page'); pg.classList.remove('show'); if (pg.id === 'pConfirm') stopQuote(); });
+
+// ---------- Confirmer l'ordre ----------
+let qTimer = null, qLeft = 0, qAmt = 0, qOut = 0;
+function stopQuote() { clearInterval(qTimer); qTimer = null; }
+function startQuote() {
+  stopQuote();
+  const btn = document.getElementById('cfBtn');
+  btn.className = 'big-btn wait'; btn.textContent = '····'; btn.disabled = true;
+  setTimeout(() => {
+    qOut = qAmt * RATE[cFrom + '_' + cTo] * (1 + (Math.random() - .5) * 0.00002);
+    document.getElementById('cfTo').textContent = qOut.toFixed(8) + ' ' + cTo;
+    qLeft = 8; btn.className = 'big-btn'; btn.disabled = false;
+    const tick = () => {
+      if (qLeft <= 0) { stopQuote(); btn.textContent = 'Actualiser le devis'; return; }
+      btn.textContent = `Confirmer (${qLeft}sec)`; qLeft--;
+    };
+    tick(); qTimer = setInterval(tick, 1000);
+  }, 700);
+}
 document.getElementById('cGo').onclick = () => {
-  const v = parseNum(document.getElementById('cIn').value), out = v * RATE[cFrom + '_' + cTo];
-  confirmSheet('Confirmer la conversion', `${fr(v, 8)} ${cFrom} → ${fr(out, 6)} ${cTo}`, () => {
-    if (cFrom === 'USDT') { balance -= v; usdc += out; } else { usdc -= v; balance += out; }
-    persist(); document.getElementById('cIn').value = ''; render(); toast('Conversion effectuée');
-  });
+  qAmt = parseNum(document.getElementById('cIn').value);
+  document.getElementById('cfIcons').innerHTML = tIcon(cFrom, 40) + '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg>' + tIcon(cTo, 40);
+  document.getElementById('cfTitle').textContent = `Convert ${qAmt.toFixed(8)} ${cFrom}`;
+  document.getElementById('cfRate').textContent = cFrom === 'USDT' ? '1 USDC = 1,00082 USDT ⇆' : '1 USDC = 1,00082 USDT ⇆';
+  document.getElementById('cfFee').textContent = '0 ' + cTo;
+  document.getElementById('cfTo').textContent = '';
+  document.getElementById('cfBody').hidden = false; document.getElementById('cfDone').hidden = true;
+  openPage('pConfirm'); startQuote();
 };
+document.getElementById('cfBtn').onclick = () => {
+  if (!qTimer) return startQuote();
+  stopQuote();
+  const sp = document.getElementById('cfSpin'); sp.classList.add('show');
+  setTimeout(() => {
+    sp.classList.remove('show');
+    if (cFrom === 'USDT') { balance = Math.max(0, balance - qAmt); usdc += qOut; } else { usdc = Math.max(0, usdc - qAmt); balance += qOut; }
+    persist(); document.getElementById('cIn').value = ''; render();
+    document.getElementById('cfDoneTxt').textContent = `${qAmt.toFixed(8)} ${cFrom} → ${qOut.toFixed(8)} ${cTo}`;
+    document.getElementById('cfBody').hidden = true; document.getElementById('cfDone').hidden = false;
+  }, 1300);
+};
+document.getElementById('cfFinish').onclick = () => closePage('pConfirm');
+
+// ---------- Actifs : graphique ----------
+let period = 7, chartOpen = true;
+function renderChart() {
+  const tot = (balance + usdc + futBal) * EUR_RATE, N = 240;
+  let seed = period * 7919, pts = [];
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  // courbe lisse en paliers qui finit sur la valeur actuelle
+  const start = tot * (0.93 + rnd() * 0.04), steps = [];
+  let lvl = start;
+  [[0.2 + rnd() * 0.1, 0.55 + rnd() * 0.25], [0.5 + rnd() * 0.1, 1]].forEach(([at, frac]) => { const nl = lvl + (tot - lvl) * frac; steps.push([at, nl - lvl]); lvl = nl; });
+  const ss = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+  for (let i = 0; i < N; i++) { const t = i / (N - 1); let v = start; steps.forEach(([at, dv]) => v += dv * ss((t - at) / 0.12)); pts.push(v); }
+  const mn = Math.min(...pts), mx = Math.max(...pts), W = 360, H = 170, top = 22, bot = 40;
+  const y = v => mx === mn ? H / 2 : top + (1 - (v - mn) / (mx - mn)) * (H - top - bot);
+  const x = i => i / (N - 1) * W;
+  // lissage
+  let d = `M0 ${y(pts[0]).toFixed(1)}`;
+  for (let i = 1; i < N; i++) d += `L${x(i).toFixed(2)} ${y(pts[i]).toFixed(2)}`;
+  document.getElementById('chSvg').innerHTML = `<defs><linearGradient id="chg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fcd535" stop-opacity=".35"/><stop offset="1" stop-color="#fcd535" stop-opacity="0"/></linearGradient></defs><path d="${d}L${W} ${H}L0 ${H}Z" fill="url(#chg)"/><path d="${d}" fill="none" stroke="#f0b90b" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+  const iMx = pts.indexOf(mx), iMn = pts.indexOf(mn);
+  const eMx = document.getElementById('chMax'), eMn = document.getElementById('chMin');
+  eMx.textContent = '€' + fr(mx, 2); eMn.textContent = '€' + fr(mn, 2);
+  eMx.style.top = '0px'; eMx.style.left = Math.min(70, iMx / N * 100) + '%';
+  eMn.style.top = (y(mn) + 10) + 'px'; eMn.style.left = Math.min(70, iMn / N * 100 + 8) + '%';
+}
+document.querySelectorAll('#periods span').forEach(s => s.onclick = () => { document.querySelectorAll('#periods span').forEach(x => x.classList.toggle('on', x === s)); period = +s.dataset.p; renderChart(); });
+document.getElementById('collapse').onclick = () => {
+  chartOpen = !chartOpen; document.getElementById('chartWrap').hidden = !chartOpen;
+  document.getElementById('colIco').setAttribute('d', chartOpen ? 'M6 15l6-6 6 6' : 'M6 9l6 6 6-6');
+};
+
+// ---------- détail USDT ----------
+function renderAssetPage() {
+  document.querySelectorAll('[data-eur-bal]').forEach(e => e.textContent = '≈ €' + fr(balance * EUR_RATE, 2));
+  const b = coins.find(c => c.s === 'BTC');
+  document.getElementById('adTri').innerHTML =
+    `<div><span class="pp">Populaire</span><span>BTC<small>/USDT</small></span><b>${fr(b.p, 2)}</b><small class="${b.c >= 0 ? 'up' : 'dn'}">${b.c >= 0 ? '+' : ''}${fr(b.c, 2)} %</small></div>` +
+    `<div><span class="pp"></span><span>SOL<small>/USDT</small></span><b>119,35</b><small class="up">+2,27 %</small></div>` +
+    `<div><span class="pp"></span><span>USDT<small>/USD</small></span><b>0,99931</b><small class="up">+0,01 %</small></div>`;
+  const hist = [['Retrait', 'Paiement', '2026-09-28 20:05:46', -0.79], ['Retrait', 'Paiement', '2026-09-27 14:22:10', -2.36793539], ['Dépôt', 'Réseau TRC20', '2026-09-25 09:41:03', 500]];
+  document.getElementById('adHist').innerHTML = hist.map(h => `<div class="hist"><div>${h[0]}<small>${h[1]}</small><small>${h[2]}</small></div><span class="${h[3] < 0 ? 'dn' : 'up'}">${h[3] > 0 ? '+' : ''}${fr(h[3], h[3] % 1 ? 8 : 2).replace(/0+$/, '').replace(/,$/, '')}</span></div>`).join('');
+}
+document.getElementById('usdtRow').onclick = () => { renderAssetPage(); openPage('pAsset'); };
 
 // ---------- Futures ----------
 let fPrice = 4182.55, fLev = 2, fCross = true;
@@ -577,7 +760,7 @@ document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', e =>
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === go));
 }));
 
-document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => document.querySelector(`nav a[data-go=${b.dataset.goto}]`).click());
+document.querySelectorAll('[data-goto]').forEach(b => b.onclick = e => { e.preventDefault(); document.querySelectorAll('.page').forEach(pg => pg.classList.remove('show')); document.querySelector(`nav a[data-go=${b.dataset.goto}]`).click(); });
 render();
 </script>
 </body>
