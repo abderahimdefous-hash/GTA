@@ -369,6 +369,76 @@
         .pay-btn:hover { background: var(--yellow-dark); gap: 14px; }
         .pay-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 
+        /* Section Carte : design moderne */
+        @property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        .card.carte {
+            border: 2px solid transparent;
+            background:
+                linear-gradient(var(--surface), var(--surface)) padding-box,
+                conic-gradient(from var(--ang), rgba(30, 94, 255, .15), #1e5eff, #7aa2ff, #ffc400, rgba(255, 196, 0, .15), rgba(30, 94, 255, .15)) border-box;
+            animation: spinBorder 6s linear infinite;
+        }
+        @keyframes spinBorder { to { --ang: 360deg; } }
+        .card.carte .visual { padding: 20px; }
+        .visual.c-essentiel {
+            background:
+                radial-gradient(circle at 110% -10%, rgba(255, 255, 255, .45) 0, rgba(255, 255, 255, 0) 45%),
+                linear-gradient(135deg, #4f8bff 0%, #1e5eff 55%, #1447d6 100%);
+        }
+        .visual.c-plus {
+            background:
+                radial-gradient(circle at 110% -10%, rgba(160, 190, 255, .5) 0, rgba(160, 190, 255, 0) 45%),
+                linear-gradient(135deg, #3a4cff 0%, #2d2fb8 55%, #1d1a7a 100%);
+        }
+        .visual.c-premium {
+            background:
+                radial-gradient(circle at 105% -5%, rgba(255, 196, 0, .45) 0, rgba(255, 196, 0, 0) 42%),
+                linear-gradient(135deg, #16307a 0%, #0c1b4d 60%, #070f2e 100%);
+        }
+        .visual.c-elite {
+            background:
+                radial-gradient(circle at 105% -5%, rgba(255, 196, 0, .6) 0, rgba(255, 196, 0, 0) 45%),
+                radial-gradient(circle at -10% 115%, rgba(255, 196, 0, .25) 0, rgba(255, 196, 0, 0) 45%),
+                linear-gradient(135deg, #1b1b1f 0%, #0a0a0c 100%);
+        }
+        .visual.c-premium .visual-value span, .visual.c-elite .visual-value span, .visual.c-elite .brand { color: #ffd54d; }
+        .visual.c-elite .brand b { color: #fff; }
+        .pattern {
+            position: absolute !important; inset: 0; z-index: 0 !important;
+            transform: none !important;
+            background-image: radial-gradient(rgba(255, 255, 255, .14) 1px, transparent 1.4px);
+            background-size: 14px 14px;
+            -webkit-mask-image: linear-gradient(120deg, transparent 20%, #000 60%, transparent 95%);
+            mask-image: linear-gradient(120deg, transparent 20%, #000 60%, transparent 95%);
+            pointer-events: none;
+        }
+        .tier {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+            padding: 5px 11px; border-radius: 999px;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .3);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+        }
+        .c-premium .tier, .c-elite .tier {
+            background: linear-gradient(135deg, #ffe07a, #ffc400);
+            color: #1c2233; border-color: transparent;
+        }
+        .chip-row { display: flex; align-items: center; gap: 10px; }
+        .chip-svg { width: 46px; height: 34px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
+        .nfc { width: 24px; height: 24px; color: rgba(255, 255, 255, .8); }
+        .carte .visual-value strong {
+            font-size: 38px;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, .25), 0 2px 8px rgba(0, 0, 0, .25);
+        }
+        .cnum { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 1.5px; }
+        .carte .card-info .label { font-weight: 600; }
+        .carte .pay-btn {
+            background: linear-gradient(135deg, #ffd84d, #ffc400 55%, #f0ae00);
+            box-shadow: 0 8px 20px rgba(255, 196, 0, .35);
+        }
+        .carte .pay-btn:hover { background: linear-gradient(135deg, #ffe07a, #ffc400 55%, #e6a400); }
+        @media (prefers-reduced-motion: reduce) { .card.carte { animation: none; } }
+
         /* Comptes TikTok */
         .section + .section { margin-top: 70px; }
         .section-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; }
@@ -1065,7 +1135,11 @@
             { id: 2, value: '1900 EUR', price: '180 USDT' },
             { id: 3, value: '5500 EUR', price: '511 USDT' },
             { id: 4, value: '1500 EUR', price: '90 USDT' },
-        ].map(c => ({ ...c, label: `Carte ${c.id}` }));
+        ].map(c => {
+            const v = parseInt(c.value, 10);
+            const tier = v >= 5000 ? ['elite', 'Élite'] : v >= 2500 ? ['premium', 'Premium'] : v >= 1900 ? ['plus', 'Plus'] : ['essentiel', 'Essentiel'];
+            return { ...c, label: `Carte ${c.id}`, tier: tier[0], tierName: tier[1] };
+        });
 
         // Comptes TikTok (prix en $, payés en USDT : 1 USDT = 1 $)
         const tiktok = [
@@ -1162,23 +1236,31 @@
             </article>`).join('');
 
         const grid = document.getElementById('grid');
+        const chipSvg = `<svg class="chip-svg" viewBox="0 0 48 36" aria-hidden="true">
+            <defs><linearGradient id="chipG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset=".45" stop-color="#ffcf3a"/><stop offset="1" stop-color="#c98f00"/></linearGradient></defs>
+            <rect x="1" y="1" width="46" height="34" rx="7" fill="url(#chipG)"/>
+            <path d="M1 12h14M1 24h14M33 12h14M33 24h14M15 1v34M33 1v34M15 18h18" stroke="#9a6d00" stroke-width="1.4" fill="none" opacity=".55"/>
+        </svg>`;
+        const nfcSvg = `<svg class="nfc" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7.5a6 6 0 0 1 0 9M11.5 5a9.5 9.5 0 0 1 0 14M15 2.5a13 13 0 0 1 0 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
         grid.innerHTML = cards.map(c => {
             const [amount, cur] = c.value.split(' ');
             const [price, pcur] = c.price.split(' ');
+            const num = String(c.id).padStart(4, '0');
             return `
-            <article class="card">
-                <div class="visual">
+            <article class="card carte">
+                <div class="visual c-${c.tier}">
+                    <span class="pattern" aria-hidden="true"></span>
                     <div class="visual-top">
                         <div class="brand">Doctor <b>Script</b></div>
-                        <div class="tag">Carte</div>
+                        <div class="tier">${c.tierName}</div>
                     </div>
-                    <div class="chip"></div>
+                    <div class="chip-row">${chipSvg}${nfcSvg}</div>
                     <div class="visual-value"><strong>${amount}</strong><span>${cur}</span></div>
-                    <div class="visual-foot"><span>CARTE N° 0${c.id}</span><span>VIP</span></div>
+                    <div class="visual-foot"><span class="cnum">•••• •••• •••• ${num}</span><span>CARTE</span></div>
                 </div>
                 <div class="card-info">
                     <div>
-                        <div class="label">Carte ${c.id}</div>
+                        <div class="label">Carte ${c.id} · ${c.tierName}</div>
                         <div class="title">Valeur ${c.value}</div>
                     </div>
                     <div class="price"><strong>${price}</strong><span>${pcur}</span></div>
