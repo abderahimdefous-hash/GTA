@@ -819,6 +819,31 @@
         html.dark .modal.pay-modal { box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
         @media (prefers-reduced-motion: reduce) { .qr-box::after, .modal.pay-modal { animation: none; } }
 
+        /* Fenêtres produits : taille plus compacte */
+        .grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 250px));
+            justify-content: center;
+            gap: 20px;
+        }
+        .card { padding: 10px 10px 14px; gap: 12px; border-radius: 22px; }
+        @media (max-width: 600px) { .grid { grid-template-columns: minmax(0, 300px); } }
+        .card.carte .visual, .card.tiktok .visual.tt, .card.giftc .visual.gift { padding: 16px; border-radius: 16px; }
+        .carte .visual-value strong { font-size: 32px; }
+        .card.tiktok .visual .tt-num { font-size: 36px; }
+        .card.giftc .visual-value strong { font-size: 32px; }
+        .tt-coin { width: 34px; height: 34px; }
+        .chip-svg { width: 38px; height: 28px; }
+        .nfc { width: 20px; height: 20px; }
+        .gift-bow { width: 54px; height: 37px; right: calc(12% - 21px); }
+        .card.giftc .visual-top { padding-right: 50px; }
+        .g-code { font-size: 12px; padding: 5px 9px; }
+        .visual-foot { font-size: 11px; white-space: nowrap; gap: 8px; }
+        .cnum { letter-spacing: .5px; }
+        .card-info { padding: 0 4px; }
+        .card-info .title { font-size: 14px; }
+        .price strong { font-size: 21px; }
+        .pay-btn { margin: 0 4px; padding: 12px; font-size: 15px; }
+
         /* Comptes TikTok */
         .section + .section { margin-top: 70px; }
         .section-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 30px; }
