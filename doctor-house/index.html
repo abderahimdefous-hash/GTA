@@ -35,7 +35,7 @@
             --yellow-soft: #fff6d6;
             --yellow-ink: #8a6a00;
             --shadow: rgba(30, 94, 255, .10);
-            --header-bg: rgba(255, 255, 255, .93);
+            --header-bg: rgba(255, 255, 255, .97);
         }
 
         /* Mode sombre */
@@ -57,7 +57,7 @@
             --yellow-soft: #3a2f08;
             --yellow-ink: #ffd54d;
             --shadow: rgba(0, 0, 0, .45);
-            --header-bg: rgba(8, 12, 26, .93);
+            --header-bg: rgba(8, 12, 26, .97);
         }
         body, header, .card, .modal, .icon-btn, .dropdown, .order-card, .chat { transition: background-color .35s ease, border-color .35s ease, color .35s ease; }
 
@@ -153,8 +153,6 @@
             z-index: 40;
             padding-top: calc(20px + env(safe-area-inset-top, 0px));
             background: var(--header-bg);
-            -webkit-backdrop-filter: saturate(1.6) blur(14px);
-            backdrop-filter: saturate(1.6) blur(14px);
         }
         .hero > :not(.snow) { position: relative; z-index: 1; }
         .hero > .scroll-hint { position: absolute; }
@@ -444,7 +442,6 @@
             background:
                 linear-gradient(var(--surface), var(--surface)) padding-box,
                 conic-gradient(from var(--ang), rgba(30, 94, 255, .15), #1e5eff, #7aa2ff, #ffc400, rgba(255, 196, 0, .15), rgba(30, 94, 255, .15)) border-box;
-            animation: spinBorder 6s linear infinite;
         }
         @keyframes spinBorder { to { --ang: 360deg; } }
         .card.carte .visual { padding: 20px; }
@@ -513,7 +510,6 @@
             background:
                 linear-gradient(var(--surface), var(--surface)) padding-box,
                 conic-gradient(from var(--ang), rgba(37, 244, 238, .15), #25f4ee, #0b0b10, #fe2c55, rgba(254, 44, 85, .15), rgba(37, 244, 238, .15)) border-box;
-            animation: spinBorder 6s linear infinite;
         }
         .card.tiktok .visual.tt {
             padding: 20px;
@@ -557,7 +553,6 @@
             background:
                 linear-gradient(var(--surface), var(--surface)) padding-box,
                 conic-gradient(from var(--ang), rgba(255, 196, 0, .15), #ffc400, #111, #ffe07a, #111, rgba(255, 196, 0, .15)) border-box;
-            animation: spinBorder 6s linear infinite;
         }
         .card.giftc .visual.gift { padding: 20px; }
         .gift-bow {
@@ -668,13 +663,12 @@
             z-index: -1;
         }
         body::before {
-            inset: -25%;
+            inset: 0;
             background:
                 radial-gradient(38% 32% at 18% 22%, rgba(30, 94, 255, .16) 0, rgba(30, 94, 255, 0) 70%),
                 radial-gradient(34% 30% at 82% 30%, rgba(139, 92, 246, .12) 0, rgba(139, 92, 246, 0) 70%),
                 radial-gradient(40% 34% at 70% 80%, rgba(255, 196, 0, .16) 0, rgba(255, 196, 0, 0) 70%),
                 radial-gradient(30% 28% at 25% 85%, rgba(56, 189, 248, .12) 0, rgba(56, 189, 248, 0) 70%);
-            animation: aurora 26s ease-in-out infinite alternate;
         }
         body::after {
             inset: 0;
@@ -726,7 +720,6 @@
             animation: payIn .35s cubic-bezier(.2, .8, .2, 1);
         }
         @keyframes payIn { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
-        .modal-bg { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
         .pay-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
         .pay-modal .pay-head h3 { margin: 0; text-align: left; font-size: 19px; color: var(--text); }
         .pay-icon {
@@ -2293,7 +2286,7 @@
         function createSnow(cv, box, { density, alpha, maxCount, fixed }) {
             if (reduceMotion) return;
             const ctx = cv.getContext('2d');
-            let w, h, flakes = [], windX = 0, running = false, visible = true;
+            let w = 0, h = 0, flakes = [], windX = 0, running = false, visible = true, last = 0;
             function make(anywhere) {
                 const z = Math.random();
                 return {
@@ -2308,9 +2301,12 @@
                 };
             }
             function resize() {
-                const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-                w = fixed ? innerWidth : box.clientWidth;
-                h = fixed ? innerHeight : box.clientHeight;
+                const nw = fixed ? innerWidth : box.clientWidth;
+                const nh = fixed ? innerHeight : box.clientHeight;
+                // Sur mobile la barre d'adresse change la hauteur en défilant : on ignore ces petits changements
+                if (w && nw === w && Math.abs(nh - h) < 160) return;
+                const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+                w = nw; h = nh;
                 cv.width = w * dpr; cv.height = h * dpr;
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 const cap = smallScreen ? Math.round(maxCount * .6) : maxCount;
@@ -2318,14 +2314,19 @@
                 flakes = Array.from({ length: count }, () => make(true));
             }
             box.addEventListener('pointermove', e => { windX = (e.clientX / innerWidth - .5) * 1.2; }, { passive: true });
-            function frame() {
-                if (!visible || document.hidden) { running = false; return; }
+            function frame(t) {
+                if (!visible || document.hidden) { running = false; ctx.clearRect(0, 0, w, h); return; }
+                requestAnimationFrame(frame);
+                // 30 images par seconde suffisent pour la neige
+                if (t - last < 32) return;
+                const k = Math.min((t - last) / 16.7, 3);
+                last = t;
                 ctx.clearRect(0, 0, w, h);
                 const sprite = flakeSprite(snowColor());
                 for (const f of flakes) {
-                    f.sway += f.swaySpeed;
-                    f.y += f.vy;
-                    f.x += Math.sin(f.sway) * (.3 + f.z * .6) + windX * f.z;
+                    f.sway += f.swaySpeed * k;
+                    f.y += f.vy * k;
+                    f.x += (Math.sin(f.sway) * (.3 + f.z * .6) + windX * f.z) * k;
                     if (f.y > h + 10) Object.assign(f, make(false));
                     if (f.x < -10) f.x = w + 10; else if (f.x > w + 10) f.x = -10;
                     const d = f.r * 4;
@@ -2333,12 +2334,13 @@
                     ctx.drawImage(sprite, f.x - d / 2, f.y - d / 2, d, d);
                 }
                 ctx.globalAlpha = 1;
-                requestAnimationFrame(frame);
             }
-            function start() { if (!running && visible && !document.hidden) { running = true; requestAnimationFrame(frame); } }
+            function start() { if (!running && visible && !document.hidden) { running = true; last = 0; requestAnimationFrame(frame); } }
             // Pause quand la zone n'est pas à l'écran ou que l'onglet est caché
-            if (!fixed && 'IntersectionObserver' in window) {
-                new IntersectionObserver(([e]) => { visible = e.isIntersecting; start(); }).observe(box);
+            if ('IntersectionObserver' in window) {
+                if (!fixed) new IntersectionObserver(([e]) => { visible = e.isIntersecting; start(); }).observe(box);
+                // La neige de fond est cachée derrière l'accueil : inutile de la dessiner tant qu'il est visible
+                else new IntersectionObserver(([e]) => { visible = e.intersectionRatio < .35; start(); }, { threshold: [0, .35, 1] }).observe(heroEl);
             }
             document.addEventListener('visibilitychange', start);
             let resizeTimer;
@@ -2347,8 +2349,9 @@
             start();
         }
         // Neige dense dans l'écran d'accueil, légère derrière les sections
-        createSnow(document.getElementById('snow'), heroEl, { density: 6000, alpha: 1, maxCount: 140 });
-        createSnow(document.getElementById('pageSnow'), document.body, { density: 16000, alpha: .45, maxCount: 60, fixed: true });
+        const lowEnd = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 3;
+        createSnow(document.getElementById('snow'), heroEl, { density: 7000, alpha: 1, maxCount: lowEnd ? 60 : 110 });
+        if (!lowEnd) createSnow(document.getElementById('pageSnow'), document.body, { density: 20000, alpha: .45, maxCount: 40, fixed: true });
 
         // Écran d'entrée : monogramme, nom lettre par lettre, puis ouverture en rideau
         (function intro() {
