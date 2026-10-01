@@ -273,20 +273,8 @@
             filter: blur(6px);
         }
         .hero.leave > .scroll-hint { transform: translateX(-60vw) !important; }
-        .card.reveal {
-            opacity: 0;
-            transform: translateX(80px) rotateY(-14deg) scale(.96);
-        }
-        .card.reveal.in {
-            opacity: 1;
-            transform: none;
-            transition: opacity .6s ease var(--d, 0s), transform .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0s);
-        }
-        .section-head.reveal, .section > h2.reveal { opacity: 0; transform: translateX(60px); }
-        .section-head.reveal.in, .section > h2.reveal.in { opacity: 1; transform: none; transition: opacity .6s ease, transform .7s cubic-bezier(.2, .8, .2, 1); }
         .grid { perspective: 1200px; }
         @media (prefers-reduced-motion: reduce) {
-            .card.reveal, .section-head.reveal, .section > h2.reveal { opacity: 1; transform: none; }
             .swipe-knob, .swipe-chev { animation: none; }
         }
 
@@ -1726,29 +1714,6 @@
             </article>`;
         }).join('');
 
-        // Apparition des produits : glissent depuis la droite
-        const revealEls = document.querySelectorAll('main .card, main .section-head, main .section > h2');
-        const revealIO = 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
-            ? new IntersectionObserver(entries => entries.forEach(e => {
-                if (!e.isIntersecting) return;
-                const el = e.target;
-                el.classList.add('in');
-                revealIO.unobserve(el);
-                // Une fois arrivé, on rend la main aux effets de survol / 3D
-                setTimeout(() => el.classList.remove('reveal', 'in'), 1300);
-            }), { threshold: .12 })
-            : null;
-        function armReveal(els) {
-            if (!revealIO) return;
-            els.forEach(el => {
-                const siblings = [...el.parentElement.children];
-                el.style.setProperty('--d', el.classList.contains('card') ? (siblings.indexOf(el) % 3) * .12 + 's' : '0s');
-                el.classList.add('reveal');
-                el.classList.remove('in');
-                revealIO.observe(el);
-            });
-        }
-        armReveal(revealEls);
 
         // Glisser l'écran d'accueil (ou toucher le bouton) pour voir les produits
         const heroBox = document.querySelector('.hero');
@@ -1758,7 +1723,6 @@
             leaving = true;
             heroBox.classList.add('leave');
             setTimeout(() => {
-                armReveal(document.querySelectorAll('#invites .card, #invites > h2'));
                 const target = document.getElementById('invites');
                 const top = target.getBoundingClientRect().top + scrollY - document.querySelector('header').offsetHeight - 10;
                 scrollTo({ top, behavior: 'instant' });
