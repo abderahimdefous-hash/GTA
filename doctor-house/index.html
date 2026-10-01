@@ -145,6 +145,8 @@
         /* Titre 3D + neige jaune */
         .snow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .page-snow { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .code-rain { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: .28; }
+        html.dark .code-rain { opacity: .45; }
         .hero, main { position: relative; z-index: 1; }
         /* Barre du haut toujours visible */
         header {
@@ -1390,6 +1392,7 @@
         </a>
     </section>
 
+    <canvas class="code-rain" id="codeRain" aria-hidden="true"></canvas>
     <canvas class="page-snow" id="pageSnow" aria-hidden="true"></canvas>
 
     <main>
@@ -2547,6 +2550,60 @@
             applyLang();
         });
         if (lang === 'en') applyLang();
+
+        // Petits chiffres et caractères de code qui défilent en arrière-plan
+        (function codeRain() {
+            const cv = document.getElementById('codeRain');
+            const ctx = cv.getContext('2d');
+            const CHARS = '01{}[]<>/=;:()$#&*+-ABCDEF0123456789xyz=>fn';
+            const FS = 13;
+            let w = 0, h = 0, cols = [], running = false, last = 0;
+            function resize() {
+                const nw = innerWidth, nh = innerHeight;
+                if (w && nw === w && Math.abs(nh - h) < 160) return;
+                w = nw; h = nh;
+                const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+                cv.width = w * dpr; cv.height = h * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const gap = lowEnd ? 34 : 24;
+                cols = Array.from({ length: Math.ceil(w / gap) }, (_, i) => ({
+                    x: i * gap + 4,
+                    y: Math.random() * -h,
+                    speed: .6 + Math.random() * 1.2,
+                }));
+            }
+            function color() { return document.documentElement.classList.contains('dark') ? '255, 70, 80' : '229, 9, 20'; }
+            function draw() {
+                // efface doucement l'image précédente : laisse une traînée
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = 'rgba(0, 0, 0, .12)';
+                ctx.fillRect(0, 0, w, h);
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.font = `${FS}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+                const c = color();
+                for (const col of cols) {
+                    const ch = CHARS[(Math.random() * CHARS.length) | 0];
+                    ctx.fillStyle = `rgba(${c}, ${.55 + Math.random() * .45})`;
+                    ctx.fillText(ch, col.x, col.y);
+                    col.y += FS * col.speed;
+                    if (col.y > h + 20 && Math.random() > .97) col.y = Math.random() * -60;
+                }
+            }
+            function frame(t) {
+                if (document.hidden) { running = false; return; }
+                requestAnimationFrame(frame);
+                if (t - last < 66) return;        // ~15 images/s : léger
+                last = t;
+                draw();
+            }
+            function start() { if (!running && !document.hidden) { running = true; requestAnimationFrame(frame); } }
+            let rt;
+            window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); });
+            document.addEventListener('visibilitychange', start);
+            resize();
+            if (reduceMotion) { for (let k = 0; k < 40; k++) draw(); return; }
+            start();
+        })();
     </script>
 </body>
 </html>
